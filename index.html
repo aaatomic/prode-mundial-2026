@@ -34,7 +34,7 @@
         <div id="pending-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-yellow-500/30 p-8 rounded-2xl shadow-xl text-center">
             <div class="text-5xl mb-4">⏳</div>
             <h2 class="text-2xl font-bold text-yellow-400 mb-2">Cuenta Pendiente</h2>
-            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Avisale para que te habilite.</p>
+            <p class="text-slate-400 mb-6">El Admin todavía no aprobó tu cuenta. Avisale para que te habilite.</p>
             <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Cerrar Sesión</button>
         </div>
 
@@ -126,6 +126,7 @@
         let equiposGlobales = []; 
         let currentUser = null;
         let isLocked = false;
+        let authMode = 'login'; // ¡ACÁ ESTABA EL PROBLEMA!
 
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
@@ -162,7 +163,7 @@
             document.getElementById('floating-save').style.display = (isMainApp && isTabActive && !isLocked) ? 'flex' : 'none';
         }
 
-        const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
+        const lockDate = new Date("2026-06-11T18:59:00Z").getTime();
         setInterval(() => {
             if(!currentUser || !currentUser.is_approved) return;
             const distance = lockDate - new Date().getTime();
@@ -212,7 +213,6 @@
 
             const getVotes = (field) => {
                 const counts = {};
-                // Para el goleador, pasamos el texto a minúsculas temporalmente para evitar que "Messi" y "messi" sean votos separados
                 allBonus.forEach(b => { 
                     if(b[field]) {
                         let valor = field === 'top_scorer' ? b[field].trim().toUpperCase() : b[field];
@@ -224,7 +224,6 @@
                 return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
             };
 
-            // ACÁ AGREGUÉ LA LÍNEA DEL GOLEADOR QUE FALTABA
             sumContainer.innerHTML = `
                 <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('champion')}</div></div>
                 <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('runner_up')}</div></div>
@@ -352,6 +351,7 @@
         }
 
         function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        
         function cambiarTab(n) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-'+n).classList.add('active');
@@ -371,10 +371,40 @@
         async function procesarAuth() {
             const email = document.getElementById('auth-email').value.trim(); const pass = document.getElementById('auth-password').value.trim(); const name = document.getElementById('auth-name').value.trim();
             if (!email || !pass) return alert("Faltan datos");
-            try { const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); if (res.status === 'error') alert(res.message); else { if (authMode === 'login') { localStorage.setItem('prode_user', JSON.stringify(res.user)); checkSession(); } else { alert(res.message); authMode='login'; checkSession(); } } } catch (e) { alert("Error"); }
+            
+            const btn = document.getElementById('btn-auth');
+            btn.innerText = "Cargando..."; btn.disabled = true;
+
+            try { 
+                const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); 
+                if (res.status === 'error') {
+                    alert(res.message); 
+                } else { 
+                    if (authMode === 'login') { 
+                        localStorage.setItem('prode_user', JSON.stringify(res.user)); 
+                        checkSession(); 
+                    } else { 
+                        alert(res.message); 
+                        toggleAuthMode(); // Volvemos al login para que entre
+                    } 
+                } 
+            } catch (e) { alert("Error"); }
+            
+            btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
+            btn.disabled = false;
         }
 
-        function toggleAuthMode() { authMode = authMode === 'login' ? 'signup' : 'login'; document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; document.getElementById('div-name').classList.toggle('hidden'); document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; }
+        function toggleAuthMode() { 
+            authMode = authMode === 'login' ? 'signup' : 'login'; 
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; 
+            
+            const divName = document.getElementById('div-name');
+            if (authMode === 'login') { divName.classList.add('hidden'); } else { divName.classList.remove('hidden'); }
+            
+            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
+            document.getElementById('auth-switch-text').innerText = authMode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?';
+            document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? 'Registrate acá' : 'Ingresá acá';
+        }
 
         async function cambiarNombre() {
             const nuevo = prompt("Nuevo nombre:", currentUser.name);
