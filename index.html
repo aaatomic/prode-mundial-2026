@@ -39,7 +39,6 @@
         </div>
 
         <div id="main-app-screen" class="app-screen">
-            
             <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800 mb-6 shadow-sm">
                 <div>
                     <p class="text-sm text-slate-400">Bienvenido,</p>
@@ -47,7 +46,7 @@
                     <p class="text-xs sm:text-sm text-slate-400 mt-1">Puntos totales: <span id="user-total-points" class="font-bold text-white text-base">0</span></p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <button onclick="cambiarNombre()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all text-slate-300 flex items-center justify-center gap-1" title="Editar Perfil">⚙️ Perfil</button>
+                    <button onclick="cambiarNombre()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all text-slate-300 flex items-center justify-center gap-1">⚙️ Perfil</button>
                     <button onclick="cerrarSesion()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all text-slate-300">Salir</button>
                 </div>
             </div>
@@ -62,9 +61,8 @@
             
             <div id="tab-pronosticos" class="tab-content active space-y-4">
                 <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
-                <div id="matches-container"><div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div></div>
+                <div id="matches-container"></div>
             </div>
-            
             <div id="tab-bonus" class="tab-content">
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                     <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input text-white appearance-none"></select></div>
@@ -73,18 +71,29 @@
                     <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Mbappé"></div>
                 </div>
             </div>
-            
             <div id="tab-ranking" class="tab-content">
                 <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                     <table class="w-full text-sm text-left">
                         <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante (toca para ver)</th><th class="px-4 py-3 text-right">Puntos</th></tr>
                         </thead>
                         <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div id="user-view-screen" class="app-screen">
+            <div class="flex items-center gap-4 mb-6">
+                <button onclick="mostrarPantalla('main-app-screen')" class="bg-slate-800 p-2 rounded-lg text-slate-400 hover:text-white">⬅️ Volver</button>
+                <div>
+                    <h2 class="text-xl font-bold">Viendo a: <span id="spy-user-name" class="text-green-400">...</span></h2>
+                    <p class="text-xs text-slate-500">Puntos: <span id="spy-user-points">0</span></p>
+                </div>
+            </div>
+            <div id="spy-groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
+            <div id="spy-matches-container"></div>
         </div>
     </div>
 
@@ -96,20 +105,12 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
         let partidosGlobales = [];
         let equiposGlobales = []; 
-        let isLocked = false;
         let currentUser = null;
-        let authMode = 'login'; 
+        let isLocked = false;
 
-        // Lógica de Acordeón para Resultados
-        function toggleRealScore(id) {
-            const container = document.getElementById('real_score_' + id);
-            const arrow = document.getElementById('arrow_' + id);
-            if(container.classList.contains('hidden')) { container.classList.remove('hidden'); arrow.innerText = '▲'; } 
-            else { container.classList.add('hidden'); arrow.innerText = '▼'; }
-        }
-
+        // --- FUNCIONES CORE ---
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
-        
+        function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
         function checkSession() {
             const savedUser = localStorage.getItem('prode_user');
             if (savedUser) {
@@ -118,309 +119,227 @@
                 else { mostrarPantalla('pending-screen'); }
             } else { mostrarPantalla('auth-screen'); }
         }
-
         function mostrarPantalla(id) {
             document.querySelectorAll('.app-screen').forEach(el => el.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            document.getElementById('floating-save').style.display = (id === 'main-app-screen' && !document.getElementById('tab-ranking').classList.contains('active')) ? 'flex' : 'none';
-        }
-        
-        function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
-        
-        function toggleAuthMode() {
-            authMode = authMode === 'login' ? 'signup' : 'login';
-            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta';
-            document.getElementById('div-name').style.display = authMode === 'login' ? 'none' : 'block';
-            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme';
+            document.getElementById('floating-save').style.display = (id === 'main-app-screen' && document.getElementById('tab-pronosticos').classList.contains('active')) ? 'flex' : 'none';
         }
 
-        async function cambiarNombre() {
-            const nuevo = prompt("Ingresá tu nuevo nombre para el Prode:", currentUser.name);
-            if(nuevo && nuevo.trim() !== "" && nuevo !== currentUser.name) {
-                try {
-                    document.getElementById('user-display-name').innerText = "Actualizando...";
-                    const payload = { action: "update_profile", email: currentUser.email, new_name: nuevo.trim() };
-                    const req = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
-                    const res = await req.json();
-                    if(res.status === "success") {
-                        currentUser.name = nuevo.trim();
-                        localStorage.setItem('prode_user', JSON.stringify(currentUser));
-                        document.getElementById('user-display-name').innerText = currentUser.name;
-                        cargarData(); 
-                    } else { alert("Error al actualizar: " + res.message); document.getElementById('user-display-name').innerText = currentUser.name; }
-                } catch(e) { alert("Error de red."); document.getElementById('user-display-name').innerText = currentUser.name; }
-            }
-        }
-
-        async function procesarAuth() {
-            const email = document.getElementById('auth-email').value.trim();
-            const pass = document.getElementById('auth-password').value.trim();
-            const name = document.getElementById('auth-name').value.trim();
-            if (!email || !pass) return alert("Completá email y contraseña.");
-            const btn = document.getElementById('btn-auth');
-            btn.innerText = "Cargando..."; btn.disabled = true;
-            try {
-                const req = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
-                const res = await req.json();
-                if (res.status === 'error') alert(res.message);
-                else { if (authMode === 'login') { localStorage.setItem('prode_user', JSON.stringify(res.user)); checkSession(); } else { alert(res.message); toggleAuthMode(); } }
-            } catch (e) { alert("Error de conexión."); }
-            btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; btn.disabled = false;
-        }
-
+        // --- RELOJ ---
         const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
-        setInterval(function() {
+        setInterval(() => {
             if(!currentUser || !currentUser.is_approved) return;
             const distance = lockDate - new Date().getTime();
+            const t = document.getElementById("timer-container");
             if (distance < 0) {
                 isLocked = true;
-                const t = document.getElementById("timer-container");
                 t.innerHTML = "🔒 CERRADO"; t.className = "bg-slate-900 border border-red-500/30 text-red-500 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm";
-                document.getElementById("floating-save").style.display = "none";
-                document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50'); });
+                document.getElementById('floating-save').style.display = 'none';
             } else {
-                const d = Math.floor(distance / (1000 * 60 * 60 * 24)), h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${d}d ${h}h ${m}m ${s}s`;
+                const d = Math.floor(distance / (1000*60*60*24)), h = Math.floor((distance % (1000*60*60*24)) / (1000*60*60)), m = Math.floor((distance % (1000*60*60)) / (1000*60)), s = Math.floor((distance % (1000*60)) / 1000);
+                t.innerHTML = `⏳ Cierra en: ${d}d ${h}h ${m}m ${s}s`;
             }
         }, 1000);
 
-        function cambiarTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            ['pronosticos', 'bonus', 'ranking'].forEach(t => {
-                document.getElementById(`btn-tab-${t}`).className = t === tabName ? "flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-slate-800 text-white shadow transition-all" : "flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all";
-            });
-            document.getElementById('floating-save').style.display = (tabName === 'ranking' || isLocked) ? 'none' : 'flex';
+        // --- MODO ESPÍA: VER PERFIL DE OTRO ---
+        async function verPerfilOtro(email, nombre, puntos) {
+            document.getElementById('spy-user-name').innerText = nombre;
+            document.getElementById('spy-user-points').innerText = puntos + " pts";
+            document.getElementById('spy-matches-container').innerHTML = '<div class="flex justify-center p-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div>';
+            mostrarPantalla('user-view-screen');
+
+            try {
+                const url = `${API_URL}?email=${encodeURIComponent(email)}`;
+                const res = await (await fetch(url)).json();
+                renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true);
+            } catch(e) { alert("Error cargando perfil."); }
         }
 
-        function cambiarGrupo(grupo) {
-            document.querySelectorAll('.group-content').forEach(g => g.classList.remove('active'));
-            document.getElementById(`group-${grupo.replace(/\s/g, '')}`).classList.add('active');
-            document.querySelectorAll('.btn-group').forEach(btn => btn.className = "btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors bg-slate-800 text-slate-400");
-            document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).className = "btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors bg-green-500 text-slate-950";
-        }
+        // --- RENDERIZADO REUTILIZABLE (Para mí y para otros) ---
+        function renderizarContenido(data, navId, containerId, isReadOnly) {
+            const partidos = data.matches;
+            const userPreds = data.userPredictions || [];
+            const container = document.getElementById(containerId);
+            const nav = document.getElementById(navId);
+            const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort();
+            
+            nav.innerHTML = ''; container.innerHTML = '';
+            grupos.forEach((grupo, idx) => {
+                const gId = (isReadOnly ? 'spy-' : '') + grupo.replace(/\s/g, '');
+                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', '${isReadOnly}')" class="btn-group-${isReadOnly} px-1 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
+                
+                const partidosGrupo = partidos.filter(p => p.group === grupo);
+                let ptsGrupo = 0;
+                partidosGrupo.forEach(p => { 
+                    const pr = userPreds.find(up => up.match_id === p.id);
+                    if(pr && pr.points) ptsGrupo += parseInt(pr.points);
+                });
 
-        function getFlagUrl(teamName) {
-            const team = equiposGlobales.find(t => t.name === teamName);
-            return team && team.code ? `https://flagcdn.com/w40/${team.code}.png` : '';
-        }
+                let html = `<div id="group-${gId}" class="group-content ${idx===0?'active':''} space-y-3">
+                    <div class="bg-slate-800/50 py-2 px-4 rounded-xl flex justify-between items-center shadow-inner">
+                        <span class="text-xs text-slate-400">Puntos en este grupo:</span>
+                        <span class="text-green-400 font-extrabold text-lg">${ptsGrupo}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        ${generarTablaHTML('Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}
+                        ${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}
+                    </div>`;
 
-        // MOTOR DE CÁLCULO DE TABLAS DE POSICIONES
-        function calcularTabla(partidos, tipo, predicciones) {
-            let tabla = {};
-            partidos.forEach(p => {
-                if(p.team_a && !tabla[p.team_a]) tabla[p.team_a] = { nombre: p.team_a, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 };
-                if(p.team_b && !tabla[p.team_b]) tabla[p.team_b] = { nombre: p.team_b, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 };
-            });
+                partidosGrupo.forEach(p => {
+                    const pred = userPreds.find(up => up.match_id === p.id);
+                    const sCode = (p.status || '').toUpperCase();
+                    let sColor = 'bg-slate-500', sText = 'PENDIENTE';
+                    if(sCode.includes('FULL') || sCode.includes('FINAL')) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; }
+                    else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
 
-            partidos.forEach(p => {
-                let gA = null, gB = null;
-                if(tipo === 'real') {
-                    let sCode = (p.status || 'STATUS_SCHEDULED').toUpperCase();
-                    if (sCode === 'STATUS_FULL_TIME' || sCode === 'STATUS_FINAL' || sCode === 'FINALIZADO') {
-                        gA = p.score_a !== undefined && p.score_a !== "" ? parseInt(p.score_a) : (p.goles_a !== undefined && p.goles_a !== "" ? parseInt(p.goles_a) : null);
-                        gB = p.score_b !== undefined && p.score_b !== "" ? parseInt(p.score_b) : (p.goles_b !== undefined && p.goles_b !== "" ? parseInt(p.goles_b) : null);
+                    let pTag = '<span class="text-[10px] font-bold text-slate-600 px-2 py-0.5 rounded">- pts</span>';
+                    if(pred && pred.points !== undefined && pred.points !== "") {
+                        if(pred.points == 3) pTag = '<span class="text-[10px] font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded-full">+3 pts</span>';
+                        else if(pred.points == 1) pTag = '<span class="text-[10px] font-bold text-green-300 bg-green-900/20 px-2 py-0.5 rounded-full">+1 pt</span>';
+                        else pTag = '<span class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">0 pts</span>';
                     }
-                } else if (tipo === 'pred') {
-                    let pred = predicciones ? predicciones.find(up => up.match_id === p.id) : null;
-                    if(pred && pred.pred_a !== "" && pred.pred_b !== "") { gA = parseInt(pred.pred_a); gB = parseInt(pred.pred_b); }
-                }
 
-                if(gA !== null && gB !== null && !isNaN(gA) && !isNaN(gB) && tabla[p.team_a] && tabla[p.team_b]) {
-                    tabla[p.team_a].PJ++; tabla[p.team_b].PJ++;
-                    tabla[p.team_a].GF += gA; tabla[p.team_a].GC += gB;
-                    tabla[p.team_b].GF += gB; tabla[p.team_b].GC += gA;
-                    if(gA > gB) { tabla[p.team_a].G++; tabla[p.team_b].P++; tabla[p.team_a].Pts += 3; }
-                    else if(gA < gB) { tabla[p.team_b].G++; tabla[p.team_a].P++; tabla[p.team_b].Pts += 3; }
-                    else { tabla[p.team_a].E++; tabla[p.team_b].E++; tabla[p.team_a].Pts += 1; tabla[p.team_b].Pts += 1; }
-                }
+                    const flagA = getFlagUrl(p.team_a), flagB = getFlagUrl(p.team_b);
+                    html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="inline-flex items-center gap-1.5 bg-slate-950/50 px-2 py-1 rounded-full border border-slate-800">
+                                <span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] text-slate-300 font-bold uppercase hidden sm:inline">${sText}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-500 font-medium">🗓️ ${new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false})} hs</div>
+                            <div class="text-right">${pTag}</div>
+                        </div>
+                        <div class="flex justify-between items-center gap-1">
+                            <div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs sm:text-base truncate">${p.team_a} <img src="${flagA}" class="w-4 h-4 rounded-full border border-slate-700"></div>
+                            <div class="flex gap-1 items-center shrink-0">
+                                <input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 sm:w-10 sm:h-10 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${isReadOnly?'opacity-80':''}">
+                                <span class="text-slate-600">-</span>
+                                <input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 sm:w-10 sm:h-10 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${isReadOnly?'opacity-80':''}">
+                            </div>
+                            <div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs sm:text-base truncate"><img src="${flagB}" class="w-4 h-4 rounded-full border border-slate-700"> ${p.team_b}</div>
+                        </div>
+                        <div class="border-t border-slate-800 pt-2 mt-2">
+                            <button onclick="toggleSpyScore('${p.id}', ${isReadOnly})" class="w-full text-[10px] text-slate-500">Resultado real ▼</button>
+                            <div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-1 text-center font-mono text-lg font-bold">${p.score_a || p.goles_a || '-'} - ${p.score_b || p.goles_b || '-'}</div>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML += html + '</div>';
             });
-
-            let arr = Object.values(tabla);
-            arr.forEach(t => t.DG = t.GF - t.GC);
-            arr.sort((a, b) => {
-                if(b.Pts !== a.Pts) return b.Pts - a.Pts;
-                if(b.DG !== a.DG) return b.DG - a.DG;
-                if(b.GF !== a.GF) return b.GF - a.GF;
-                return a.nombre.localeCompare(b.nombre);
-            });
-            return arr;
         }
 
-        const generarTablaHTML = (titulo, datos) => {
-            let html = `
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                <div class="bg-slate-800/80 py-1.5 text-center text-[10px] sm:text-xs font-bold text-slate-300 border-b border-slate-700 uppercase tracking-wider">${titulo}</div>
-                <table class="w-full text-[9px] sm:text-[10px] text-center">
-                    <thead class="bg-slate-950/50 text-slate-500 border-b border-slate-800">
-                        <tr><th class="py-1.5 text-left pl-2">Equipo</th><th class="py-1.5 w-5">PJ</th><th class="py-1.5 w-5">G</th><th class="py-1.5 w-5">E</th><th class="py-1.5 w-5">P</th><th class="py-1.5 w-5 hidden sm:table-cell">GF</th><th class="py-1.5 w-5 hidden sm:table-cell">GC</th><th class="py-1.5 w-6 sm:w-8">DG</th><th class="py-1.5 w-6 sm:w-8 font-bold text-green-400">Pts</th></tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800/50">`;
-            datos.forEach(t => {
-                let flag = getFlagUrl(t.nombre);
-                let flagImg = flag ? `<img src="${flag}" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full object-cover inline-block mr-1.5 bg-slate-800">` : '';
-                html += `
-                        <tr class="hover:bg-slate-800/30 transition-colors">
-                            <td class="py-1.5 text-left pl-2 font-medium truncate max-w-[70px] sm:max-w-[120px] flex items-center">${flagImg}${t.nombre}</td>
-                            <td class="py-1.5">${t.PJ}</td><td class="py-1.5">${t.G}</td><td class="py-1.5">${t.E}</td><td class="py-1.5">${t.P}</td>
-                            <td class="py-1.5 hidden sm:table-cell">${t.GF}</td><td class="py-1.5 hidden sm:table-cell">${t.GC}</td><td class="py-1.5 font-medium">${t.DG > 0 ? '+'+t.DG : t.DG}</td>
-                            <td class="py-1.5 font-bold text-green-400 text-xs">${t.Pts}</td>
-                        </tr>`;
-            });
-            html += `</tbody></table></div>`;
-            return html;
-        };
+        function toggleSpyScore(id, isSpy) { 
+            const el = document.getElementById((isSpy?'spy-':'') + 'real_score_' + id);
+            el.classList.toggle('hidden'); 
+        }
 
+        function cambiarGrupoManual(grupo, isSpy) {
+            const prefix = (isSpy === 'true' ? 'spy-' : '');
+            document.querySelectorAll(isSpy === 'true' ? '.btn-group-true' : '.btn-group-false').forEach(b => {
+                b.className = b.className.replace('bg-green-500 text-slate-950', 'bg-slate-800 text-slate-400');
+                if(b.innerText === grupo) b.className = b.className.replace('bg-slate-800 text-slate-400', 'bg-green-500 text-slate-950');
+            });
+            document.querySelectorAll('#' + (isSpy === 'true' ? 'spy-matches-container' : 'matches-container') + ' .group-content').forEach(g => g.classList.remove('active'));
+            document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
+        }
+
+        // --- DATA LOADERS ---
         async function cargarData() {
             try {
-                const url = `${API_URL}?email=${encodeURIComponent(currentUser.email)}`;
-                const respuesta = await fetch(url);
-                const data = await respuesta.json();
-                partidosGlobales = data.matches;
-                equiposGlobales = data.teams || []; 
-                
-                let miRanking = data.ranking.find(r => r.email === currentUser.email);
+                const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
+                partidosGlobales = res.matches; equiposGlobales = res.teams || [];
+                const miRanking = res.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
-
-                let opcionesHTML = '<option value="">Elegí un país...</option>';
-                equiposGlobales.forEach(equipo => { opcionesHTML += `<option value="${equipo.name}">${equipo.name}</option>`; });
-                document.getElementById('bonus-campeon').innerHTML = opcionesHTML;
-                document.getElementById('bonus-subcampeon').innerHTML = opcionesHTML;
-                document.getElementById('bonus-decepcion').innerHTML = opcionesHTML;
-
-                const grupos = [...new Set(partidosGlobales.map(p => p.group || "Mundial"))].sort();
-                const nav = document.getElementById('groups-nav');
-                const container = document.getElementById('matches-container');
-                nav.innerHTML = ''; container.innerHTML = '';
-
-                grupos.forEach((grupo, index) => {
-                    const groupId = grupo.replace(/\s/g, '');
-                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${grupo}</button>`;
-                    
-                    let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
-                    const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
-                    
-                    let ptsGrupo = 0;
-                    partidosGrupo.forEach(pg => {
-                        let predUser = data.userPredictions ? data.userPredictions.find(up => up.match_id === pg.id) : null;
-                        if(predUser && predUser.points !== "" && !isNaN(predUser.points)) ptsGrupo += parseInt(predUser.points);
-                    });
-
-                    htmlGrupo += `
-                        <div class="bg-slate-800/50 border border-slate-700/50 text-center py-2 px-4 rounded-xl mb-4 flex justify-between items-center shadow-inner">
-                            <span class="text-slate-400 text-xs sm:text-sm font-medium">Puntos obtenidos en este grupo:</span>
-                            <span class="text-green-400 font-extrabold text-lg sm:text-xl">${ptsGrupo}</span>
-                        </div>`;
-
-                    let tablaPred = calcularTabla(partidosGrupo, 'pred', data.userPredictions);
-                    let tablaReal = calcularTabla(partidosGrupo, 'real', null);
-                    
-                    htmlGrupo += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">${generarTablaHTML('Mi Pronóstico', tablaPred)}${generarTablaHTML('Realidad', tablaReal)}</div>`;
-
-                    partidosGrupo.forEach(partido => {
-                        let sCode = (partido.status || 'STATUS_SCHEDULED').toUpperCase();
-                        let sColor = 'bg-slate-500 shadow-slate-500/50', sText = 'PENDIENTE';
-                        let rA = partido.score_a !== undefined && partido.score_a !== "" ? partido.score_a : (partido.goles_a !== undefined && partido.goles_a !== "" ? partido.goles_a : "-");
-                        let rB = partido.score_b !== undefined && partido.score_b !== "" ? partido.score_b : (partido.goles_b !== undefined && partido.goles_b !== "" ? partido.goles_b : "-");
-
-                        if (sCode === 'STATUS_FULL_TIME' || sCode === 'STATUS_FINAL' || sCode === 'FINALIZADO') { sColor = 'bg-green-500 shadow-green-500/50'; sText = 'FINALIZADO'; } 
-                        else if (sCode !== 'STATUS_SCHEDULED' && sCode !== 'PENDIENTE' && sCode !== '') { sColor = 'bg-yellow-400 shadow-yellow-400/50 animate-pulse'; sText = 'EN VIVO'; }
-
-                        let predUser = data.userPredictions ? data.userPredictions.find(up => up.match_id === partido.id) : null;
-                        let pointsHtml = '<span class="text-[10px] sm:text-xs font-bold text-slate-500 border border-slate-700 px-2 py-0.5 rounded">- pts</span>';
-                        
-                        if (predUser && predUser.points !== "" && predUser.points !== undefined) {
-                            if (predUser.points == 3) pointsHtml = `<span class="text-[10px] sm:text-xs font-bold text-green-400 bg-green-900/40 border border-green-700/50 px-2 py-0.5 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.2)]">+3 pts</span>`;
-                            else if (predUser.points == 1) pointsHtml = `<span class="text-[10px] sm:text-xs font-bold text-green-300 bg-green-900/20 border border-green-800/50 px-2 py-0.5 rounded-full">+1 pt</span>`;
-                            else pointsHtml = `<span class="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-800/80 border border-slate-700/80 px-2 py-0.5 rounded-full">0 pts</span>`;
-                        }
-
-                        let flagA = getFlagUrl(partido.team_a), flagB = getFlagUrl(partido.team_b);
-                        let imgA = flagA ? `<img src="${flagA}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover shrink-0 bg-slate-800 shadow-sm border border-slate-700">` : '';
-                        let imgB = flagB ? `<img src="${flagB}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover shrink-0 bg-slate-800 shadow-sm border border-slate-700">` : '';
-
-                        // === LÍNEA ACTUALIZADA CON hour12: false PARA EL FORMATO 24HS ===
-                        htmlGrupo += `
-                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-sm relative">
-                                <div class="flex justify-between items-center mb-4">
-                                    <div class="w-1/3 flex items-center"><div class="inline-flex items-center gap-1.5 bg-slate-950/50 px-2 py-1 rounded-full border border-slate-800"><span class="w-2 h-2 rounded-full ${sColor} shadow-[0_0_8px_currentColor]"></span><span class="text-[8px] sm:text-[9px] text-slate-300 font-bold uppercase tracking-wider hidden sm:inline">${sText}</span></div></div>
-                                    <div class="w-1/3 text-center text-[10px] sm:text-xs text-slate-500 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12: false})} hs</div>
-                                    <div class="w-1/3 text-right flex justify-end items-center">${pointsHtml}</div>
-                                </div>
-                                <div class="flex justify-between items-center gap-1 sm:gap-2 mb-3">
-                                    <div class="flex-1 flex justify-end items-center gap-1.5 sm:gap-2 truncate pr-1 sm:pr-2"><span class="font-bold text-xs sm:text-base truncate">${partido.team_a}</span>${imgA}</div>
-                                    <div class="flex gap-1 sm:gap-2 items-center justify-center shrink-0">
-                                        <input type="number" id="goles_a_${partido.id}" min="0" max="20" class="prediction-input w-8 h-8 sm:w-12 sm:h-12 text-center text-sm sm:text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 transition-all" placeholder="-">
-                                        <span class="text-slate-600 font-bold">-</span>
-                                        <input type="number" id="goles_b_${partido.id}" min="0" max="20" class="prediction-input w-8 h-8 sm:w-12 sm:h-12 text-center text-sm sm:text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 transition-all" placeholder="-">
-                                    </div>
-                                    <div class="flex-1 flex justify-start items-center gap-1.5 sm:gap-2 truncate pl-1 sm:pl-2">${imgB}<span class="font-bold text-xs sm:text-base truncate">${partido.team_b}</span></div>
-                                </div>
-                                <div class="border-t border-slate-800/50 pt-2 mt-2">
-                                    <button onclick="toggleRealScore('${partido.id}')" class="w-full flex items-center justify-center gap-1 text-[10px] sm:text-xs text-slate-500 hover:text-slate-300 transition-colors">Resultado real <span id="arrow_${partido.id}" class="text-[8px] ml-1">▼</span></button>
-                                    <div id="real_score_${partido.id}" class="hidden mt-2 bg-slate-950/50 rounded-lg py-2 border border-slate-800/50"><div class="flex justify-center items-center gap-4 font-mono text-lg font-bold text-white"><span>${rA}</span><span class="text-slate-600 text-sm">-</span><span>${rB}</span></div></div>
-                                </div>
-                            </div>`;
-                    });
-                    htmlGrupo += `</div>`;
-                    container.innerHTML += htmlGrupo;
-                });
-
-                if (data.userPredictions) data.userPredictions.forEach(p => { 
-                    const inputA = document.getElementById(`goles_a_${p.match_id}`); 
-                    const inputB = document.getElementById(`goles_b_${p.match_id}`);
-                    if (inputA && p.pred_a !== "") inputA.value = p.pred_a; 
-                    if (inputB && p.pred_b !== "") inputB.value = p.pred_b; 
-                });
-                if (data.userBonus && Object.keys(data.userBonus).length > 0) {
-                    document.getElementById('bonus-campeon').value = data.userBonus.champion || "";
-                    document.getElementById('bonus-subcampeon').value = data.userBonus.runner_up || "";
-                    document.getElementById('bonus-decepcion').value = data.userBonus.disappointment || "";
-                    document.getElementById('bonus-goleador').value = data.userBonus.top_scorer || "";
+                
+                // Llenar Bonus selects
+                let options = '<option value="">Elegí...</option>';
+                equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
+                document.getElementById('bonus-campeon').innerHTML = options;
+                document.getElementById('bonus-subcampeon').innerHTML = options;
+                document.getElementById('bonus-decepcion').innerHTML = options;
+                if(res.userBonus) {
+                    document.getElementById('bonus-campeon').value = res.userBonus.champion || "";
+                    document.getElementById('bonus-subcampeon').value = res.userBonus.runner_up || "";
+                    document.getElementById('bonus-decepcion').value = res.userBonus.disappointment || "";
+                    document.getElementById('bonus-goleador').value = res.userBonus.top_scorer || "";
                 }
-                dibujarRanking(data.ranking);
-                if(isLocked) document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50'); });
-            } catch (error) { document.getElementById('matches-container').innerHTML = '<p class="text-center text-red-400">Error al cargar datos.</p>'; }
+
+                renderizarContenido(res, 'groups-nav', 'matches-container', false);
+                dibujarRanking(res.ranking);
+            } catch(e) { console.error(e); }
         }
 
         function dibujarRanking(ranking) {
-            const podium = document.getElementById('podium-container');
             const tbody = document.getElementById('ranking-body');
-            podium.innerHTML = ''; tbody.innerHTML = '';
-            if(!ranking || ranking.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-500">Nadie sumó puntos aún 😢</td></tr>'; return; }
-            const p1 = ranking[0], p2 = ranking[1], p3 = ranking[2];
-            if(p2) podium.innerHTML += `<div class="bg-slate-900/50 border border-silver/30 rounded-xl p-3 text-center order-1 mt-4"><div class="text-xl mb-2">🥈</div><p class="font-medium text-sm truncate">${p2.name}</p><p class="text-lg font-bold text-silver">${p2.points} pts</p></div>`;
-            if(p1) podium.innerHTML += `<div class="bg-slate-900/80 border border-gold/40 rounded-xl p-4 text-center order-0 sm:order-1 -mt-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]"><div class="text-2xl mb-2">👑</div><p class="font-medium text-base truncate">${p1.name}</p><p class="text-2xl font-bold text-gold">${p1.points} pts</p></div>`;
-            if(p3) podium.innerHTML += `<div class="bg-slate-900/50 border border-bronze/30 rounded-xl p-3 text-center order-2 mt-4"><div class="text-xl mb-2">🥉</div><p class="font-medium text-sm truncate">${p3.name}</p><p class="text-lg font-bold text-bronze">${p3.points} pts</p></div>`;
-            ranking.forEach((user, idx) => {
-                let badge = idx < 3 ? `<span class="bg-${idx===0?'gold':idx===1?'silver':'bronze'}/20 text-${idx===0?'gold':idx===1?'silver':'bronze'} px-2 py-1 rounded-full font-bold">${idx+1}</span>` : `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${idx+1}</span>`;
-                tbody.innerHTML += `<tr class="hover:bg-slate-800/50"><td class="px-4 py-3 text-center">${badge}</td><td class="px-4 py-3 font-medium">${user.name}</td><td class="px-4 py-3 text-right font-bold text-green-400">${user.points}</td></tr>`;
+            const podium = document.getElementById('podium-container');
+            tbody.innerHTML = ''; podium.innerHTML = '';
+            ranking.forEach((u, i) => {
+                const badge = i < 3 ? `<span class="bg-${i===0?'gold':i===1?'silver':'bronze'}/20 text-${i===0?'gold':i===1?'silver':'bronze'} px-2 py-1 rounded-full font-bold">${i+1}</span>` : `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${i+1}</span>`;
+                tbody.innerHTML += `<tr onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="hover:bg-slate-800 transition-colors cursor-pointer">
+                    <td class="px-4 py-3 text-center">${badge}</td>
+                    <td class="px-4 py-3 font-medium">${u.name} ${u.email === currentUser.email ? '(Vos)' : ''}</td>
+                    <td class="px-4 py-3 text-right font-bold text-green-400">${u.points}</td>
+                </tr>`;
+                if(i < 3) {
+                    const medal = i===0?'👑':(i===1?'🥈':'🥉');
+                    const color = i===0?'gold':(i===1?'silver':'bronze');
+                    podium.innerHTML += `<div class="bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center ${i===0?'-mt-2 order-2':'order-'+(i+1)}">
+                        <div class="text-xl">${medal}</div><div class="text-xs truncate font-bold">${u.name}</div><div class="text-lg font-bold text-${color}">${u.points}</div>
+                    </div>`;
+                }
             });
         }
 
-        async function guardarPredicciones() {
-            if (isLocked) return alert("¡Cerrado!");
-            const btn = document.getElementById('btn-guardar');
-            btn.innerText = "⏳ Guardando..."; btn.disabled = true;
-            const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: null };
-            let errorRango = false;
-            for (let p of partidosGlobales) {
-                let gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value;
-                if (gA !== "" && gB !== "") {
-                    let valA = parseInt(gA), valB = parseInt(gB);
-                    if (valA < 0 || valA > 20 || valB < 0 || valB > 20) { errorRango = true; break; }
-                    payload.predictions.push({ match_id: p.id, pred_a: valA, pred_b: valB });
+        // --- OTROS ---
+        function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        function cambiarTab(n) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+n).classList.add('active');
+            ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400");
+            mostrarPantalla('main-app-screen');
+        }
+        
+        function calcularTabla(partidos, tipo, predicciones) {
+            let t = {};
+            partidos.forEach(p => { [p.team_a, p.team_b].forEach(tm => { if(tm && !t[tm]) t[tm] = { nombre: tm, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 }; })});
+            partidos.forEach(p => {
+                let gA = null, gB = null;
+                if(tipo === 'real') {
+                    if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) {
+                        gA = parseInt(p.score_a || p.goles_a); gB = parseInt(p.score_b || p.goles_b);
+                    }
+                } else {
+                    const pr = predicciones.find(up => up.match_id === p.id);
+                    if(pr && pr.pred_a !== "" && pr.pred_b !== "") { gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); }
                 }
-            }
-            if(errorRango) { alert("Los goles deben estar entre 0 y 20."); btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false; return; }
-            const bC = document.getElementById('bonus-campeon').value, bS = document.getElementById('bonus-subcampeon').value, bD = document.getElementById('bonus-decepcion').value, bG = document.getElementById('bonus-goleador').value.trim();
-            if(bC || bS || bG || bD) payload.bonus = { champion: bC, runner_up: bS, disappointment: bD, top_scorer: bG };
+                if(gA != null && !isNaN(gA)) {
+                    t[p.team_a].PJ++; t[p.team_b].PJ++; t[p.team_a].GF+=gA; t[p.team_a].GC+=gB; t[p.team_b].GF+=gB; t[p.team_b].GC+=gA;
+                    if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; }
+                    else if(gA < gB) { t[p.team_b].G++; t[p.team_a].P++; t[p.team_b].Pts+=3; }
+                    else { t[p.team_a].E++; t[p.team_b].E++; t[p.team_a].Pts+=1; t[p.team_b].Pts+=1; }
+                }
+            });
+            return Object.values(t).sort((a,b) => (b.Pts - a.Pts) || ( (b.GF-b.GC) - (a.GF-a.GC) ) || (b.GF - a.GF));
+        }
+
+        function generarTablaHTML(tit, d) {
+            let h = `<div class="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden"><div class="bg-slate-800 py-1 text-center text-[9px] font-bold text-slate-400 uppercase">${tit}</div><table class="w-full text-[9px] text-center"><tbody class="divide-y divide-slate-800">`;
+            d.forEach(t => { h += `<tr><td class="text-left pl-2 py-1 truncate max-w-[60px]">${t.nombre}</td><td class="font-bold text-green-400">${t.Pts}</td><td class="text-slate-500">${t.GF-t.GC}</td></tr>`; });
+            return h + '</tbody></table></div>';
+        }
+
+        async function guardarPredicciones() {
+            if (isLocked) return alert("Cerrado!");
+            const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳..."; btn.disabled = true;
+            const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: null };
+            partidosGlobales.forEach(p => {
+                const gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value;
+                if(gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
+            });
+            payload.bonus = { champion: document.getElementById('bonus-campeon').value, runner_up: document.getElementById('bonus-subcampeon').value, disappointment: document.getElementById('bonus-decepcion').value, top_scorer: document.getElementById('bonus-goleador').value.trim() };
             try {
-                const req = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
-                alert("¡Guardado! 🏆");
-                cargarData(); 
-            } catch (e) { alert("Error de conexión."); }
+                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                alert("¡Guardado! 🏆"); cargarData();
+            } catch(e) { alert("Error"); }
             btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
         }
 
