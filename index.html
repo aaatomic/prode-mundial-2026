@@ -54,15 +54,18 @@
                 <button onclick="cerrarSesion()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all">Cerrar Sesión</button>
             </div>
             <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm">⏳ Calculando...</div>
+            
             <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800">
                 <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Partidos</button>
                 <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🌟 Bonus</button>
                 <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🏅 Ranking</button>
             </div>
+            
             <div id="tab-pronosticos" class="tab-content active space-y-4">
                 <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
                 <div id="matches-container"><div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div></div>
             </div>
+            
             <div id="tab-bonus" class="tab-content">
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                     <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input text-white appearance-none"></select></div>
@@ -71,6 +74,7 @@
                     <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Mbappé"></div>
                 </div>
             </div>
+            
             <div id="tab-ranking" class="tab-content">
                 <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
@@ -95,6 +99,19 @@
         let isLocked = false;
         let currentUser = null;
         let authMode = 'login'; 
+
+        // Lógica de Acordeón para Resultados
+        function toggleRealScore(id) {
+            const container = document.getElementById('real_score_' + id);
+            const arrow = document.getElementById('arrow_' + id);
+            if(container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                arrow.innerText = '▲';
+            } else {
+                container.classList.add('hidden');
+                arrow.innerText = '▼';
+            }
+        }
 
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function checkSession() {
@@ -148,7 +165,8 @@
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${days}d ${hours}h ${minutes}m`;
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000); // <-- ACÁ ESTÁN LOS SEGUNDOS
+                document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${days}d ${hours}h ${minutes}m ${seconds}s`;
             }
         }, 1000);
 
@@ -192,16 +210,67 @@
                     nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${grupo}</button>`;
                     let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
                     const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
+                    
                     partidosGrupo.forEach(partido => {
-                        htmlGrupo += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-sm"><div class="text-center text-xs text-slate-500 mb-3 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs</div><div class="flex justify-between items-center gap-2"><div class="flex-1 text-right font-bold text-xs sm:text-base truncate">${partido.team_a}</div><div class="flex gap-1 sm:gap-2 items-center justify-center shrink-0">
-                        <input type="number" id="goles_a_${partido.id}" min="0" max="20" class="prediction-input w-8 h-8 sm:w-12 sm:h-12 text-center text-sm sm:text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
-                        <span class="text-slate-600 font-bold">-</span>
-                        <input type="number" id="goles_b_${partido.id}" min="0" max="20" class="prediction-input w-8 h-8 sm:w-12 sm:h-12 text-center text-sm sm:text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
-                        </div><div class="flex-1 text-left font-bold text-xs sm:text-base truncate">${partido.team_b}</div></div></div>`;
+                        // LÓGICA DEL SEMÁFORO Y RESULTADOS REALES
+                        let sCode = (partido.status || 'STATUS_SCHEDULED').toUpperCase();
+                        let sColor = 'bg-slate-500 shadow-slate-500/50';
+                        let sText = 'PENDIENTE';
+                        
+                        // Los goles vienen del Excel (score_a, score_b o goles_a, goles_b según tu tabla)
+                        let rA = partido.score_a !== undefined && partido.score_a !== "" ? partido.score_a : (partido.goles_a !== undefined && partido.goles_a !== "" ? partido.goles_a : "-");
+                        let rB = partido.score_b !== undefined && partido.score_b !== "" ? partido.score_b : (partido.goles_b !== undefined && partido.goles_b !== "" ? partido.goles_b : "-");
+
+                        if (sCode === 'STATUS_FULL_TIME' || sCode === 'STATUS_FINAL' || sCode === 'FINALIZADO') {
+                            sColor = 'bg-green-500 shadow-green-500/50';
+                            sText = 'FINALIZADO';
+                        } else if (sCode !== 'STATUS_SCHEDULED' && sCode !== 'PENDIENTE' && sCode !== '') {
+                            sColor = 'bg-yellow-400 shadow-yellow-400/50 animate-pulse';
+                            sText = 'EN VIVO';
+                        }
+
+                        htmlGrupo += `
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-sm">
+                                
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center gap-1.5 bg-slate-950/50 px-2 py-1 rounded-full border border-slate-800">
+                                        <span class="w-2.5 h-2.5 rounded-full ${sColor} shadow-[0_0_8px_currentColor]"></span>
+                                        <span class="text-[9px] sm:text-[10px] text-slate-300 font-bold uppercase tracking-wider">${sText}</span>
+                                    </div>
+                                    <div class="text-[10px] sm:text-xs text-slate-500 font-medium">
+                                        🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center gap-2 mb-3">
+                                    <div class="flex-1 text-right font-bold text-xs sm:text-base truncate">${partido.team_a}</div>
+                                    <div class="flex gap-1 sm:gap-2 items-center justify-center shrink-0">
+                                        <input type="number" id="goles_a_${partido.id}" min="0" max="20" class="prediction-input w-8 h-8 sm:w-12 sm:h-12 text-center text-sm sm:text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
+                                        <span class="text-slate-600 font-bold">-</span>
+                                        <input type="number" id="goles_b_${partido.id}" min="0" max="20" class="prediction-input w-8 h-8 sm:w-12 sm:h-12 text-center text-sm sm:text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
+                                    </div>
+                                    <div class="flex-1 text-left font-bold text-xs sm:text-base truncate">${partido.team_b}</div>
+                                </div>
+
+                                <div class="border-t border-slate-800/50 pt-2 mt-2">
+                                    <button onclick="toggleRealScore('${partido.id}')" class="w-full flex items-center justify-center gap-1 text-[10px] sm:text-xs text-slate-500 hover:text-slate-300 transition-colors">
+                                        Resultado del partido <span id="arrow_${partido.id}" class="text-[8px] ml-1">▼</span>
+                                    </button>
+                                    <div id="real_score_${partido.id}" class="hidden mt-2 bg-slate-950/50 rounded-lg py-2 border border-slate-800/50">
+                                        <div class="flex justify-center items-center gap-4 font-mono text-lg font-bold text-white">
+                                            <span>${rA}</span>
+                                            <span class="text-slate-600 text-sm">-</span>
+                                            <span>${rB}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>`;
                     });
                     htmlGrupo += `</div>`;
                     container.innerHTML += htmlGrupo;
                 });
+
                 if (data.userPredictions) data.userPredictions.forEach(p => { 
                     const inputA = document.getElementById(`goles_a_${p.match_id}`); 
                     const inputB = document.getElementById(`goles_b_${p.match_id}`);
