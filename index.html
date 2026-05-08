@@ -10,17 +10,12 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        gold: '#fbbf24',
-                        silver: '#94a3b8',
-                        bronze: '#b45309'
-                    }
+                    colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' }
                 }
             }
         }
     </script>
     <style>
-        /* Ocultar flechitas de los inputs numéricos */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .tab-content { display: none; }
@@ -47,7 +42,6 @@
         
         <div id="tab-pronosticos" class="tab-content active space-y-4">
             <div id="groups-nav" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide"></div>
-            
             <div id="matches-container">
                 <div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div>
             </div>
@@ -56,74 +50,24 @@
         <div id="tab-bonus" class="tab-content">
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                 <h3 class="text-xl font-bold mb-4">🌟 Predicciones Especiales</h3>
-                <div>
-                    <label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label>
-                    <input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Argentina">
-                </div>
-                <div>
-                    <label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label>
-                    <input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Francia">
-                </div>
-                <div>
-                    <label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label>
-                    <input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé">
-                </div>
-                <div>
-                    <label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label>
-                    <input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Inglaterra">
-                </div>
+                <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Argentina"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Francia"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Goleador (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label><input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Inglaterra"></div>
             </div>
         </div>
 
         <div id="tab-ranking" class="tab-content">
-            <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
-                <div class="bg-slate-900/50 border border-silver/30 rounded-xl p-3 sm:p-4 text-center order-1 mt-4">
-                    <div class="w-10 h-10 mx-auto bg-silver/20 rounded-full flex items-center justify-center mb-2 text-silver text-xl">🥈</div>
-                    <p class="font-medium text-sm truncate">Juan</p>
-                    <p class="text-lg font-bold text-silver">15 pts</p>
-                </div>
-                <div class="bg-slate-900/80 border border-gold/40 rounded-xl p-4 text-center order-0 sm:order-1 -mt-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]">
-                    <div class="w-14 h-14 mx-auto bg-gold/20 rounded-full flex items-center justify-center mb-2 text-gold text-2xl">👑</div>
-                    <p class="font-medium text-base truncate">Tomi (Tú)</p>
-                    <p class="text-2xl font-bold text-gold">24 pts</p>
-                </div>
-                <div class="bg-slate-900/50 border border-bronze/30 rounded-xl p-3 sm:p-4 text-center order-2 mt-4">
-                    <div class="w-10 h-10 mx-auto bg-bronze/20 rounded-full flex items-center justify-center mb-2 text-bronze text-xl">🥉</div>
-                    <p class="font-medium text-sm truncate">Nico</p>
-                    <p class="text-lg font-bold text-bronze">12 pts</p>
-                </div>
-            </div>
-
+            <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
             <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                 <table class="w-full text-sm text-left">
                     <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                        <tr>
-                            <th class="px-4 py-3 text-center w-12">#</th>
-                            <th class="px-4 py-3">Participante</th>
-                            <th class="px-4 py-3 text-right">Puntos</th>
-                        </tr>
+                        <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-right">Puntos</th></tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800">
-                        <tr class="hover:bg-slate-800/50">
-                            <td class="px-4 py-3 text-center"><span class="bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">1</span></td>
-                            <td class="px-4 py-3 font-medium">Tomi</td>
-                            <td class="px-4 py-3 text-right font-bold text-green-400">24</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50">
-                            <td class="px-4 py-3 text-center"><span class="bg-silver/20 text-silver px-2 py-1 rounded-full font-bold">2</span></td>
-                            <td class="px-4 py-3 font-medium">Juan</td>
-                            <td class="px-4 py-3 text-right font-bold text-green-400">15</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50">
-                            <td class="px-4 py-3 text-center"><span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">4</span></td>
-                            <td class="px-4 py-3 font-medium">Mati</td>
-                            <td class="px-4 py-3 text-right font-bold text-green-400">8</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <div id="floating-save" class="fixed bottom-0 left-0 w-full p-4 bg-slate-950/80 backdrop-blur-md border-t border-slate-800 flex justify-center z-50">
@@ -133,95 +77,107 @@
     </div>
 
     <script>
+        // Tu URL maestra
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
         let partidosGlobales = [];
 
-        // Lógica de Tabs Principales
         function cambiarTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
             
-            // Estilos de botones
             ['pronosticos', 'bonus', 'ranking'].forEach(t => {
                 const btn = document.getElementById(`btn-tab-${t}`);
-                if(t === tabName) {
-                    btn.classList.add('bg-slate-800', 'text-white', 'shadow');
-                    btn.classList.remove('text-slate-400');
-                } else {
-                    btn.classList.remove('bg-slate-800', 'text-white', 'shadow');
-                    btn.classList.add('text-slate-400');
-                }
+                if(t === tabName) { btn.classList.add('bg-slate-800', 'text-white', 'shadow'); btn.classList.remove('text-slate-400'); } 
+                else { btn.classList.remove('bg-slate-800', 'text-white', 'shadow'); btn.classList.add('text-slate-400'); }
             });
-
-            // Ocultar botón guardar en el ranking
             document.getElementById('floating-save').style.display = tabName === 'ranking' ? 'none' : 'flex';
         }
 
-        // Lógica de Tabs de Grupos
         function cambiarGrupo(grupo) {
             document.querySelectorAll('.group-content').forEach(g => g.classList.remove('active'));
             document.getElementById(`group-${grupo.replace(/\s/g, '')}`).classList.add('active');
             
             document.querySelectorAll('.btn-group').forEach(btn => {
-                btn.classList.remove('bg-green-500', 'text-slate-950');
-                btn.classList.add('bg-slate-800', 'text-slate-300');
+                btn.classList.remove('bg-green-500', 'text-slate-950'); btn.classList.add('bg-slate-800', 'text-slate-300');
             });
             document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.remove('bg-slate-800', 'text-slate-300');
             document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.add('bg-green-500', 'text-slate-950');
         }
 
-        // Cargar y agrupar partidos
-        async function cargarPartidos() {
+        async function cargarData() {
             try {
                 const respuesta = await fetch(API_URL);
-                partidosGlobales = await respuesta.json();
+                const data = await respuesta.json();
                 
-                // Extraer grupos únicos
-                const grupos = [...new Set(partidosGlobales.map(p => p.group || "Fase de Grupos"))].sort();
-                
+                // 1. Dibujar Partidos
+                partidosGlobales = data.matches;
+                const grupos = [...new Set(partidosGlobales.map(p => p.group || "Mundial"))].sort();
                 const nav = document.getElementById('groups-nav');
                 const container = document.getElementById('matches-container');
-                nav.innerHTML = '';
-                container.innerHTML = '';
+                nav.innerHTML = ''; container.innerHTML = '';
 
                 grupos.forEach((grupo, index) => {
                     const groupId = grupo.replace(/\s/g, '');
-                    // Crear botón de tab
                     nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">${grupo}</button>`;
-                    
-                    // Crear contenedor del grupo
                     let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
                     
-                    // Filtrar partidos de este grupo
-                    const partidosGrupo = partidosGlobales.filter(p => (p.group || "Fase de Grupos") === grupo);
-                    
+                    const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
                     partidosGrupo.forEach(partido => {
-                        // Tarjeta estilo Vercel / Shadcn
                         htmlGrupo += `
                             <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition-colors">
-                                <div class="text-center text-xs text-slate-500 mb-3 font-medium">
-                                    🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs
-                                </div>
+                                <div class="text-center text-xs text-slate-500 mb-3 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs</div>
                                 <div class="flex justify-between items-center">
                                     <div class="w-[40%] text-right font-bold text-sm sm:text-base truncate pr-3">${partido.team_a}</div>
                                     <div class="flex gap-2 items-center w-[20%] justify-center">
-                                        <input type="number" id="goles_a_${partido.id}" class="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all" placeholder="-">
+                                        <input type="number" id="goles_a_${partido.id}" class="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
                                         <span class="text-slate-600 font-bold">-</span>
-                                        <input type="number" id="goles_b_${partido.id}" class="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all" placeholder="-">
+                                        <input type="number" id="goles_b_${partido.id}" class="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
                                     </div>
                                     <div class="w-[40%] text-left font-bold text-sm sm:text-base truncate pl-3">${partido.team_b}</div>
                                 </div>
-                            </div>
-                        `;
+                            </div>`;
                     });
-                    
                     htmlGrupo += `</div>`;
                     container.innerHTML += htmlGrupo;
                 });
 
+                // 2. Dibujar Ranking
+                dibujarRanking(data.ranking);
+
             } catch (error) {
-                document.getElementById('matches-container').innerHTML = '<p class="text-center text-red-400">Error al cargar. Verificá tu conexión a internet.</p>';
+                console.error("Error:", error);
+                document.getElementById('matches-container').innerHTML = '<p class="text-center text-red-400">Error al cargar datos.</p>';
             }
+        }
+
+        function dibujarRanking(ranking) {
+            const podium = document.getElementById('podium-container');
+            const tbody = document.getElementById('ranking-body');
+            podium.innerHTML = ''; tbody.innerHTML = '';
+
+            if(!ranking || ranking.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-500">Todavía nadie sumó puntos 😢</td></tr>';
+                return;
+            }
+
+            // Top 3
+            const p1 = ranking[0], p2 = ranking[1], p3 = ranking[2];
+            
+            if(p2) podium.innerHTML += `<div class="bg-slate-900/50 border border-silver/30 rounded-xl p-3 text-center order-1 mt-4"><div class="w-10 h-10 mx-auto bg-silver/20 rounded-full flex items-center justify-center mb-2 text-xl">🥈</div><p class="font-medium text-sm truncate">${p2.name}</p><p class="text-lg font-bold text-silver">${p2.points} pts</p></div>`;
+            
+            if(p1) podium.innerHTML += `<div class="bg-slate-900/80 border border-gold/40 rounded-xl p-4 text-center order-0 sm:order-1 -mt-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]"><div class="w-14 h-14 mx-auto bg-gold/20 rounded-full flex items-center justify-center mb-2 text-2xl">👑</div><p class="font-medium text-base truncate">${p1.name}</p><p class="text-2xl font-bold text-gold">${p1.points} pts</p></div>`;
+            
+            if(p3) podium.innerHTML += `<div class="bg-slate-900/50 border border-bronze/30 rounded-xl p-3 text-center order-2 mt-4"><div class="w-10 h-10 mx-auto bg-bronze/20 rounded-full flex items-center justify-center mb-2 text-xl">🥉</div><p class="font-medium text-sm truncate">${p3.name}</p><p class="text-lg font-bold text-bronze">${p3.points} pts</p></div>`;
+
+            // Resto de la tabla
+            ranking.forEach((user, idx) => {
+                let badge = `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${idx + 1}</span>`;
+                if(idx === 0) badge = `<span class="bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">1</span>`;
+                else if(idx === 1) badge = `<span class="bg-silver/20 text-silver px-2 py-1 rounded-full font-bold">2</span>`;
+                else if(idx === 2) badge = `<span class="bg-bronze/20 text-bronze px-2 py-1 rounded-full font-bold">3</span>`;
+
+                tbody.innerHTML += `<tr class="hover:bg-slate-800/50"><td class="px-4 py-3 text-center">${badge}</td><td class="px-4 py-3 font-medium">${user.name}</td><td class="px-4 py-3 text-right font-bold text-green-400">${user.points}</td></tr>`;
+            });
         }
 
         async function guardarPredicciones() {
@@ -231,66 +187,42 @@
             const btn = document.getElementById('btn-guardar');
             btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
-            // Creamos la "caja" maestra con todos los datos
-            const payload = {
-                user_email: email,
-                predictions: [],
-                bonus: null
-            };
+            const payload = { user_email: email, predictions: [], bonus: null };
             
-            // 1. Recolectar partidos
             for (let partido of partidosGlobales) {
                 let gA = document.getElementById(`goles_a_${partido.id}`).value;
                 let gB = document.getElementById(`goles_b_${partido.id}`).value;
-                
                 if (gA !== "" && gB !== "") {
-                    payload.predictions.push({
-                        match_id: partido.id,
-                        pred_a: parseInt(gA),
-                        pred_b: parseInt(gB)
-                    });
+                    payload.predictions.push({ match_id: partido.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
                 }
             }
 
-            // 2. Recolectar Bonus
             const bCampeon = document.getElementById('bonus-campeon').value.trim();
             const bSub = document.getElementById('bonus-subcampeon').value.trim();
             const bGol = document.getElementById('bonus-goleador').value.trim();
             const bDec = document.getElementById('bonus-decepcion').value.trim();
 
             if(bCampeon || bSub || bGol || bDec) {
-                payload.bonus = {
-                    champion: bCampeon,
-                    runner_up: bSub,
-                    top_scorer: bGol,
-                    disappointment: bDec
-                };
+                payload.bonus = { champion: bCampeon, runner_up: bSub, top_scorer: bGol, disappointment: bDec };
             }
 
-            // Validar que haya llenado ALGO
             if (payload.predictions.length === 0 && !payload.bonus) {
                 alert("No completaste nada nuevo.");
                 btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
                 return;
             }
 
-            // Enviar 1 SOLA llamada a Google
             try {
-                await fetch(API_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
+                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } });
                 alert("¡Pronósticos guardados! 🏆");
+                cargarData(); // Recargamos para actualizar el ranking si sumó puntos
             } catch (error) {
-                console.error("Error al guardar:", error);
                 alert("Hubo un error de conexión.");
             }
-            
             btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
         }
 
-        cargarPartidos();
+        cargarData();
     </script>
 </body>
 </html>
