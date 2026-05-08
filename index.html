@@ -280,7 +280,6 @@
                 partidosGlobales = data.matches;
                 equiposGlobales = data.teams || []; 
                 
-                // PUNTOS TOTALES (AHORA BUSCA POR EMAIL)
                 let miRanking = data.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
 
@@ -314,7 +313,6 @@
                             <span class="text-green-400 font-extrabold text-lg sm:text-xl">${ptsGrupo}</span>
                         </div>`;
 
-                    // TABLAS DE POSICIONES
                     let tablaPred = calcularTabla(partidosGrupo, 'pred', data.userPredictions);
                     let tablaReal = calcularTabla(partidosGrupo, 'real', null);
                     
@@ -342,11 +340,12 @@
                         let imgA = flagA ? `<img src="${flagA}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover shrink-0 bg-slate-800 shadow-sm border border-slate-700">` : '';
                         let imgB = flagB ? `<img src="${flagB}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover shrink-0 bg-slate-800 shadow-sm border border-slate-700">` : '';
 
+                        // === LÍNEA ACTUALIZADA CON hour12: false PARA EL FORMATO 24HS ===
                         htmlGrupo += `
                             <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-sm relative">
                                 <div class="flex justify-between items-center mb-4">
                                     <div class="w-1/3 flex items-center"><div class="inline-flex items-center gap-1.5 bg-slate-950/50 px-2 py-1 rounded-full border border-slate-800"><span class="w-2 h-2 rounded-full ${sColor} shadow-[0_0_8px_currentColor]"></span><span class="text-[8px] sm:text-[9px] text-slate-300 font-bold uppercase tracking-wider hidden sm:inline">${sText}</span></div></div>
-                                    <div class="w-1/3 text-center text-[10px] sm:text-xs text-slate-500 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs</div>
+                                    <div class="w-1/3 text-center text-[10px] sm:text-xs text-slate-500 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12: false})} hs</div>
                                     <div class="w-1/3 text-right flex justify-end items-center">${pointsHtml}</div>
                                 </div>
                                 <div class="flex justify-between items-center gap-1 sm:gap-2 mb-3">
