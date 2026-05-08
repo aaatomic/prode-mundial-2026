@@ -8,16 +8,11 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' }
-                }
-            }
+            theme: { extend: { colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' } } }
         }
     </script>
     <style>
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .group-content { display: none; }
@@ -27,7 +22,11 @@
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
 
     <div class="max-w-3xl mx-auto p-4 md:p-6">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-2">🏆 Prode Mundial</h1>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-4">🏆 Prode Mundial</h1>
+        
+        <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg md:text-xl font-bold p-3 rounded-xl mb-6 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+            ⏳ Calculando tiempo...
+        </div>
         
         <div class="bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-800 mb-6">
             <label class="block text-sm text-slate-400 mb-2 font-medium">Jugador (Email o Nombre):</label>
@@ -41,7 +40,8 @@
         </div>
         
         <div id="tab-pronosticos" class="tab-content active space-y-4">
-            <div id="groups-nav" class="flex overflow-x-auto gap-2 pb-2 scrollbar-hide"></div>
+            <div id="groups-nav" class="grid grid-cols-6 gap-1 sm:gap-2 mb-4"></div>
+            
             <div id="matches-container">
                 <div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div>
             </div>
@@ -50,10 +50,10 @@
         <div id="tab-bonus" class="tab-content">
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
                 <h3 class="text-xl font-bold mb-4">🌟 Predicciones Especiales</h3>
-                <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Argentina"></div>
-                <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Francia"></div>
-                <div><label class="block text-sm text-slate-400 mb-1">Goleador (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
-                <div><label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label><input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Inglaterra"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Argentina"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Francia"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Goleador (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Mbappé"></div>
+                <div><label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label><input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Inglaterra"></div>
             </div>
         </div>
 
@@ -77,10 +77,46 @@
     </div>
 
     <script>
-        // Tu URL maestra
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
         let partidosGlobales = [];
+        let isLocked = false;
 
+        // --- LÓGICA DEL CRONÓMETRO Y BLOQUEO ---
+        // Fecha de cierre: 10 de Junio de 2026 a las 15:00 UTC (1 día antes del primer partido)
+        const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
+        
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = lockDate - now;
+            
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                isLocked = true;
+                const timerDiv = document.getElementById("timer-container");
+                timerDiv.innerHTML = "🔒 PREDICCIONES CERRADAS";
+                timerDiv.classList.replace("text-yellow-400", "text-red-500");
+                timerDiv.classList.replace("border-yellow-500/30", "border-red-500/30");
+                document.getElementById("floating-save").style.display = "none";
+                bloquearInputs();
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }, 1000);
+
+        function bloquearInputs() {
+            document.querySelectorAll('.prediction-input').forEach(input => {
+                input.disabled = true;
+                input.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        // --- TABS Y NAVEGACIÓN ---
         function cambiarTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
@@ -90,7 +126,13 @@
                 if(t === tabName) { btn.classList.add('bg-slate-800', 'text-white', 'shadow'); btn.classList.remove('text-slate-400'); } 
                 else { btn.classList.remove('bg-slate-800', 'text-white', 'shadow'); btn.classList.add('text-slate-400'); }
             });
-            document.getElementById('floating-save').style.display = tabName === 'ranking' ? 'none' : 'flex';
+            
+            // Mostrar botón guardar solo si no es ranking y no está bloqueado
+            if(tabName === 'ranking' || isLocked) {
+                document.getElementById('floating-save').style.display = 'none';
+            } else {
+                document.getElementById('floating-save').style.display = 'flex';
+            }
         }
 
         function cambiarGrupo(grupo) {
@@ -104,12 +146,12 @@
             document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.add('bg-green-500', 'text-slate-950');
         }
 
+        // --- DATOS ---
         async function cargarData() {
             try {
                 const respuesta = await fetch(API_URL);
                 const data = await respuesta.json();
                 
-                // 1. Dibujar Partidos
                 partidosGlobales = data.matches;
                 const grupos = [...new Set(partidosGlobales.map(p => p.group || "Mundial"))].sort();
                 const nav = document.getElementById('groups-nav');
@@ -118,7 +160,10 @@
 
                 grupos.forEach((grupo, index) => {
                     const groupId = grupo.replace(/\s/g, '');
-                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">${grupo}</button>`;
+                    // Le sacamos la palabra "Grupo " para que quede solo la letra A, B, C y entre perfecto en grilla
+                    const letraGrupo = grupo.replace('Grupo ', ''); 
+                    
+                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-2 py-2 rounded-lg text-sm md:text-base font-bold transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">${letraGrupo}</button>`;
                     let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
                     
                     const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
@@ -129,9 +174,9 @@
                                 <div class="flex justify-between items-center">
                                     <div class="w-[40%] text-right font-bold text-sm sm:text-base truncate pr-3">${partido.team_a}</div>
                                     <div class="flex gap-2 items-center w-[20%] justify-center">
-                                        <input type="number" id="goles_a_${partido.id}" class="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
+                                        <input type="number" id="goles_a_${partido.id}" class="prediction-input w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
                                         <span class="text-slate-600 font-bold">-</span>
-                                        <input type="number" id="goles_b_${partido.id}" class="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
+                                        <input type="number" id="goles_b_${partido.id}" class="prediction-input w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
                                     </div>
                                     <div class="w-[40%] text-left font-bold text-sm sm:text-base truncate pl-3">${partido.team_b}</div>
                                 </div>
@@ -141,11 +186,12 @@
                     container.innerHTML += htmlGrupo;
                 });
 
-                // 2. Dibujar Ranking
                 dibujarRanking(data.ranking);
 
+                // Si cargó la data y ya está bloqueado, deshabilitamos lo recién renderizado
+                if(isLocked) bloquearInputs();
+
             } catch (error) {
-                console.error("Error:", error);
                 document.getElementById('matches-container').innerHTML = '<p class="text-center text-red-400">Error al cargar datos.</p>';
             }
         }
@@ -160,27 +206,24 @@
                 return;
             }
 
-            // Top 3
             const p1 = ranking[0], p2 = ranking[1], p3 = ranking[2];
             
             if(p2) podium.innerHTML += `<div class="bg-slate-900/50 border border-silver/30 rounded-xl p-3 text-center order-1 mt-4"><div class="w-10 h-10 mx-auto bg-silver/20 rounded-full flex items-center justify-center mb-2 text-xl">🥈</div><p class="font-medium text-sm truncate">${p2.name}</p><p class="text-lg font-bold text-silver">${p2.points} pts</p></div>`;
-            
             if(p1) podium.innerHTML += `<div class="bg-slate-900/80 border border-gold/40 rounded-xl p-4 text-center order-0 sm:order-1 -mt-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]"><div class="w-14 h-14 mx-auto bg-gold/20 rounded-full flex items-center justify-center mb-2 text-2xl">👑</div><p class="font-medium text-base truncate">${p1.name}</p><p class="text-2xl font-bold text-gold">${p1.points} pts</p></div>`;
-            
             if(p3) podium.innerHTML += `<div class="bg-slate-900/50 border border-bronze/30 rounded-xl p-3 text-center order-2 mt-4"><div class="w-10 h-10 mx-auto bg-bronze/20 rounded-full flex items-center justify-center mb-2 text-xl">🥉</div><p class="font-medium text-sm truncate">${p3.name}</p><p class="text-lg font-bold text-bronze">${p3.points} pts</p></div>`;
 
-            // Resto de la tabla
             ranking.forEach((user, idx) => {
                 let badge = `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${idx + 1}</span>`;
                 if(idx === 0) badge = `<span class="bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">1</span>`;
                 else if(idx === 1) badge = `<span class="bg-silver/20 text-silver px-2 py-1 rounded-full font-bold">2</span>`;
                 else if(idx === 2) badge = `<span class="bg-bronze/20 text-bronze px-2 py-1 rounded-full font-bold">3</span>`;
-
                 tbody.innerHTML += `<tr class="hover:bg-slate-800/50"><td class="px-4 py-3 text-center">${badge}</td><td class="px-4 py-3 font-medium">${user.name}</td><td class="px-4 py-3 text-right font-bold text-green-400">${user.points}</td></tr>`;
             });
         }
 
         async function guardarPredicciones() {
+            if (isLocked) return alert("¡Demasiado tarde! Las predicciones están cerradas.");
+            
             const email = document.getElementById('user-email').value.trim();
             if (!email) return alert("¡Poné tu nombre o email primero!");
 
@@ -188,13 +231,10 @@
             btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
             const payload = { user_email: email, predictions: [], bonus: null };
-            
             for (let partido of partidosGlobales) {
                 let gA = document.getElementById(`goles_a_${partido.id}`).value;
                 let gB = document.getElementById(`goles_b_${partido.id}`).value;
-                if (gA !== "" && gB !== "") {
-                    payload.predictions.push({ match_id: partido.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
-                }
+                if (gA !== "" && gB !== "") payload.predictions.push({ match_id: partido.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
             }
 
             const bCampeon = document.getElementById('bonus-campeon').value.trim();
@@ -202,9 +242,7 @@
             const bGol = document.getElementById('bonus-goleador').value.trim();
             const bDec = document.getElementById('bonus-decepcion').value.trim();
 
-            if(bCampeon || bSub || bGol || bDec) {
-                payload.bonus = { champion: bCampeon, runner_up: bSub, top_scorer: bGol, disappointment: bDec };
-            }
+            if(bCampeon || bSub || bGol || bDec) payload.bonus = { champion: bCampeon, runner_up: bSub, top_scorer: bGol, disappointment: bDec };
 
             if (payload.predictions.length === 0 && !payload.bonus) {
                 alert("No completaste nada nuevo.");
@@ -213,12 +251,15 @@
             }
 
             try {
-                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } });
-                alert("¡Pronósticos guardados! 🏆");
-                cargarData(); // Recargamos para actualizar el ranking si sumó puntos
-            } catch (error) {
-                alert("Hubo un error de conexión.");
-            }
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } });
+                const result = await response.json();
+                if (result.status === "error") {
+                    alert("Error: " + result.message);
+                } else {
+                    alert("¡Pronósticos guardados! 🏆");
+                    cargarData(); 
+                }
+            } catch (error) { alert("Hubo un error de conexión."); }
             btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
         }
 
