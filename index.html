@@ -42,9 +42,9 @@
 
         <div id="main-app-screen" class="app-screen">
             <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800 mb-3 shadow-sm gap-4">
-                <div class="w-full sm:w-auto text-center sm:text-left">
+                <div class="w-full sm:w-auto text-center sm:text-left flex flex-col items-center sm:items-start">
                     <p class="text-xs text-slate-400 uppercase tracking-widest">Jugador</p>
-                    <p id="user-display-name" class="font-bold text-xl text-green-400 truncate max-w-[200px]">...</p>
+                    <p id="user-display-name" class="font-bold text-xl text-green-400 truncate max-w-[250px] w-full text-center sm:text-left">...</p>
                 </div>
                 <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
                     <span id="user-payment-status" class="text-[10px] font-bold px-2 py-1.5 rounded-md border"></span>
@@ -77,7 +77,7 @@
                     <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">País Decepción (5 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
                 </div>
 
                 <div class="space-y-4">
@@ -250,7 +250,7 @@
             grupos.forEach((grupo, idx) => {
                 const cleanId = grupo.replace(/\s/g, '');
                 const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
-                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
+                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-1 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
                 const partidosGrupo = partidos.filter(p => p.group === grupo);
                 let ptsGrupo = 0;
                 partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
@@ -393,10 +393,16 @@
             authMode = authMode === 'login' ? 'signup' : 'login'; 
             document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; 
             const divName = document.getElementById('div-name');
-            if (authMode === 'login') { divName.classList.add('hidden'); } else { divName.classList.remove('hidden'); }
+            if (authMode === 'login') { 
+                divName.classList.add('hidden');
+                document.getElementById('auth-switch-text').innerText = "¿No tenés cuenta?";
+                document.getElementById('auth-switch-btn').innerText = "Registrate acá";
+            } else { 
+                divName.classList.remove('hidden'); 
+                document.getElementById('auth-switch-text').innerText = "¿Ya tenés cuenta?";
+                document.getElementById('auth-switch-btn').innerText = "Ingresá acá";
+            }
             document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
-            document.getElementById('auth-switch-text').innerText = authMode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?';
-            document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? 'Registrate acá' : 'Ingresá acá';
         }
 
         async function cambiarNombre() {
