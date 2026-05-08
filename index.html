@@ -63,21 +63,48 @@
                 <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
                 <div id="matches-container"></div>
             </div>
+            
             <div id="tab-bonus" class="tab-content">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
-                    <h3 class="text-green-400 font-bold border-b border-slate-800 pb-2">Predicciones Especiales</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8">
+                    <h3 class="text-green-400 font-bold border-b border-slate-800 pb-2">Mis Elegidos</h3>
                     <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">País Decepción (5 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
                 </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-xl font-bold text-center text-slate-300">👀 El Ojo del Pueblo</h3>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3" id="bonus-summary-container">
+                        <div class="text-center text-sm text-slate-500 py-2 animate-pulse">Cargando votos...</div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto shadow-sm">
+                        <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap">
+                            <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+                                <tr>
+                                    <th class="px-3 py-3">Participante</th>
+                                    <th class="px-3 py-3 text-gold">Campeón</th>
+                                    <th class="px-3 py-3 text-silver">Subcampeón</th>
+                                    <th class="px-3 py-3 text-red-400">Decepción</th>
+                                    <th class="px-3 py-3 text-blue-400">Goleador</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bonus-table-body" class="divide-y divide-slate-800/60">
+                                <tr><td colspan="5" class="text-center py-4 text-slate-500">Cargando tabla...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            
             <div id="tab-ranking" class="tab-content">
                 <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                     <table class="w-full text-sm text-left">
                         <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante (toca para ver)</th><th class="px-4 py-3 text-right">Puntos</th></tr>
                         </thead>
                         <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
                     </table>
@@ -154,13 +181,14 @@
                 const miRanking = res.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
                 
+                // Cargar Selects
                 let options = '<option value="">Elegí...</option>';
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion'].forEach(id => {
-                    const el = document.getElementById(id);
-                    el.innerHTML = options;
+                    document.getElementById(id).innerHTML = options;
                 });
                 
+                // Cargar Mis Bonus
                 if(res.userBonus) {
                     document.getElementById('bonus-campeon').value = res.userBonus.champion || "";
                     document.getElementById('bonus-subcampeon').value = res.userBonus.runner_up || "";
@@ -168,9 +196,56 @@
                     document.getElementById('bonus-goleador').value = res.userBonus.top_scorer || "";
                 }
 
+                // Renderizar Ojo del Pueblo (Resumen y Tabla General)
+                renderizarOjoDelPueblo(res.allBonus);
+
                 renderizarContenido(res, 'groups-nav', 'matches-container', false);
                 dibujarRanking(res.ranking);
             } catch(e) { console.error(e); }
+        }
+
+        // --- LÓGICA DEL OJO DEL PUEBLO (BONUS DE TODOS) ---
+        function renderizarOjoDelPueblo(allBonus) {
+            const sumContainer = document.getElementById('bonus-summary-container');
+            const tbBody = document.getElementById('bonus-table-body');
+            
+            if(!allBonus || allBonus.length === 0) {
+                sumContainer.innerHTML = '<p class="text-sm text-slate-400 text-center py-2">Todavía nadie guardó sus predicciones.</p>';
+                tbBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-500">Sin datos</td></tr>';
+                return;
+            }
+
+            // Función para agrupar y ordenar votos
+            const getVotes = (field) => {
+                const counts = {};
+                allBonus.forEach(b => { if(b[field]) counts[b[field]] = (counts[b[field]] || 0) + 1; });
+                const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+                if(sorted.length === 0) return "<span class="text-slate-600">Sin votos</span>";
+                return sorted.map(e => `<span class="text-white">${e[0]}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
+            };
+
+            // Dibujar Resumen
+            sumContainer.innerHTML = `
+                <div><span class="text-gold font-bold text-sm block">🏆 Campeón</span><div class="text-xs sm:text-sm mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('champion')}</div></div>
+                <div><span class="text-silver font-bold text-sm block">🥈 Subcampeón</span><div class="text-xs sm:text-sm mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('runner_up')}</div></div>
+                <div><span class="text-red-400 font-bold text-sm block">📉 País Decepción</span><div class="text-xs sm:text-sm mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('disappointment')}</div></div>
+                <div><span class="text-blue-400 font-bold text-sm block">⚽ Goleador</span><div class="text-xs sm:text-sm mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('top_scorer')}</div></div>
+            `;
+
+            // Dibujar Tabla
+            let trHtml = '';
+            allBonus.sort((a, b) => a.name.localeCompare(b.name)).forEach(b => {
+                let badge = (b.email === currentUser.email) ? `<span class="bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded text-[10px] ml-1">Vos</span>` : '';
+                trHtml += `
+                    <tr class="hover:bg-slate-800/40 transition-colors">
+                        <td class="px-3 py-2 font-medium text-slate-200 border-r border-slate-800/50">${b.name} ${badge}</td>
+                        <td class="px-3 py-2 text-slate-300">${b.champion || '-'}</td>
+                        <td class="px-3 py-2 text-slate-300">${b.runner_up || '-'}</td>
+                        <td class="px-3 py-2 text-slate-300">${b.disappointment || '-'}</td>
+                        <td class="px-3 py-2 text-slate-300">${b.top_scorer || '-'}</td>
+                    </tr>`;
+            });
+            tbBody.innerHTML = trHtml;
         }
 
         function renderizarContenido(data, navId, containerId, isReadOnly) {
@@ -200,7 +275,7 @@
                         <span class="text-green-400 font-extrabold text-lg">${ptsGrupo}</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        ${generarTablaHTML('Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}
+                        ${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}
                         ${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}
                     </div>`;
 
@@ -213,7 +288,7 @@
 
                     let ptsBox = '<span class="text-[10px] font-bold text-slate-600 border border-slate-800 px-2 py-0.5 rounded">0 pts</span>';
                     if(pred && pred.points !== undefined && pred.points !== "") {
-                        if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded-full">+3 pts</span>';
+                        if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.2)]">+3 pts</span>';
                         else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-300 bg-green-900/20 px-2 py-0.5 rounded-full">+1 pt</span>';
                     }
 
@@ -270,7 +345,7 @@
                         gA = parseInt(p.score_a || p.goles_a); gB = parseInt(p.score_b || p.goles_b);
                     }
                 } else {
-                    const pr = predicciones.find(up => up.match_id === p.id);
+                    const pr = predicciones ? predicciones.find(up => up.match_id === p.id) : null;
                     if(pr && pr.pred_a !== "" && pr.pred_b !== "") { gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); }
                 }
                 if(gA != null && !isNaN(gA)) {
@@ -305,12 +380,12 @@
         async function verPerfilOtro(email, nombre, puntos) {
             document.getElementById('spy-user-name').innerText = nombre;
             document.getElementById('spy-user-points').innerText = puntos;
-            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse">Cargando...</div>';
+            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse">Cargando perfil...</div>';
             mostrarPantalla('user-view-screen');
             try {
                 const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
                 renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true);
-            } catch(e) { alert("Error"); }
+            } catch(e) { alert("Error cargando perfil"); }
         }
 
         function dibujarRanking(ranking) {
