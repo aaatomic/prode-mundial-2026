@@ -6,10 +6,7 @@
     <title>Prode Mundial 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' } } }
-        }
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' } } } }
     </script>
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -22,13 +19,8 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
 
- <div class="max-w-3xl mx-auto p-4 md:p-6">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-2 mt-4">🏆 Prode Mundial 2026</h1>
-        
-        <p class="text-center text-slate-300 font-medium text-sm md:text-base mb-8 animate-pulse">
-            Hola Gil, te amo! Descansa :)
-        </p>
-
+    <div class="max-w-3xl mx-auto p-4 md:p-6">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-8 mt-4">🏆 Prode Mundial 2026</h1>
         
         <div id="auth-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
             <h2 id="auth-title" class="text-2xl font-bold text-center mb-6">Iniciar Sesión</h2>
@@ -41,9 +33,10 @@
                 <label class="block text-sm text-slate-400 mb-1">Email</label>
                 <input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
             </div>
-            <div class="mb-6">
+            <div class="mb-6 relative">
                 <label class="block text-sm text-slate-400 mb-1">Contraseña</label>
-                <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
+                <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 pr-10 outline-none focus:border-green-500">
+                <button onclick="togglePassword()" class="absolute right-3 top-[34px] text-slate-400 hover:text-white text-lg transition-colors">👁️</button>
             </div>
 
             <button onclick="procesarAuth()" id="btn-auth" class="w-full bg-green-500 text-slate-950 font-bold py-3 rounded-lg hover:bg-green-400 transition-all mb-4">
@@ -59,8 +52,8 @@
         <div id="pending-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-yellow-500/30 p-8 rounded-2xl shadow-xl text-center">
             <div class="text-5xl mb-4">⏳</div>
             <h2 class="text-2xl font-bold text-yellow-400 mb-2">Cuenta Pendiente</h2>
-            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Si ya pagaste la inscripción, avisale para que te habilite.</p>
-            <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Cerrar Sesión y Volver</button>
+            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Avisale para que te habilite.</p>
+            <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Cerrar Sesión</button>
         </div>
 
         <div id="main-app-screen" class="app-screen">
@@ -123,7 +116,13 @@
         let currentUser = null;
         let authMode = 'login'; 
 
-        // --- SISTEMA DE SESIÓN ---
+        // Lógica del Ojito de Contraseña
+        function togglePassword() {
+            const input = document.getElementById('auth-password');
+            if (input.type === 'password') input.type = 'text';
+            else input.type = 'password';
+        }
+
         function checkSession() {
             const savedUser = localStorage.getItem('prode_user');
             if (savedUser) {
@@ -153,12 +152,9 @@
         function cerrarSesion() {
             localStorage.removeItem('prode_user');
             currentUser = null;
-            
-            // Limpiar campos por las dudas
             document.getElementById('auth-email').value = '';
             document.getElementById('auth-password').value = '';
             document.getElementById('auth-name').value = '';
-            
             checkSession();
         }
 
@@ -177,8 +173,7 @@
             const name = document.getElementById('auth-name').value.trim();
             const btn = document.getElementById('btn-auth');
 
-            if (!email) return alert("Ingresá un email.");
-            if (!pass) return alert("Ingresá tu contraseña.");
+            if (!email || !pass) return alert("Completá email y contraseña.");
             if (authMode === 'signup' && !name) return alert("Ingresá tu nombre.");
 
             btn.innerText = "Cargando..."; btn.disabled = true;
@@ -199,13 +194,10 @@
                         toggleAuthMode(); 
                     }
                 }
-            } catch (e) {
-                alert("Error de conexión.");
-            }
+            } catch (e) { alert("Error de conexión al servidor."); }
             btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; btn.disabled = false;
         }
 
-        // --- LÓGICA DEL CRONÓMETRO ---
         const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
         setInterval(function() {
             if(!currentUser || !currentUser.is_approved) return;
@@ -221,7 +213,6 @@
             document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${Math.floor(distance/(1000*60*60*24))}d ${Math.floor((distance%(1000*60*60*24))/(1000*60*60))}h ${Math.floor((distance%(1000*60*60))/(1000*60))}m`;
         }, 1000);
 
-        // --- TABS ---
         function cambiarTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
@@ -243,10 +234,11 @@
             document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.add('bg-green-500', 'text-slate-950');
         }
 
-        // --- DATOS ---
         async function cargarData() {
             try {
-                const respuesta = await fetch(API_URL);
+                // Ahora le mandamos nuestro email al backend para que nos devuelva nuestros resultados guardados
+                const url = `${API_URL}?email=${encodeURIComponent(currentUser.email)}`;
+                const respuesta = await fetch(url);
                 const data = await respuesta.json();
                 
                 partidosGlobales = data.matches;
@@ -282,6 +274,25 @@
                     htmlGrupo += `</div>`;
                     container.innerHTML += htmlGrupo;
                 });
+
+                // ==========================================
+                // ACÁ RELLENAMOS LOS RESULTADOS GUARDADOS
+                // ==========================================
+                if (data.userPredictions) {
+                    data.userPredictions.forEach(p => {
+                        const inputA = document.getElementById(`goles_a_${p.match_id}`);
+                        const inputB = document.getElementById(`goles_b_${p.match_id}`);
+                        if (inputA && p.pred_a !== "") inputA.value = p.pred_a;
+                        if (inputB && p.pred_b !== "") inputB.value = p.pred_b;
+                    });
+                }
+                
+                if (data.userBonus && Object.keys(data.userBonus).length > 0) {
+                    document.getElementById('bonus-campeon').value = data.userBonus.champion || "";
+                    document.getElementById('bonus-subcampeon').value = data.userBonus.runner_up || "";
+                    document.getElementById('bonus-goleador').value = data.userBonus.top_scorer || "";
+                    document.getElementById('bonus-decepcion').value = data.userBonus.disappointment || "";
+                }
 
                 dibujarRanking(data.ranking);
                 if(isLocked) document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50', 'cursor-not-allowed'); });
@@ -330,15 +341,21 @@
             if(bC || bS || bG || bD) payload.bonus = { champion: bC, runner_up: bS, top_scorer: bG, disappointment: bD };
 
             if (payload.predictions.length === 0 && !payload.bonus) {
-                alert("No completaste nada nuevo."); btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false; return;
+                alert("No completaste nada nuevo."); btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false; return;
             }
 
             try {
-                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
-                alert("¡Pronósticos guardados! 🏆");
-                cargarData(); 
-            } catch (e) { alert("Hubo un error."); }
-            btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
+                const req = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const res = await req.json();
+                
+                if(res.status === "error") {
+                    alert("Error: " + res.message);
+                } else {
+                    alert("¡Pronósticos guardados y actualizados! 🏆");
+                }
+            } catch (e) { alert("Hubo un error de conexión al guardar."); }
+            
+            btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
         }
 
         checkSession();
