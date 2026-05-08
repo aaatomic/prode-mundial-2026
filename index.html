@@ -148,7 +148,7 @@
                 if(currentUser.is_approved) { 
                     mostrarPantalla('main-app-screen'); 
                     document.getElementById('user-display-name').innerText = currentUser.name;
-                    actualizarCartelPago(currentUser.has_paid); // Estado inicial del login
+                    actualizarCartelPago(currentUser.has_paid);
                     cargarData(); 
                 } else { mostrarPantalla('pending-screen'); }
             } else { mostrarPantalla('auth-screen'); }
@@ -184,7 +184,6 @@
                 const miRanking = res.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
                 
-                // ACTUALIZACIÓN DE PAGO EN TIEMPO REAL
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
                 actualizarCartelPago(res.userPaid);
@@ -213,16 +212,24 @@
 
             const getVotes = (field) => {
                 const counts = {};
-                allBonus.forEach(b => { if(b[field]) counts[b[field]] = (counts[b[field]] || 0) + 1; });
+                // Para el goleador, pasamos el texto a minúsculas temporalmente para evitar que "Messi" y "messi" sean votos separados
+                allBonus.forEach(b => { 
+                    if(b[field]) {
+                        let valor = field === 'top_scorer' ? b[field].trim().toUpperCase() : b[field];
+                        counts[valor] = (counts[valor] || 0) + 1; 
+                    }
+                });
                 const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
                 if(sorted.length === 0) return '<span class="text-slate-600">Sin votos</span>'; 
-                return sorted.map(e => `<span class="text-white">${e[0]}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
+                return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
             };
 
+            // ACÁ AGREGUÉ LA LÍNEA DEL GOLEADOR QUE FALTABA
             sumContainer.innerHTML = `
                 <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('champion')}</div></div>
                 <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('runner_up')}</div></div>
                 <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('disappointment')}</div></div>
+                <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('top_scorer')}</div></div>
             `;
 
             let trHtml = '';
@@ -305,7 +312,7 @@
             partidos.forEach(p => {
                 let gA = null, gB = null;
                 if(tipo === 'real') { if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { gA = parseInt(p.score_a || p.goles_a); gB = parseInt(p.score_b || p.goles_b); } } 
-                else { const pr = predicciones.find(up => up.match_id === p.id); if(pr && pr.pred_a !== "" && pr.pred_b !== "") { gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); } }
+                else { const pr = predicciones ? predicciones.find(up => up.match_id === p.id) : null; if(pr && pr.pred_a !== "" && pr.pred_b !== "") { gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); } }
                 if(gA != null && !isNaN(gA)) {
                     t[p.team_a].PJ++; t[p.team_b].PJ++; t[p.team_a].GF+=gA; t[p.team_a].GC+=gB; t[p.team_b].GF+=gB; t[p.team_b].GC+=gA;
                     if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; } else if(gA < gB) { t[p.team_b].G++; t[p.team_a].P++; t[p.team_b].Pts+=3; } else { t[p.team_a].E++; t[p.team_b].E++; t[p.team_a].Pts+=1; t[p.team_b].Pts+=1; }
