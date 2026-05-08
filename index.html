@@ -19,7 +19,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
 
-    <div class="max-w-3xl mx-auto p-4 md:p-6">
+    <div class="max-w-3xl mx-auto p-2 sm:p-4 md:p-6">
         <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-8 mt-4">🏆 Prode Mundial 2026</h1>
         
         <div id="auth-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
@@ -82,10 +82,28 @@
 
             <div id="tab-bonus" class="tab-content">
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
-                    <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Goleador (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label><input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label>
+                        <select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input text-white appearance-none">
+                            <option value="">Elegí un país...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label>
+                        <select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input text-white appearance-none">
+                            <option value="">Elegí un país...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">País Decepción (5 pts)</label>
+                        <select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input text-white appearance-none">
+                            <option value="">Elegí un país...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label>
+                        <input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Mbappé">
+                    </div>
                 </div>
             </div>
 
@@ -110,13 +128,14 @@
     </div>
 
     <script>
+        // ⚠️ ASEGURATE DE QUE ESTA URL SEA LA TUYA
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
+        
         let partidosGlobales = [];
         let isLocked = false;
         let currentUser = null;
         let authMode = 'login'; 
 
-        // Lógica del Ojito de Contraseña
         function togglePassword() {
             const input = document.getElementById('auth-password');
             if (input.type === 'password') input.type = 'text';
@@ -198,6 +217,7 @@
             btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; btn.disabled = false;
         }
 
+        // FECHA DE CIERRE DE PREDICCIONES
         const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
         setInterval(function() {
             if(!currentUser || !currentUser.is_approved) return;
@@ -236,12 +256,22 @@
 
         async function cargarData() {
             try {
-                // Ahora le mandamos nuestro email al backend para que nos devuelva nuestros resultados guardados
                 const url = `${API_URL}?email=${encodeURIComponent(currentUser.email)}`;
                 const respuesta = await fetch(url);
                 const data = await respuesta.json();
                 
                 partidosGlobales = data.matches;
+                
+                // Llenar listas desplegables (picklists) leyendo de la pestaña "teams"
+                const equiposUnicos = data.teams || [];
+                let opcionesHTML = '<option value="">Elegí un país...</option>';
+                equiposUnicos.forEach(equipo => { opcionesHTML += `<option value="${equipo}">${equipo}</option>`; });
+                
+                document.getElementById('bonus-campeon').innerHTML = opcionesHTML;
+                document.getElementById('bonus-subcampeon').innerHTML = opcionesHTML;
+                document.getElementById('bonus-decepcion').innerHTML = opcionesHTML;
+
+                // Llenar partidos y pestañas de Grupos
                 const grupos = [...new Set(partidosGlobales.map(p => p.group || "Mundial"))].sort();
                 const nav = document.getElementById('groups-nav');
                 const container = document.getElementById('matches-container');
@@ -249,25 +279,25 @@
 
                 grupos.forEach((grupo, index) => {
                     const groupId = grupo.replace(/\s/g, '');
-                    const letraGrupo = grupo.replace('Grupo ', ''); 
                     
-                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${letraGrupo}</button>`;
+                    // ACÁ ESTÁ EL CAMBIO: Muestra "Grupo A" entero, con letra chiquita para que encaje
+                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${grupo}</button>`;
                     
                     let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
                     const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
                     
                     partidosGrupo.forEach(partido => {
                         htmlGrupo += `
-                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-sm">
                                 <div class="text-center text-xs text-slate-500 mb-3 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs</div>
                                 <div class="flex justify-between items-center">
-                                    <div class="w-[40%] text-right font-bold text-sm sm:text-base truncate pr-3">${partido.team_a}</div>
+                                    <div class="w-[40%] text-right font-bold text-xs sm:text-base truncate pr-2 sm:pr-3">${partido.team_a}</div>
                                     <div class="flex gap-2 items-center w-[20%] justify-center">
-                                        <input type="number" id="goles_a_${partido.id}" class="prediction-input w-10 h-10 text-center text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
+                                        <input type="number" id="goles_a_${partido.id}" class="prediction-input w-9 h-9 sm:w-12 sm:h-12 text-center text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
                                         <span class="text-slate-600 font-bold">-</span>
-                                        <input type="number" id="goles_b_${partido.id}" class="prediction-input w-10 h-10 text-center text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
+                                        <input type="number" id="goles_b_${partido.id}" class="prediction-input w-9 h-9 sm:w-12 sm:h-12 text-center text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
                                     </div>
-                                    <div class="w-[40%] text-left font-bold text-sm sm:text-base truncate pl-3">${partido.team_b}</div>
+                                    <div class="w-[40%] text-left font-bold text-xs sm:text-base truncate pl-2 sm:pl-3">${partido.team_b}</div>
                                 </div>
                             </div>`;
                     });
@@ -275,9 +305,7 @@
                     container.innerHTML += htmlGrupo;
                 });
 
-                // ==========================================
-                // ACÁ RELLENAMOS LOS RESULTADOS GUARDADOS
-                // ==========================================
+                // Cargar predicciones previas del usuario
                 if (data.userPredictions) {
                     data.userPredictions.forEach(p => {
                         const inputA = document.getElementById(`goles_a_${p.match_id}`);
@@ -290,12 +318,15 @@
                 if (data.userBonus && Object.keys(data.userBonus).length > 0) {
                     document.getElementById('bonus-campeon').value = data.userBonus.champion || "";
                     document.getElementById('bonus-subcampeon').value = data.userBonus.runner_up || "";
-                    document.getElementById('bonus-goleador').value = data.userBonus.top_scorer || "";
                     document.getElementById('bonus-decepcion').value = data.userBonus.disappointment || "";
+                    document.getElementById('bonus-goleador').value = data.userBonus.top_scorer || "";
                 }
 
                 dibujarRanking(data.ranking);
-                if(isLocked) document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50', 'cursor-not-allowed'); });
+                
+                if(isLocked) {
+                    document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50', 'cursor-not-allowed'); });
+                }
 
             } catch (error) {
                 document.getElementById('matches-container').innerHTML = '<p class="text-center text-red-400">Error al cargar datos.</p>';
@@ -337,8 +368,8 @@
                 if (gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
             }
 
-            const bC = document.getElementById('bonus-campeon').value.trim(), bS = document.getElementById('bonus-subcampeon').value.trim(), bG = document.getElementById('bonus-goleador').value.trim(), bD = document.getElementById('bonus-decepcion').value.trim();
-            if(bC || bS || bG || bD) payload.bonus = { champion: bC, runner_up: bS, top_scorer: bG, disappointment: bD };
+            const bC = document.getElementById('bonus-campeon').value, bS = document.getElementById('bonus-subcampeon').value, bD = document.getElementById('bonus-decepcion').value, bG = document.getElementById('bonus-goleador').value.trim();
+            if(bC || bS || bG || bD) payload.bonus = { champion: bC, runner_up: bS, disappointment: bD, top_scorer: bG };
 
             if (payload.predictions.length === 0 && !payload.bonus) {
                 alert("No completaste nada nuevo."); btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false; return;
@@ -358,6 +389,7 @@
             btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
         }
 
+        // Inicializamos la app comprobando si ya inició sesión
         checkSession();
     </script>
 </body>
