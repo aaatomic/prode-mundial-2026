@@ -23,7 +23,6 @@
         .group-content { display: none; }
         .group-content.active { display: block; }
         .app-screen { display: none; }
-        /* Evita el scroll elástico en iOS para que parezca más nativa */
         body { position: fixed; width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
@@ -135,6 +134,7 @@
         let equiposGlobales = []; 
         let currentUser = null;
         let isLocked = false;
+        let authMode = 'login'; // ¡ACÁ ESTABA EL CULPABLE!
 
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
@@ -351,10 +351,40 @@
         async function procesarAuth() {
             const email = document.getElementById('auth-email').value.trim(); const pass = document.getElementById('auth-password').value.trim(); const name = document.getElementById('auth-name').value.trim();
             if (!email || !pass) return alert("Faltan datos");
-            try { const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); if (res.status === 'error') alert(res.message); else { if (authMode === 'login') { localStorage.setItem('prode_user', JSON.stringify(res.user)); checkSession(); } else { alert(res.message); authMode='login'; checkSession(); } } } catch (e) { alert("Error"); }
+            
+            const btn = document.getElementById('btn-auth');
+            btn.innerText = "Cargando..."; btn.disabled = true;
+            
+            try { 
+                const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); 
+                if (res.status === 'error') {
+                    alert(res.message); 
+                } else { 
+                    if (authMode === 'login') { 
+                        localStorage.setItem('prode_user', JSON.stringify(res.user)); 
+                        checkSession(); 
+                    } else { 
+                        alert(res.message); 
+                        toggleAuthMode(); // Vuelve al login automáticamente
+                    } 
+                } 
+            } catch (e) { alert("Error de conexión"); }
+            
+            btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
+            btn.disabled = false;
         }
 
-        function toggleAuthMode() { authMode = authMode === 'login' ? 'signup' : 'login'; document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; document.getElementById('div-name').classList.toggle('hidden'); document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; }
+        function toggleAuthMode() { 
+            authMode = authMode === 'login' ? 'signup' : 'login'; 
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; 
+            
+            const divName = document.getElementById('div-name');
+            if (authMode === 'login') { divName.classList.add('hidden'); } else { divName.classList.remove('hidden'); }
+            
+            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
+            document.getElementById('auth-switch-text').innerText = authMode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?';
+            document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? 'Registrate acá' : 'Ingresá acá';
+        }
 
         async function cambiarNombre() {
             const nuevo = prompt("Nuevo nombre:", currentUser.name);
@@ -364,7 +394,6 @@
             }
         }
 
-        // Registrar Service Worker para PWA (básico)
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/service-worker.js').catch(e => {}); }); }
 
         checkSession();
