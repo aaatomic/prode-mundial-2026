@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prode Mundial 2026</title>
+    <title>Hola Gil, te amo! Descansa :)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -32,9 +33,13 @@
                 <label class="block text-sm text-slate-400 mb-1">Tu Nombre / Apodo</label>
                 <input type="text" id="auth-name" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
             </div>
-            <div class="mb-6">
+            <div class="mb-4">
                 <label class="block text-sm text-slate-400 mb-1">Email</label>
                 <input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm text-slate-400 mb-1">Contraseña</label>
+                <input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
             </div>
 
             <button onclick="procesarAuth()" id="btn-auth" class="w-full bg-green-500 text-slate-950 font-bold py-3 rounded-lg hover:bg-green-400 transition-all mb-4">
@@ -50,8 +55,8 @@
         <div id="pending-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-yellow-500/30 p-8 rounded-2xl shadow-xl text-center">
             <div class="text-5xl mb-4">⏳</div>
             <h2 class="text-2xl font-bold text-yellow-400 mb-2">Cuenta Pendiente</h2>
-            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Si ya pagaste la inscripción, mandale un mensaje para que te habilite.</p>
-            <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Volver al inicio</button>
+            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Si ya pagaste la inscripción, avisale para que te habilite.</p>
+            <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Cerrar Sesión y Volver</button>
         </div>
 
         <div id="main-app-screen" class="app-screen">
@@ -112,7 +117,7 @@
         let partidosGlobales = [];
         let isLocked = false;
         let currentUser = null;
-        let authMode = 'login'; // login o signup
+        let authMode = 'login'; 
 
         // --- SISTEMA DE SESIÓN ---
         function checkSession() {
@@ -144,6 +149,12 @@
         function cerrarSesion() {
             localStorage.removeItem('prode_user');
             currentUser = null;
+            
+            // Limpiar campos por las dudas
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
+            document.getElementById('auth-name').value = '';
+            
             checkSession();
         }
 
@@ -158,16 +169,18 @@
 
         async function procesarAuth() {
             const email = document.getElementById('auth-email').value.trim();
+            const pass = document.getElementById('auth-password').value.trim();
             const name = document.getElementById('auth-name').value.trim();
             const btn = document.getElementById('btn-auth');
 
             if (!email) return alert("Ingresá un email.");
+            if (!pass) return alert("Ingresá tu contraseña.");
             if (authMode === 'signup' && !name) return alert("Ingresá tu nombre.");
 
             btn.innerText = "Cargando..."; btn.disabled = true;
 
             try {
-                const payload = { action: authMode, email: email, name: name };
+                const payload = { action: authMode, email: email, password: pass, name: name };
                 const req = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
                 const res = await req.json();
 
@@ -175,16 +188,15 @@
                     alert(res.message);
                 } else {
                     if (authMode === 'login') {
-                        // Guardamos la sesión en el celular/compu
                         localStorage.setItem('prode_user', JSON.stringify(res.user));
-                        checkSession(); // Reevalúa adónde mandarlo
+                        checkSession(); 
                     } else {
                         alert(res.message);
-                        toggleAuthMode(); // Lo mandamos a loguearse
+                        toggleAuthMode(); 
                     }
                 }
             } catch (e) {
-                alert("Error de conexión. Avisale a Tomi.");
+                alert("Error de conexión.");
             }
             btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; btn.disabled = false;
         }
@@ -241,8 +253,9 @@
 
                 grupos.forEach((grupo, index) => {
                     const groupId = grupo.replace(/\s/g, '');
-                    // ACA VOLVIMOS A PONER "Grupo A" y una clase text-xs para que entren en los celus
-                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${grupo}</button>`;
+                    const letraGrupo = grupo.replace('Grupo ', ''); 
+                    
+                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${letraGrupo}</button>`;
                     
                     let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
                     const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
@@ -324,7 +337,6 @@
             btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
         }
 
-        // Arrancamos verificando si ya está logueado
         checkSession();
     </script>
 </body>
