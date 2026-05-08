@@ -17,62 +17,93 @@
         .tab-content.active { display: block; }
         .group-content { display: none; }
         .group-content.active { display: block; }
+        .app-screen { display: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
 
     <div class="max-w-3xl mx-auto p-4 md:p-6">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-4">🏆 Prode Mundial</h1>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-8 mt-4">🏆 Prode Mundial 2026</h1>
         
-        <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg md:text-xl font-bold p-3 rounded-xl mb-6 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
-            ⏳ Calculando tiempo...
-        </div>
-        
-        <div class="bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-800 mb-6">
-            <label class="block text-sm text-slate-400 mb-2 font-medium">Jugador (Email o Nombre):</label>
-            <input type="text" id="user-email" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-3 outline-none focus:ring-2 focus:ring-green-500 transition-all" placeholder="ej: tomi@mail.com">
-        </div>
-
-        <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800">
-            <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Partidos</button>
-            <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🌟 Bonus</button>
-            <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🏅 Ranking</button>
-        </div>
-        
-        <div id="tab-pronosticos" class="tab-content active space-y-4">
-            <div id="groups-nav" class="grid grid-cols-6 gap-1 sm:gap-2 mb-4"></div>
+        <div id="auth-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+            <h2 id="auth-title" class="text-2xl font-bold text-center mb-6">Iniciar Sesión</h2>
             
-            <div id="matches-container">
-                <div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div>
+            <div id="div-name" class="hidden mb-4">
+                <label class="block text-sm text-slate-400 mb-1">Tu Nombre / Apodo</label>
+                <input type="text" id="auth-name" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
             </div>
+            <div class="mb-6">
+                <label class="block text-sm text-slate-400 mb-1">Email</label>
+                <input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500">
+            </div>
+
+            <button onclick="procesarAuth()" id="btn-auth" class="w-full bg-green-500 text-slate-950 font-bold py-3 rounded-lg hover:bg-green-400 transition-all mb-4">
+                Ingresar
+            </button>
+
+            <p class="text-center text-sm text-slate-500">
+                <span id="auth-switch-text">¿No tenés cuenta?</span> 
+                <button onclick="toggleAuthMode()" class="text-green-400 hover:underline font-bold" id="auth-switch-btn">Registrate acá</button>
+            </p>
         </div>
 
-        <div id="tab-bonus" class="tab-content">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
-                <h3 class="text-xl font-bold mb-4">🌟 Predicciones Especiales</h3>
-                <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Argentina"></div>
-                <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Francia"></div>
-                <div><label class="block text-sm text-slate-400 mb-1">Goleador (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Mbappé"></div>
-                <div><label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label><input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input" placeholder="Ej: Inglaterra"></div>
-            </div>
+        <div id="pending-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-yellow-500/30 p-8 rounded-2xl shadow-xl text-center">
+            <div class="text-5xl mb-4">⏳</div>
+            <h2 class="text-2xl font-bold text-yellow-400 mb-2">Cuenta Pendiente</h2>
+            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Si ya pagaste la inscripción, mandale un mensaje para que te habilite.</p>
+            <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Volver al inicio</button>
         </div>
 
-        <div id="tab-ranking" class="tab-content">
-            <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                        <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-right">Puntos</th></tr>
-                    </thead>
-                    <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
-                </table>
+        <div id="main-app-screen" class="app-screen">
+            <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800 mb-6">
+                <div>
+                    <p class="text-sm text-slate-400">Bienvenido,</p>
+                    <p id="user-display-name" class="font-bold text-lg text-green-400">Jugador</p>
+                </div>
+                <button onclick="cerrarSesion()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all">Cerrar Sesión</button>
+            </div>
+
+            <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm">
+                ⏳ Calculando tiempo...
+            </div>
+
+            <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800">
+                <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Partidos</button>
+                <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🌟 Bonus</button>
+                <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🏅 Ranking</button>
+            </div>
+            
+            <div id="tab-pronosticos" class="tab-content active space-y-4">
+                <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
+                <div id="matches-container"><div class="flex justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div></div>
+            </div>
+
+            <div id="tab-bonus" class="tab-content">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+                    <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><input type="text" id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><input type="text" id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Goleador (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Decepción (5 pts)</label><input type="text" id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 prediction-input"></div>
+                </div>
+            </div>
+
+            <div id="tab-ranking" class="tab-content">
+                <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
+                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+                        </thead>
+                        <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="floating-save" class="fixed bottom-0 left-0 w-full p-4 bg-slate-950/80 backdrop-blur-md border-t border-slate-800 flex justify-center z-50">
+    <div id="floating-save" class="fixed bottom-0 left-0 w-full p-4 bg-slate-950/80 backdrop-blur-md border-t border-slate-800 flex justify-center z-50 hidden">
         <button onclick="guardarPredicciones()" id="btn-guardar" class="bg-green-500 hover:bg-green-400 text-slate-950 font-bold text-lg py-3 px-8 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all w-full max-w-2xl">
-            💾 Guardar Mis Pronósticos
+            💾 Guardar Pronósticos
         </button>
     </div>
 
@@ -80,69 +111,119 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
         let partidosGlobales = [];
         let isLocked = false;
+        let currentUser = null;
+        let authMode = 'login'; // login o signup
 
-        // --- LÓGICA DEL CRONÓMETRO Y BLOQUEO ---
-        // Fecha de cierre: 10 de Junio de 2026 a las 15:00 UTC (1 día antes del primer partido)
-        const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
-        
-        const timerInterval = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = lockDate - now;
-            
-            if (distance < 0) {
-                clearInterval(timerInterval);
-                isLocked = true;
-                const timerDiv = document.getElementById("timer-container");
-                timerDiv.innerHTML = "🔒 PREDICCIONES CERRADAS";
-                timerDiv.classList.replace("text-yellow-400", "text-red-500");
-                timerDiv.classList.replace("border-yellow-500/30", "border-red-500/30");
-                document.getElementById("floating-save").style.display = "none";
-                bloquearInputs();
-                return;
+        // --- SISTEMA DE SESIÓN ---
+        function checkSession() {
+            const savedUser = localStorage.getItem('prode_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if(currentUser.is_approved) {
+                    mostrarPantalla('main-app-screen');
+                    document.getElementById('user-display-name').innerText = currentUser.name;
+                    cargarData();
+                } else {
+                    mostrarPantalla('pending-screen');
+                }
+            } else {
+                mostrarPantalla('auth-screen');
             }
-            
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-        }, 1000);
-
-        function bloquearInputs() {
-            document.querySelectorAll('.prediction-input').forEach(input => {
-                input.disabled = true;
-                input.classList.add('opacity-50', 'cursor-not-allowed');
-            });
         }
 
-        // --- TABS Y NAVEGACIÓN ---
+        function mostrarPantalla(id) {
+            document.querySelectorAll('.app-screen').forEach(el => el.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            if (id === 'main-app-screen' && !document.getElementById('tab-ranking').classList.contains('active')) {
+                document.getElementById('floating-save').style.display = 'flex';
+            } else {
+                document.getElementById('floating-save').style.display = 'none';
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('prode_user');
+            currentUser = null;
+            checkSession();
+        }
+
+        function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'signup' : 'login';
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta';
+            document.getElementById('div-name').style.display = authMode === 'login' ? 'none' : 'block';
+            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme';
+            document.getElementById('auth-switch-text').innerText = authMode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?';
+            document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? 'Registrate acá' : 'Ingresá acá';
+        }
+
+        async function procesarAuth() {
+            const email = document.getElementById('auth-email').value.trim();
+            const name = document.getElementById('auth-name').value.trim();
+            const btn = document.getElementById('btn-auth');
+
+            if (!email) return alert("Ingresá un email.");
+            if (authMode === 'signup' && !name) return alert("Ingresá tu nombre.");
+
+            btn.innerText = "Cargando..."; btn.disabled = true;
+
+            try {
+                const payload = { action: authMode, email: email, name: name };
+                const req = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const res = await req.json();
+
+                if (res.status === 'error') {
+                    alert(res.message);
+                } else {
+                    if (authMode === 'login') {
+                        // Guardamos la sesión en el celular/compu
+                        localStorage.setItem('prode_user', JSON.stringify(res.user));
+                        checkSession(); // Reevalúa adónde mandarlo
+                    } else {
+                        alert(res.message);
+                        toggleAuthMode(); // Lo mandamos a loguearse
+                    }
+                }
+            } catch (e) {
+                alert("Error de conexión. Avisale a Tomi.");
+            }
+            btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; btn.disabled = false;
+        }
+
+        // --- LÓGICA DEL CRONÓMETRO ---
+        const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
+        setInterval(function() {
+            if(!currentUser || !currentUser.is_approved) return;
+            const distance = lockDate - new Date().getTime();
+            if (distance < 0) {
+                isLocked = true;
+                const t = document.getElementById("timer-container");
+                t.innerHTML = "🔒 PREDICCIONES CERRADAS"; t.className = "bg-slate-900 border border-red-500/30 text-red-500 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6";
+                document.getElementById("floating-save").style.display = "none";
+                document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50', 'cursor-not-allowed'); });
+                return;
+            }
+            document.getElementById("timer-container").innerHTML = `⏳ Cierra en: ${Math.floor(distance/(1000*60*60*24))}d ${Math.floor((distance%(1000*60*60*24))/(1000*60*60))}h ${Math.floor((distance%(1000*60*60))/(1000*60))}m`;
+        }, 1000);
+
+        // --- TABS ---
         function cambiarTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            
             ['pronosticos', 'bonus', 'ranking'].forEach(t => {
                 const btn = document.getElementById(`btn-tab-${t}`);
                 if(t === tabName) { btn.classList.add('bg-slate-800', 'text-white', 'shadow'); btn.classList.remove('text-slate-400'); } 
                 else { btn.classList.remove('bg-slate-800', 'text-white', 'shadow'); btn.classList.add('text-slate-400'); }
             });
-            
-            // Mostrar botón guardar solo si no es ranking y no está bloqueado
-            if(tabName === 'ranking' || isLocked) {
-                document.getElementById('floating-save').style.display = 'none';
-            } else {
-                document.getElementById('floating-save').style.display = 'flex';
-            }
+            document.getElementById('floating-save').style.display = (tabName === 'ranking' || isLocked) ? 'none' : 'flex';
         }
 
         function cambiarGrupo(grupo) {
             document.querySelectorAll('.group-content').forEach(g => g.classList.remove('active'));
             document.getElementById(`group-${grupo.replace(/\s/g, '')}`).classList.add('active');
-            
             document.querySelectorAll('.btn-group').forEach(btn => {
-                btn.classList.remove('bg-green-500', 'text-slate-950'); btn.classList.add('bg-slate-800', 'text-slate-300');
+                btn.classList.remove('bg-green-500', 'text-slate-950'); btn.classList.add('bg-slate-800', 'text-slate-400');
             });
-            document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.remove('bg-slate-800', 'text-slate-300');
+            document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.remove('bg-slate-800', 'text-slate-400');
             document.getElementById(`btn-group-${grupo.replace(/\s/g, '')}`).classList.add('bg-green-500', 'text-slate-950');
         }
 
@@ -160,23 +241,22 @@
 
                 grupos.forEach((grupo, index) => {
                     const groupId = grupo.replace(/\s/g, '');
-                    // Le sacamos la palabra "Grupo " para que quede solo la letra A, B, C y entre perfecto en grilla
-                    const letraGrupo = grupo.replace('Grupo ', ''); 
+                    // ACA VOLVIMOS A PONER "Grupo A" y una clase text-xs para que entren en los celus
+                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${grupo}</button>`;
                     
-                    nav.innerHTML += `<button id="btn-group-${groupId}" onclick="cambiarGrupo('${grupo}')" class="btn-group px-2 py-2 rounded-lg text-sm md:text-base font-bold transition-colors ${index === 0 ? 'bg-green-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">${letraGrupo}</button>`;
                     let htmlGrupo = `<div id="group-${groupId}" class="group-content ${index === 0 ? 'active' : ''} space-y-3">`;
-                    
                     const partidosGrupo = partidosGlobales.filter(p => (p.group || "Mundial") === grupo);
+                    
                     partidosGrupo.forEach(partido => {
                         htmlGrupo += `
-                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm hover:border-slate-700 transition-colors">
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
                                 <div class="text-center text-xs text-slate-500 mb-3 font-medium">🗓️ ${new Date(partido.kickoff_time || new Date()).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}hs</div>
                                 <div class="flex justify-between items-center">
                                     <div class="w-[40%] text-right font-bold text-sm sm:text-base truncate pr-3">${partido.team_a}</div>
                                     <div class="flex gap-2 items-center w-[20%] justify-center">
-                                        <input type="number" id="goles_a_${partido.id}" class="prediction-input w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
+                                        <input type="number" id="goles_a_${partido.id}" class="prediction-input w-10 h-10 text-center text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
                                         <span class="text-slate-600 font-bold">-</span>
-                                        <input type="number" id="goles_b_${partido.id}" class="prediction-input w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" placeholder="-">
+                                        <input type="number" id="goles_b_${partido.id}" class="prediction-input w-10 h-10 text-center text-lg bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500" placeholder="-">
                                     </div>
                                     <div class="w-[40%] text-left font-bold text-sm sm:text-base truncate pl-3">${partido.team_b}</div>
                                 </div>
@@ -187,9 +267,7 @@
                 });
 
                 dibujarRanking(data.ranking);
-
-                // Si cargó la data y ya está bloqueado, deshabilitamos lo recién renderizado
-                if(isLocked) bloquearInputs();
+                if(isLocked) document.querySelectorAll('.prediction-input').forEach(i => { i.disabled = true; i.classList.add('opacity-50', 'cursor-not-allowed'); });
 
             } catch (error) {
                 document.getElementById('matches-container').innerHTML = '<p class="text-center text-red-400">Error al cargar datos.</p>';
@@ -202,68 +280,52 @@
             podium.innerHTML = ''; tbody.innerHTML = '';
 
             if(!ranking || ranking.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-500">Todavía nadie sumó puntos 😢</td></tr>';
-                return;
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-500">Todavía nadie sumó puntos 😢</td></tr>'; return;
             }
 
             const p1 = ranking[0], p2 = ranking[1], p3 = ranking[2];
-            
-            if(p2) podium.innerHTML += `<div class="bg-slate-900/50 border border-silver/30 rounded-xl p-3 text-center order-1 mt-4"><div class="w-10 h-10 mx-auto bg-silver/20 rounded-full flex items-center justify-center mb-2 text-xl">🥈</div><p class="font-medium text-sm truncate">${p2.name}</p><p class="text-lg font-bold text-silver">${p2.points} pts</p></div>`;
-            if(p1) podium.innerHTML += `<div class="bg-slate-900/80 border border-gold/40 rounded-xl p-4 text-center order-0 sm:order-1 -mt-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]"><div class="w-14 h-14 mx-auto bg-gold/20 rounded-full flex items-center justify-center mb-2 text-2xl">👑</div><p class="font-medium text-base truncate">${p1.name}</p><p class="text-2xl font-bold text-gold">${p1.points} pts</p></div>`;
-            if(p3) podium.innerHTML += `<div class="bg-slate-900/50 border border-bronze/30 rounded-xl p-3 text-center order-2 mt-4"><div class="w-10 h-10 mx-auto bg-bronze/20 rounded-full flex items-center justify-center mb-2 text-xl">🥉</div><p class="font-medium text-sm truncate">${p3.name}</p><p class="text-lg font-bold text-bronze">${p3.points} pts</p></div>`;
+            if(p2) podium.innerHTML += `<div class="bg-slate-900/50 border border-silver/30 rounded-xl p-3 text-center order-1 mt-4"><div class="text-xl mb-2">🥈</div><p class="font-medium text-sm truncate">${p2.name}</p><p class="text-lg font-bold text-silver">${p2.points} pts</p></div>`;
+            if(p1) podium.innerHTML += `<div class="bg-slate-900/80 border border-gold/40 rounded-xl p-4 text-center order-0 sm:order-1 -mt-2 shadow-[0_0_15px_rgba(251,191,36,0.1)]"><div class="text-2xl mb-2">👑</div><p class="font-medium text-base truncate">${p1.name}</p><p class="text-2xl font-bold text-gold">${p1.points} pts</p></div>`;
+            if(p3) podium.innerHTML += `<div class="bg-slate-900/50 border border-bronze/30 rounded-xl p-3 text-center order-2 mt-4"><div class="text-xl mb-2">🥉</div><p class="font-medium text-sm truncate">${p3.name}</p><p class="text-lg font-bold text-bronze">${p3.points} pts</p></div>`;
 
             ranking.forEach((user, idx) => {
                 let badge = `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${idx + 1}</span>`;
-                if(idx === 0) badge = `<span class="bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">1</span>`;
-                else if(idx === 1) badge = `<span class="bg-silver/20 text-silver px-2 py-1 rounded-full font-bold">2</span>`;
-                else if(idx === 2) badge = `<span class="bg-bronze/20 text-bronze px-2 py-1 rounded-full font-bold">3</span>`;
+                if(idx===0) badge=`<span class="bg-gold/20 text-gold px-2 py-1 rounded-full font-bold">1</span>`;
+                else if(idx===1) badge=`<span class="bg-silver/20 text-silver px-2 py-1 rounded-full font-bold">2</span>`;
+                else if(idx===2) badge=`<span class="bg-bronze/20 text-bronze px-2 py-1 rounded-full font-bold">3</span>`;
                 tbody.innerHTML += `<tr class="hover:bg-slate-800/50"><td class="px-4 py-3 text-center">${badge}</td><td class="px-4 py-3 font-medium">${user.name}</td><td class="px-4 py-3 text-right font-bold text-green-400">${user.points}</td></tr>`;
             });
         }
 
         async function guardarPredicciones() {
             if (isLocked) return alert("¡Demasiado tarde! Las predicciones están cerradas.");
-            
-            const email = document.getElementById('user-email').value.trim();
-            if (!email) return alert("¡Poné tu nombre o email primero!");
-
             const btn = document.getElementById('btn-guardar');
             btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
-            const payload = { user_email: email, predictions: [], bonus: null };
-            for (let partido of partidosGlobales) {
-                let gA = document.getElementById(`goles_a_${partido.id}`).value;
-                let gB = document.getElementById(`goles_b_${partido.id}`).value;
-                if (gA !== "" && gB !== "") payload.predictions.push({ match_id: partido.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
+            const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: null };
+            
+            for (let p of partidosGlobales) {
+                let gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value;
+                if (gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) });
             }
 
-            const bCampeon = document.getElementById('bonus-campeon').value.trim();
-            const bSub = document.getElementById('bonus-subcampeon').value.trim();
-            const bGol = document.getElementById('bonus-goleador').value.trim();
-            const bDec = document.getElementById('bonus-decepcion').value.trim();
-
-            if(bCampeon || bSub || bGol || bDec) payload.bonus = { champion: bCampeon, runner_up: bSub, top_scorer: bGol, disappointment: bDec };
+            const bC = document.getElementById('bonus-campeon').value.trim(), bS = document.getElementById('bonus-subcampeon').value.trim(), bG = document.getElementById('bonus-goleador').value.trim(), bD = document.getElementById('bonus-decepcion').value.trim();
+            if(bC || bS || bG || bD) payload.bonus = { champion: bC, runner_up: bS, top_scorer: bG, disappointment: bD };
 
             if (payload.predictions.length === 0 && !payload.bonus) {
-                alert("No completaste nada nuevo.");
-                btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
-                return;
+                alert("No completaste nada nuevo."); btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false; return;
             }
 
             try {
-                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" } });
-                const result = await response.json();
-                if (result.status === "error") {
-                    alert("Error: " + result.message);
-                } else {
-                    alert("¡Pronósticos guardados! 🏆");
-                    cargarData(); 
-                }
-            } catch (error) { alert("Hubo un error de conexión."); }
+                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                alert("¡Pronósticos guardados! 🏆");
+                cargarData(); 
+            } catch (e) { alert("Hubo un error."); }
             btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
         }
 
-        cargarData();
+        // Arrancamos verificando si ya está logueado
+        checkSession();
     </script>
 </body>
 </html>
