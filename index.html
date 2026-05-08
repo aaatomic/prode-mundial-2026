@@ -17,9 +17,43 @@
         .app-screen { display: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        #modal-reglas { display: none; }
+        #modal-reglas.active { display: flex; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
+
+    <div id="modal-reglas" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[80vh]">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                <h2 class="text-xl font-bold text-green-400">📜 Reglas del Juego</h2>
+                <button onclick="toggleReglas()" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+                <section>
+                    <h3 class="font-bold text-white mb-1">⚽ Puntaje por Partido:</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><span class="text-green-400 font-bold">3 puntos:</span> Pegar el resultado exacto (ej: pusiste 2-1 y salió 2-1).</li>
+                        <li><span class="text-yellow-400 font-bold">1 punto:</span> Acertar el ganador o empate, pero no el resultado exacto (ej: pusiste 1-0 y salió 3-0).</li>
+                        <li><span class="text-red-400 font-bold">0 puntos:</span> No acertar ninguna de las anteriores.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3 class="font-bold text-white mb-1">🌟 Puntaje Bonus:</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><span class="text-gold font-bold">30 puntos:</span> Campeón.</li>
+                        <li><span class="text-silver font-bold">15 puntos:</span> Subcampeón.</li>
+                        <li><span class="text-blue-400 font-bold">10 puntos:</span> Goleador del torneo.</li>
+                        <li><span class="text-red-400 font-bold">10 puntos:</span> País Decepción.</li>
+                    </ul>
+                </section>
+                <section class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
+                    <p>⚠️ <strong>Importante:</strong> Una vez que cierre el contador en la pantalla principal, ya no se podrán realizar más cambios. ¡Asegúrate de guardar antes!</p>
+                </section>
+            </div>
+            <button onclick="toggleReglas()" class="w-full mt-6 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold transition-all text-white">Entendido</button>
+        </div>
+    </div>
 
     <div class="max-w-3xl mx-auto p-2 sm:p-4 md:p-6">
         <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-8 mt-4">🏆 Prode Mundial 2026</h1>
@@ -48,6 +82,7 @@
                 </div>
                 <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
                     <span id="user-payment-status" class="text-[10px] font-bold px-2 py-1.5 rounded-md border"></span>
+                    <button onclick="toggleReglas()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all text-slate-300 flex items-center gap-1">📜 Reglas</button>
                     <button onclick="cambiarNombre()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all text-slate-300 flex items-center gap-1">⚙️ Mi cuenta</button>
                     <button onclick="cerrarSesion()" class="text-[10px] bg-red-900/20 text-red-400 px-3 py-2 rounded-lg border border-red-800/30 transition-all">Salir</button>
                 </div>
@@ -74,10 +109,10 @@
             <div id="tab-bonus" class="tab-content">
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8">
                     <h3 class="text-green-400 font-bold border-b border-slate-800 pb-2">Mis Elegidos</h3>
-                    <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">País Decepción (5 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Campeón (30 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
                 </div>
 
                 <div class="space-y-4">
@@ -132,6 +167,11 @@
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
         
+        function toggleReglas() {
+            const modal = document.getElementById('modal-reglas');
+            modal.classList.toggle('active');
+        }
+
         function actualizarCartelPago(estaPago) {
             const el = document.getElementById('user-payment-status');
             if(estaPago) {
