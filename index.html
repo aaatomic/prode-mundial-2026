@@ -231,37 +231,61 @@
             const btn = document.getElementById('btn-guardar');
             btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
-            let guardoAlgo = false;
+            // Creamos la "caja" maestra con todos los datos
+            const payload = {
+                user_email: email,
+                predictions: [],
+                bonus: null
+            };
             
-            // Guardar partidos
+            // 1. Recolectar partidos
             for (let partido of partidosGlobales) {
                 let gA = document.getElementById(`goles_a_${partido.id}`).value;
                 let gB = document.getElementById(`goles_b_${partido.id}`).value;
                 
                 if (gA !== "" && gB !== "") {
-                    guardoAlgo = true;
-                    await fetch(API_URL, {
-                        method: "POST",
-                        body: JSON.stringify({ user_email: email, match_id: partido.id, pred_a: parseInt(gA), pred_b: parseInt(gB) }),
-                        headers: { "Content-Type": "text/plain;charset=utf-8" }
+                    payload.predictions.push({
+                        match_id: partido.id,
+                        pred_a: parseInt(gA),
+                        pred_b: parseInt(gB)
                     });
                 }
             }
 
-            // Guardar Bonus (opcional, los mandamos con un match_id especial)
-            const bCampeon = document.getElementById('bonus-campeon').value;
-            const bSub = document.getElementById('bonus-subcampeon').value;
-            if(bCampeon || bSub) {
-                 guardoAlgo = true;
-                 await fetch(API_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ user_email: email, match_id: "BONUS", pred_a: bCampeon, pred_b: bSub }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
+            // 2. Recolectar Bonus
+            const bCampeon = document.getElementById('bonus-campeon').value.trim();
+            const bSub = document.getElementById('bonus-subcampeon').value.trim();
+            const bGol = document.getElementById('bonus-goleador').value.trim();
+            const bDec = document.getElementById('bonus-decepcion').value.trim();
+
+            if(bCampeon || bSub || bGol || bDec) {
+                payload.bonus = {
+                    champion: bCampeon,
+                    runner_up: bSub,
+                    top_scorer: bGol,
+                    disappointment: bDec
+                };
             }
 
-            if (!guardoAlgo) alert("No completaste nada nuevo.");
-            else alert("¡Pronósticos guardados! 🏆");
+            // Validar que haya llenado ALGO
+            if (payload.predictions.length === 0 && !payload.bonus) {
+                alert("No completaste nada nuevo.");
+                btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
+                return;
+            }
+
+            // Enviar 1 SOLA llamada a Google
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+                alert("¡Pronósticos guardados! 🏆");
+            } catch (error) {
+                console.error("Error al guardar:", error);
+                alert("Hubo un error de conexión.");
+            }
             
             btn.innerText = "💾 Guardar Mis Pronósticos"; btn.disabled = false;
         }
