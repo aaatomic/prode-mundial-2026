@@ -332,4 +332,42 @@
             });
         }
 
-        function getFlagUrl(n) { const t = equiposGlobales.find(e =>
+        function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        function cambiarTab(n) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active');
+            ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400");
+            mostrarPantalla('main-app-screen');
+        }
+
+        async function guardarPredicciones() {
+            if (isLocked) return alert("Cerrado!");
+            const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳ Guardando..."; btn.disabled = true;
+            const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: { champion: document.getElementById('bonus-campeon').value, runner_up: document.getElementById('bonus-subcampeon').value, disappointment: document.getElementById('bonus-decepcion').value, top_scorer: document.getElementById('bonus-goleador').value.trim() } };
+            partidosGlobales.forEach(p => { const gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value; if(gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) }); });
+            try { await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); alert("¡Guardado! 🏆"); cargarData(); } catch(e) { alert("Error"); }
+            btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
+        }
+
+        async function procesarAuth() {
+            const email = document.getElementById('auth-email').value.trim(); const pass = document.getElementById('auth-password').value.trim(); const name = document.getElementById('auth-name').value.trim();
+            if (!email || !pass) return alert("Faltan datos");
+            try { const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); if (res.status === 'error') alert(res.message); else { if (authMode === 'login') { localStorage.setItem('prode_user', JSON.stringify(res.user)); checkSession(); } else { alert(res.message); authMode='login'; checkSession(); } } } catch (e) { alert("Error"); }
+        }
+
+        function toggleAuthMode() { authMode = authMode === 'login' ? 'signup' : 'login'; document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; document.getElementById('div-name').classList.toggle('hidden'); document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; }
+
+        async function cambiarNombre() {
+            const nuevo = prompt("Nuevo nombre:", currentUser.name);
+            if(nuevo && nuevo.trim() !== "") {
+                const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "update_profile", email: currentUser.email, new_name: nuevo.trim() }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json();
+                if(res.status === "success") { currentUser.name = nuevo.trim(); localStorage.setItem('prode_user', JSON.stringify(currentUser)); cargarData(); }
+            }
+        }
+
+        // Registrar Service Worker para PWA (básico)
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/service-worker.js').catch(e => {}); }); }
+
+        checkSession();
+    </script>
+</body>
+</html>
