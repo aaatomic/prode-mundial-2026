@@ -1,420 +1,780 @@
 <!DOCTYPE html>
+
 <html lang="es" class="dark">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Prode Mundial 2026</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
+
         tailwind.config = { darkMode: 'class', theme: { extend: { colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' } } } }
+
     </script>
+
     <style>
+
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
         .tab-content { display: none; }
+
         .tab-content.active { display: block; }
+
         .group-content { display: none; }
+
         .group-content.active { display: block; }
+
         .app-screen { display: none; }
+
     </style>
+
 </head>
+
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
 
+
+
     <div class="max-w-3xl mx-auto p-2 sm:p-4 md:p-6">
+
         <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-8 mt-4">🏆 Prode Mundial 2026</h1>
+
         
+
         <div id="auth-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+
             <h2 id="auth-title" class="text-2xl font-bold text-center mb-6">Iniciar Sesión</h2>
+
             <div id="div-name" class="hidden mb-4"><label class="block text-sm text-slate-400 mb-1">Tu Nombre / Apodo</label><input type="text" id="auth-name" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500"></div>
+
             <div class="mb-4"><label class="block text-sm text-slate-400 mb-1">Email</label><input type="email" id="auth-email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500"></div>
+
             <div class="mb-6 relative"><label class="block text-sm text-slate-400 mb-1">Contraseña</label><input type="password" id="auth-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 pr-10 outline-none focus:border-green-500"><button onclick="togglePassword()" class="absolute right-3 top-[34px] text-slate-400 hover:text-white text-lg transition-colors">👁️</button></div>
+
             <button onclick="procesarAuth()" id="btn-auth" class="w-full bg-green-500 text-slate-950 font-bold py-3 rounded-lg hover:bg-green-400 transition-all mb-4">Ingresar</button>
+
             <p class="text-center text-sm text-slate-500"><span id="auth-switch-text">¿No tenés cuenta?</span> <button onclick="toggleAuthMode()" class="text-green-400 hover:underline font-bold" id="auth-switch-btn">Registrate acá</button></p>
+
         </div>
+
+
 
         <div id="pending-screen" class="app-screen max-w-md mx-auto bg-slate-900 border border-yellow-500/30 p-8 rounded-2xl shadow-xl text-center">
+
             <div class="text-5xl mb-4">⏳</div>
+
             <h2 class="text-2xl font-bold text-yellow-400 mb-2">Cuenta Pendiente</h2>
-            <p class="text-slate-400 mb-6">El Admin todavía no aprobó tu cuenta. Avisale para que te habilite.</p>
+
+            <p class="text-slate-400 mb-6">Tomi todavía no aprobó tu cuenta. Avisale para que te habilite.</p>
+
             <button onclick="cerrarSesion()" class="text-sm text-slate-500 hover:text-white underline">Cerrar Sesión</button>
+
         </div>
+
+
 
         <div id="main-app-screen" class="app-screen">
+
             
+
             <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800 mb-3 shadow-sm gap-4">
+
                 <div class="w-full sm:w-auto text-center sm:text-left">
+
                     <p class="text-xs text-slate-400 uppercase tracking-widest">Jugador</p>
+
                     <p id="user-display-name" class="font-bold text-xl text-green-400 truncate max-w-[200px]">...</p>
+
                 </div>
+
                 <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+
                     <span id="user-payment-status" class="text-[10px] font-bold px-2 py-1.5 rounded-md border"></span>
+
                     <button onclick="cambiarNombre()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-700 transition-all text-slate-300 flex items-center gap-1">⚙️ Mi cuenta</button>
+
                     <button onclick="cerrarSesion()" class="text-[10px] bg-red-900/20 text-red-400 px-3 py-2 rounded-lg border border-red-800/30 transition-all">Salir</button>
+
                 </div>
+
             </div>
+
+
 
             <div class="bg-slate-800/60 border border-slate-700/50 text-center py-3 px-4 rounded-xl mb-3 flex justify-center items-center gap-3 shadow-inner">
+
                 <span class="text-slate-300 text-sm font-medium">Puntos Totales:</span>
+
                 <span id="user-total-points" class="text-green-400 font-black text-3xl">0</span>
+
             </div>
+
             
+
             <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm">⏳ Calculando...</div>
+
             
+
             <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800">
+
                 <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Partidos</button>
+
                 <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🌟 Bonus</button>
+
                 <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🏅 Ranking</button>
+
             </div>
+
             
+
             <div id="tab-pronosticos" class="tab-content active space-y-4">
+
                 <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
+
                 <div id="matches-container"></div>
+
             </div>
+
             
+
             <div id="tab-bonus" class="tab-content">
+
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8">
+
                     <h3 class="text-green-400 font-bold border-b border-slate-800 pb-2">Mis Elegidos</h3>
+
                     <div><label class="block text-sm text-slate-400 mb-1">Campeón (10 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+
                     <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (5 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+
                     <div><label class="block text-sm text-slate-400 mb-1">País Decepción (5 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+
                     <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (5 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
+
                 </div>
+
+
 
                 <div class="space-y-4">
+
                     <h3 class="text-xl font-bold text-center text-slate-300">👀 Esto pusieron todos...</h3>
+
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3" id="bonus-summary-container"></div>
+
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto shadow-sm">
+
                         <table class="w-full text-left text-xs whitespace-nowrap">
+
                             <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+
                                 <tr><th class="px-3 py-3">Participante</th><th class="px-3 py-3 text-gold">Campeón</th><th class="px-3 py-3 text-silver">Subcampeón</th><th class="px-3 py-3 text-red-400">Decepción</th><th class="px-3 py-3 text-blue-400">Goleador</th></tr>
+
                             </thead>
+
                             <tbody id="bonus-table-body" class="divide-y divide-slate-800/60"></tbody>
+
                         </table>
+
                     </div>
+
                 </div>
+
             </div>
+
             
+
             <div id="tab-ranking" class="tab-content">
+
                 <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
+
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+
                     <table class="w-full text-sm text-left">
+
                         <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
+
                             <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante (toca para ver)</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+
                         </thead>
+
                         <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
+
+
 
         <div id="user-view-screen" class="app-screen">
+
             <div class="flex items-center gap-4 mb-6">
+
                 <button onclick="mostrarPantalla('main-app-screen')" class="bg-slate-800 p-2 rounded-lg text-slate-400">⬅️ Volver</button>
+
                 <div><h2 class="text-xl font-bold">Viendo a: <span id="spy-user-name" class="text-green-400">...</span></h2><p class="text-xs text-slate-500">Total: <span id="spy-user-points">0</span> pts</p></div>
+
             </div>
+
             <div id="spy-groups-nav" class="grid grid-cols-6 gap-1 mb-4"></div>
+
             <div id="spy-matches-container"></div>
+
         </div>
+
     </div>
+
+
 
     <div id="floating-save" class="fixed bottom-0 left-0 w-full p-4 bg-slate-950/80 backdrop-blur-md border-t border-slate-800 flex justify-center z-50 hidden">
+
         <button onclick="guardarPredicciones()" id="btn-guardar" class="bg-green-500 text-slate-950 font-bold text-lg py-3 px-8 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all w-full max-w-2xl">💾 Guardar Pronósticos</button>
+
     </div>
 
+
+
     <script>
+
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
+
         let partidosGlobales = [];
+
         let equiposGlobales = []; 
+
         let currentUser = null;
+
         let isLocked = false;
-        let authMode = 'login'; // ¡ACÁ ESTABA EL PROBLEMA!
+
+
 
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
+
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
+
         
+
         function actualizarCartelPago(estaPago) {
+
             const el = document.getElementById('user-payment-status');
+
             if(estaPago) {
+
                 el.innerText = "Inscripción: Pago";
+
                 el.className = "text-[10px] font-bold px-2 py-1.5 rounded-md border border-green-800 bg-green-900/30 text-green-400";
+
             } else {
+
                 el.innerText = "Inscripción: No pago";
+
                 el.className = "text-[10px] font-bold px-2 py-1.5 rounded-md border border-red-800 bg-red-900/30 text-red-400";
+
             }
+
         }
+
+
 
         function checkSession() {
+
             const savedUser = localStorage.getItem('prode_user');
+
             if (savedUser) {
+
                 currentUser = JSON.parse(savedUser);
+
                 if(currentUser.is_approved) { 
+
                     mostrarPantalla('main-app-screen'); 
+
                     document.getElementById('user-display-name').innerText = currentUser.name;
+
                     actualizarCartelPago(currentUser.has_paid);
+
                     cargarData(); 
+
                 } else { mostrarPantalla('pending-screen'); }
+
             } else { mostrarPantalla('auth-screen'); }
+
         }
+
+
 
         function mostrarPantalla(id) {
+
             document.querySelectorAll('.app-screen').forEach(el => el.style.display = 'none');
+
             document.getElementById(id).style.display = 'block';
+
             const isMainApp = (id === 'main-app-screen');
+
             const isTabActive = document.getElementById('tab-pronosticos').classList.contains('active') || document.getElementById('tab-bonus').classList.contains('active');
+
             document.getElementById('floating-save').style.display = (isMainApp && isTabActive && !isLocked) ? 'flex' : 'none';
+
         }
 
-        const lockDate = new Date("2026-06-11T18:59:00Z").getTime();
+
+
+        const lockDate = new Date("2026-06-10T15:00:00Z").getTime();
+
         setInterval(() => {
+
             if(!currentUser || !currentUser.is_approved) return;
+
             const distance = lockDate - new Date().getTime();
+
             const t = document.getElementById("timer-container");
+
             if (distance < 0) {
+
                 isLocked = true;
+
                 t.innerHTML = "🔒 CERRADO"; t.className = "bg-slate-900 border border-red-500/30 text-red-500 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm";
+
                 document.getElementById('floating-save').style.display = 'none';
+
             } else {
+
                 const d = Math.floor(distance/(1000*60*60*24)), h = Math.floor((distance%(1000*60*60*24))/(1000*60*60)), m = Math.floor((distance%(1000*60*60))/(1000*60)), s = Math.floor((distance%(1000*60))/1000);
+
                 t.innerHTML = `⏳ Cierra en: ${d}d ${h}h ${m}m ${s}s`;
+
             }
+
         }, 1000);
 
+
+
         async function cargarData() {
+
             try {
+
                 const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
+
                 partidosGlobales = res.matches; equiposGlobales = res.teams || [];
+
                 const miRanking = res.ranking.find(r => r.email === currentUser.email);
+
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
+
                 
+
                 currentUser.has_paid = res.userPaid;
+
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
+
                 actualizarCartelPago(res.userPaid);
 
+
+
                 let options = '<option value="">Elegí...</option>';
+
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
+
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion'].forEach(id => document.getElementById(id).innerHTML = options);
+
                 
+
                 if(res.userBonus) {
+
                     document.getElementById('bonus-campeon').value = res.userBonus.champion || "";
+
                     document.getElementById('bonus-subcampeon').value = res.userBonus.runner_up || "";
+
                     document.getElementById('bonus-decepcion').value = res.userBonus.disappointment || "";
+
                     document.getElementById('bonus-goleador').value = res.userBonus.top_scorer || "";
+
                 }
+
+
 
                 renderizarOjoDelPueblo(res.allBonus);
+
                 renderizarContenido(res, 'groups-nav', 'matches-container', false);
+
                 dibujarRanking(res.ranking);
+
             } catch(e) { console.error(e); }
+
         }
+
+
 
         function renderizarOjoDelPueblo(allBonus) {
+
             const sumContainer = document.getElementById('bonus-summary-container');
+
             const tbBody = document.getElementById('bonus-table-body');
+
             if(!allBonus || allBonus.length === 0) return;
 
+
+
             const getVotes = (field) => {
+
                 const counts = {};
+
+                // Para el goleador, pasamos el texto a minúsculas temporalmente para evitar que "Messi" y "messi" sean votos separados
+
                 allBonus.forEach(b => { 
+
                     if(b[field]) {
+
                         let valor = field === 'top_scorer' ? b[field].trim().toUpperCase() : b[field];
+
                         counts[valor] = (counts[valor] || 0) + 1; 
+
                     }
+
                 });
+
                 const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+
                 if(sorted.length === 0) return '<span class="text-slate-600">Sin votos</span>'; 
+
                 return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
+
             };
 
+
+
+            // ACÁ AGREGUÉ LA LÍNEA DEL GOLEADOR QUE FALTABA
+
             sumContainer.innerHTML = `
+
                 <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('champion')}</div></div>
+
                 <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('runner_up')}</div></div>
+
                 <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('disappointment')}</div></div>
+
                 <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('top_scorer')}</div></div>
+
             `;
 
+
+
             let trHtml = '';
+
             allBonus.sort((a, b) => a.name.localeCompare(b.name)).forEach(b => {
+
                 let badge = (b.email === currentUser.email) ? `<span class="bg-green-500/20 text-green-400 px-1 text-[8px] ml-1">Vos</span>` : '';
+
                 trHtml += `<tr class="hover:bg-slate-800/40"><td class="px-3 py-2 font-medium border-r border-slate-800/50">${b.name}${badge}</td><td class="px-3 py-2">${b.champion || '-'}</td><td class="px-3 py-2">${b.runner_up || '-'}</td><td class="px-3 py-2">${b.disappointment || '-'}</td><td class="px-3 py-2">${b.top_scorer || '-'}</td></tr>`;
+
             });
+
             tbBody.innerHTML = trHtml;
+
         }
+
+
 
         function renderizarContenido(data, navId, containerId, isReadOnly) {
+
             const partidos = data.matches;
+
             const userPreds = data.userPredictions || [];
+
             const container = document.getElementById(containerId);
+
             const nav = document.getElementById(navId);
+
             const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort();
+
             nav.innerHTML = ''; container.innerHTML = '';
+
             grupos.forEach((grupo, idx) => {
+
                 const cleanId = grupo.replace(/\s/g, '');
+
                 const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
+
                 nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-1 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
+
                 const partidosGrupo = partidos.filter(p => p.group === grupo);
+
                 let ptsGrupo = 0;
+
                 partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
+
                 let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
+
                     <div class="bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-800"><span class="text-xs text-slate-400">Puntos en este grupo:</span><span class="text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
+
                 partidosGrupo.forEach(p => {
+
                     const pred = userPreds.find(up => up.match_id === p.id);
+
                     const sCode = (p.status || '').toUpperCase();
+
                     let sColor = 'bg-slate-500', sText = 'PENDIENTE';
+
                     if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; }
+
                     else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
+
                     let ptsBox = '<span class="text-[10px] font-bold text-slate-600 border border-slate-800 px-2 py-0.5 rounded">0 pts</span>';
+
                     if(pred && pred.points !== undefined && pred.points !== "") {
+
                         if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded-full shadow-sm">+3 pts</span>';
+
                         else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-300 bg-green-900/20 px-2 py-0.5 rounded-full">+1 pt</span>';
+
                     }
+
                     const fA = getFlagUrl(p.team_a), fB = getFlagUrl(p.team_b);
+
                     html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm">
+
                         <div class="flex justify-between items-center mb-3">
+
                             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-400">${sText}</span></div>
+
                             <div class="text-[10px] text-slate-500 font-medium">${new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false})} hs</div>
+
                             <div>${ptsBox}</div>
+
                         </div>
+
                         <div class="flex justify-between items-center gap-1">
+
                             <div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate">${p.team_a} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-700"></div>
+
                             <div class="flex gap-1 items-center shrink-0">
+
                                 <input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500">
+
                                 <span class="text-slate-600">-</span>
+
                                 <input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500">
+
                             </div>
+
                             <div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-700"> ${p.team_b}</div>
+
                         </div>
+
                         <div class="border-t border-slate-800/50 pt-2 mt-2">
+
                             <button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="w-full text-[9px] text-slate-500 uppercase tracking-tighter">Resultado Real ▼</button>
+
                             <div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-1 text-center font-mono text-lg font-bold text-white">${p.score_a || p.goles_a || '-'} - ${p.score_b || p.goles_b || '-'}</div>
+
                         </div>
+
                     </div>`;
+
                 });
+
                 container.innerHTML += html + '</div>';
+
             });
+
         }
+
+
 
         function cambiarGrupoManual(grupo, isSpy) {
+
             const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container';
+
             const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false';
+
             const prefix = isSpy ? 'spy-' : '';
+
             document.querySelectorAll(navSelector).forEach(b => {
+
                 b.classList.remove('bg-green-500', 'text-slate-950'); b.classList.add('bg-slate-800', 'text-slate-400');
+
                 if(b.innerText === grupo) { b.classList.add('bg-green-500', 'text-slate-950'); b.classList.remove('bg-slate-800', 'text-slate-400'); }
+
             });
+
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active'));
+
             document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
+
         }
+
+
 
         function calcularTabla(partidos, tipo, predicciones) {
+
             let t = {};
+
             partidos.forEach(p => { [p.team_a, p.team_b].forEach(tm => { if(tm && !t[tm]) t[tm] = { nombre: tm, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 }; })});
+
             partidos.forEach(p => {
+
                 let gA = null, gB = null;
+
                 if(tipo === 'real') { if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { gA = parseInt(p.score_a || p.goles_a); gB = parseInt(p.score_b || p.goles_b); } } 
+
                 else { const pr = predicciones ? predicciones.find(up => up.match_id === p.id) : null; if(pr && pr.pred_a !== "" && pr.pred_b !== "") { gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); } }
+
                 if(gA != null && !isNaN(gA)) {
+
                     t[p.team_a].PJ++; t[p.team_b].PJ++; t[p.team_a].GF+=gA; t[p.team_a].GC+=gB; t[p.team_b].GF+=gB; t[p.team_b].GC+=gA;
+
                     if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; } else if(gA < gB) { t[p.team_b].G++; t[p.team_a].P++; t[p.team_b].Pts+=3; } else { t[p.team_a].E++; t[p.team_b].E++; t[p.team_a].Pts+=1; t[p.team_b].Pts+=1; }
+
                 }
+
             });
+
             return Object.values(t).sort((a,b) => (b.Pts - a.Pts) || ((b.GF-b.GC) - (a.GF-a.GC)) || (b.GF - a.GF));
+
         }
+
+
 
         function generarTablaHTML(tit, d) {
+
             let h = `<div class="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm">
+
                 <div class="bg-slate-800 py-1 text-center text-[9px] font-bold text-slate-400 uppercase">${tit}</div>
+
                 <table class="w-full text-[9px] text-center border-collapse">
+
                     <thead class="bg-slate-950 text-slate-500 uppercase text-[8px]"><tr><th class="py-1 text-left pl-1">Equipo</th><th>PJ</th><th>DG</th><th class="text-green-500">Pts</th></tr></thead>
+
                     <tbody class="divide-y divide-slate-800">`;
+
             d.forEach(t => { h += `<tr><td class="text-left pl-1 py-1 truncate font-medium max-w-[50px]">${t.nombre}</td><td>${t.PJ}</td><td>${t.GF-t.GC}</td><td class="font-bold text-green-400">${t.Pts}</td></tr>`; });
+
             return h + '</tbody></table></div>';
+
         }
+
+
 
         async function verPerfilOtro(email, nombre, puntos) {
+
             document.getElementById('spy-user-name').innerText = nombre; document.getElementById('spy-user-points').innerText = puntos;
+
             document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse">Cargando...</div>';
+
             mostrarPantalla('user-view-screen');
+
             try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
+
         }
+
+
 
         function dibujarRanking(ranking) {
+
             const tbody = document.getElementById('ranking-body'); const podium = document.getElementById('podium-container');
+
             tbody.innerHTML = ''; podium.innerHTML = '';
+
             ranking.forEach((u, i) => {
+
                 const badge = i < 3 ? `<span class="bg-${i===0?'gold':i===1?'silver':'bronze'}/20 text-${i===0?'gold':i===1?'silver':'bronze'} px-2 py-1 rounded-full font-bold">${i+1}</span>` : `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${i+1}</span>`;
+
                 tbody.innerHTML += `<tr onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="hover:bg-slate-800 cursor-pointer"><td class="px-4 py-3 text-center">${badge}</td><td class="px-4 py-3 font-medium">${u.name} ${u.email === currentUser.email ? '(Vos)' : ''}</td><td class="px-4 py-3 text-right font-bold text-green-400">${u.points}</td></tr>`;
+
                 if(i < 3) {
+
                     const color = i===0?'gold':(i===1?'silver':'bronze');
+
                     podium.innerHTML += `<div onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center cursor-pointer ${i===0?'-mt-2 order-2':'order-'+(i+1)}"><div class="text-xl">${i===0?'👑':(i===1?'🥈':'🥉')}</div><div class="text-[10px] truncate font-bold text-slate-300">${u.name}</div><div class="text-lg font-bold text-${color}">${u.points}</div></div>`;
+
                 }
+
             });
+
         }
+
+
 
         function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
-        
+
         function cambiarTab(n) {
+
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
             document.getElementById('tab-'+n).classList.add('active');
+
             ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400");
+
             mostrarPantalla('main-app-screen');
+
         }
+
+
 
         async function guardarPredicciones() {
+
             if (isLocked) return alert("Cerrado!");
+
             const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳ Guardando..."; btn.disabled = true;
+
             const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: { champion: document.getElementById('bonus-campeon').value, runner_up: document.getElementById('bonus-subcampeon').value, disappointment: document.getElementById('bonus-decepcion').value, top_scorer: document.getElementById('bonus-goleador').value.trim() } };
+
             partidosGlobales.forEach(p => { const gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value; if(gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) }); });
+
             try { await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); alert("¡Guardado! 🏆"); cargarData(); } catch(e) { alert("Error"); }
+
             btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
+
         }
+
+
 
         async function procesarAuth() {
+
             const email = document.getElementById('auth-email').value.trim(); const pass = document.getElementById('auth-password').value.trim(); const name = document.getElementById('auth-name').value.trim();
+
             if (!email || !pass) return alert("Faltan datos");
-            
-            const btn = document.getElementById('btn-auth');
-            btn.innerText = "Cargando..."; btn.disabled = true;
 
-            try { 
-                const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); 
-                if (res.status === 'error') {
-                    alert(res.message); 
-                } else { 
-                    if (authMode === 'login') { 
-                        localStorage.setItem('prode_user', JSON.stringify(res.user)); 
-                        checkSession(); 
-                    } else { 
-                        alert(res.message); 
-                        toggleAuthMode(); // Volvemos al login para que entre
-                    } 
-                } 
-            } catch (e) { alert("Error"); }
-            
-            btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
-            btn.disabled = false;
+            try { const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); if (res.status === 'error') alert(res.message); else { if (authMode === 'login') { localStorage.setItem('prode_user', JSON.stringify(res.user)); checkSession(); } else { alert(res.message); authMode='login'; checkSession(); } } } catch (e) { alert("Error"); }
+
         }
 
-        function toggleAuthMode() { 
-            authMode = authMode === 'login' ? 'signup' : 'login'; 
-            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; 
-            
-            const divName = document.getElementById('div-name');
-            if (authMode === 'login') { divName.classList.add('hidden'); } else { divName.classList.remove('hidden'); }
-            
-            document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; 
-            document.getElementById('auth-switch-text').innerText = authMode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?';
-            document.getElementById('auth-switch-btn').innerText = authMode === 'login' ? 'Registrate acá' : 'Ingresá acá';
-        }
+
+
+        function toggleAuthMode() { authMode = authMode === 'login' ? 'signup' : 'login'; document.getElementById('auth-title').innerText = authMode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'; document.getElementById('div-name').classList.toggle('hidden'); document.getElementById('btn-auth').innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; }
+
+
 
         async function cambiarNombre() {
+
             const nuevo = prompt("Nuevo nombre:", currentUser.name);
+
             if(nuevo && nuevo.trim() !== "") {
+
                 const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "update_profile", email: currentUser.email, new_name: nuevo.trim() }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json();
+
                 if(res.status === "success") { currentUser.name = nuevo.trim(); localStorage.setItem('prode_user', JSON.stringify(currentUser)); cargarData(); }
+
             }
+
         }
 
+
+
         checkSession();
+
     </script>
+
 </body>
+
 </html>
+
