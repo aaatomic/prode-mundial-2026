@@ -19,6 +19,11 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         #modal-reglas { display: none; }
         #modal-reglas.active { display: flex; }
+        
+        /* 🔥 ANIMACIÓN DEL CARTEL LED */
+        .marquee { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
+        .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
+        @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
@@ -93,7 +98,14 @@
                 <span id="user-total-points" class="text-green-400 font-black text-3xl">0</span>
             </div>
             
-            <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm">⏳ Calculando...</div>
+            <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-3 shadow-sm">⏳ Calculando...</div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl mb-6 shadow-sm flex items-center py-2 px-3 overflow-hidden">
+                <span class="text-lg mr-2 shrink-0">📢</span>
+                <div class="marquee text-sm font-bold text-green-400 tracking-wide">
+                    <span id="banner-text">Cargando novedades...</span>
+                </div>
+            </div>
             
             <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800">
                 <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Partidos</button>
@@ -211,7 +223,7 @@
             const t = document.getElementById("timer-container");
             if (distance < 0) {
                 isLocked = true;
-                t.innerHTML = "🔒 CERRADO"; t.className = "bg-slate-900 border border-red-500/30 text-red-500 font-mono text-center text-lg font-bold p-3 rounded-xl mb-6 shadow-sm";
+                t.innerHTML = "🔒 CERRADO"; t.className = "bg-slate-900 border border-red-500/30 text-red-500 font-mono text-center text-lg font-bold p-3 rounded-xl mb-3 shadow-sm";
                 document.getElementById('floating-save').style.display = 'none';
             } else {
                 const d = Math.floor(distance/(1000*60*60*24)), h = Math.floor((distance%(1000*60*60*24))/(1000*60*60)), m = Math.floor((distance%(1000*60*60))/(1000*60)), s = Math.floor((distance%(1000*60))/1000);
@@ -225,6 +237,11 @@
                 partidosGlobales = res.matches; equiposGlobales = res.teams || [];
                 const miRanking = res.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
+                
+                // 🔥 INSERTA EL MENSAJE DINÁMICO EN EL BANNER
+                if(res.bannerMessage) {
+                    document.getElementById('banner-text').innerText = res.bannerMessage;
+                }
                 
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
@@ -290,7 +307,7 @@
             grupos.forEach((grupo, idx) => {
                 const cleanId = grupo.replace(/\s/g, '');
                 const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
-                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-1 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
+                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
                 const partidosGrupo = partidos.filter(p => p.group === grupo);
                 let ptsGrupo = 0;
                 partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
@@ -450,6 +467,7 @@
             if(nuevo && nuevo.trim() !== "") {
                 const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "update_profile", email: currentUser.email, new_name: nuevo.trim() }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json();
                 if(res.status === "success") { currentUser.name = nuevo.trim(); localStorage.setItem('prode_user', JSON.stringify(currentUser)); cargarData(); }
+                else { alert(res.message); }
             }
         }
 
