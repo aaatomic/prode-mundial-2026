@@ -48,6 +48,9 @@
                         <li><span class="text-silver font-bold">15 puntos:</span> Subcampeón.</li>
                         <li><span class="text-blue-400 font-bold">10 puntos:</span> Goleador del torneo.</li>
                         <li><span class="text-red-400 font-bold">10 puntos:</span> País Decepción.</li>
+                        <li><span class="text-purple-400 font-bold">10 puntos:</span> Mejor Jugador del torneo.</li>
+                        <li><span class="text-teal-400 font-bold">10 puntos:</span> Mejor Arquero.</li>
+                        <li><span class="text-pink-400 font-bold">10 puntos:</span> Jugador Revelación.</li>
                     </ul>
                 </section>
                 <section class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
@@ -137,15 +140,27 @@
                     <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Mejor Jugador del Torneo (10 pts)</label><input type="text" id="bonus-best_player" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Dibu Martínez"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Jugador Revelación (10 pts)</label><input type="text" id="bonus-revelation" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Lamine Yamal"></div>
                 </div>
 
                 <div class="space-y-4">
                     <h3 class="text-xl font-bold text-center text-slate-300">👀 Esto pusieron todos...</h3>
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3" id="bonus-summary-container"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm" id="bonus-summary-container"></div>
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto shadow-sm">
                         <table class="w-full text-left text-xs whitespace-nowrap">
                             <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
-                                <tr><th class="px-3 py-3">Participante</th><th class="px-3 py-3 text-gold">Campeón</th><th class="px-3 py-3 text-silver">Subcampeón</th><th class="px-3 py-3 text-red-400">Decepción</th><th class="px-3 py-3 text-blue-400">Goleador</th></tr>
+                                <tr>
+                                    <th class="px-3 py-3 sticky left-0 bg-slate-950/90 z-10 border-r border-slate-800">Participante</th>
+                                    <th class="px-3 py-3 text-gold">Campeón</th>
+                                    <th class="px-3 py-3 text-silver">Subcampeón</th>
+                                    <th class="px-3 py-3 text-red-400">Decepción</th>
+                                    <th class="px-3 py-3 text-blue-400">Goleador</th>
+                                    <th class="px-3 py-3 text-purple-400">M. Jugador</th>
+                                    <th class="px-3 py-3 text-teal-400">M. Arquero</th>
+                                    <th class="px-3 py-3 text-pink-400">Revelación</th>
+                                </tr>
                             </thead>
                             <tbody id="bonus-table-body" class="divide-y divide-slate-800/60"></tbody>
                         </table>
@@ -306,11 +321,15 @@
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion'].forEach(id => document.getElementById(id).innerHTML = options);
                 
+                // 🔥 ACA CARGAMOS LOS 7 CAMPOS DEL USUARIO
                 if(res.userBonus) {
                     document.getElementById('bonus-campeon').value = res.userBonus.champion || "";
                     document.getElementById('bonus-subcampeon').value = res.userBonus.runner_up || "";
                     document.getElementById('bonus-decepcion').value = res.userBonus.disappointment || "";
                     document.getElementById('bonus-goleador').value = res.userBonus.top_scorer || "";
+                    document.getElementById('bonus-best_player').value = res.userBonus.best_player || "";
+                    document.getElementById('bonus-best_gk').value = res.userBonus.best_gk || "";
+                    document.getElementById('bonus-revelation').value = res.userBonus.revelation || "";
                 }
 
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
@@ -322,20 +341,42 @@
             if(!allBonus || allBonus.length === 0) return;
             const getVotes = (field) => {
                 const counts = {};
-                allBonus.forEach(b => { if(b[field]) { let valor = field === 'top_scorer' ? b[field].trim().toUpperCase() : b[field]; counts[valor] = (counts[valor] || 0) + 1; } });
+                // Aseguramos que los inputs de texto agrupen bien sin importar mayúsculas/minúsculas
+                allBonus.forEach(b => { 
+                    if(b[field]) { 
+                        let valor = ['top_scorer', 'best_player', 'best_gk', 'revelation'].includes(field) ? b[field].trim().toUpperCase() : b[field]; 
+                        counts[valor] = (counts[valor] || 0) + 1; 
+                    } 
+                });
                 const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
                 if(sorted.length === 0) return '<span class="text-slate-600">Sin votos</span>'; 
                 return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
             };
+            
+            // 🔥 AGRANDAMOS EL CONTENEDOR A 2 COLUMNAS Y AGREGAMOS LAS NUEVAS STATS
             sumContainer.innerHTML = `
-                <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('champion')}</div></div>
-                <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('runner_up')}</div></div>
-                <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('disappointment')}</div></div>
-                <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('top_scorer')}</div></div>`;
+                <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('champion')}</div></div>
+                <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('runner_up')}</div></div>
+                <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('disappointment')}</div></div>
+                <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('top_scorer')}</div></div>
+                <div><span class="text-purple-400 font-bold text-xs block">⭐ M. Jugador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('best_player')}</div></div>
+                <div><span class="text-teal-400 font-bold text-xs block">🧤 M. Arquero</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('best_gk')}</div></div>
+                <div class="sm:col-span-2"><span class="text-pink-400 font-bold text-xs block">🚀 Revelación</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('revelation')}</div></div>
+            `;
+            
             let trHtml = '';
             allBonus.sort((a, b) => a.name.localeCompare(b.name)).forEach(b => {
                 let badge = (b.email === currentUser.email) ? `<span class="bg-green-500/20 text-green-400 px-1 text-[8px] ml-1">Vos</span>` : '';
-                trHtml += `<tr class="hover:bg-slate-800/40"><td class="px-3 py-2 font-medium border-r border-slate-800/50">${b.name}${badge}</td><td class="px-3 py-2">${b.champion || '-'}</td><td class="px-3 py-2">${b.runner_up || '-'}</td><td class="px-3 py-2">${b.disappointment || '-'}</td><td class="px-3 py-2">${b.top_scorer || '-'}</td></tr>`;
+                trHtml += `<tr class="hover:bg-slate-800/40">
+                    <td class="px-3 py-2 font-medium sticky left-0 bg-slate-900 border-r border-slate-800/50 z-10">${b.name}${badge}</td>
+                    <td class="px-3 py-2">${b.champion || '-'}</td>
+                    <td class="px-3 py-2">${b.runner_up || '-'}</td>
+                    <td class="px-3 py-2">${b.disappointment || '-'}</td>
+                    <td class="px-3 py-2 capitalize">${b.top_scorer || '-'}</td>
+                    <td class="px-3 py-2 capitalize">${b.best_player || '-'}</td>
+                    <td class="px-3 py-2 capitalize">${b.best_gk || '-'}</td>
+                    <td class="px-3 py-2 capitalize">${b.revelation || '-'}</td>
+                </tr>`;
             });
             tbBody.innerHTML = trHtml;
         }
@@ -385,7 +426,6 @@
             }); return Object.values(t).sort((a,b) => (b.Pts - a.Pts) || ((b.GF-b.GC) - (a.GF-a.GC)) || (b.GF - a.GF));
         }
 
-        // 🔥 FUNCIÓN ACTUALIZADA: Se agrega la columna DG y su cálculo (GF - GC)
         function generarTablaHTML(tit, d) {
             let h = `<div class="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm"><div class="bg-slate-800 py-1 text-center text-[9px] font-bold text-slate-400 uppercase">${tit}</div><table class="w-full text-[8px] text-center border-collapse"><thead class="bg-slate-950 text-slate-500 uppercase"><tr><th class="py-1 text-left pl-1">Eq</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th class="text-green-500">Pts</th></tr></thead><tbody class="divide-y divide-slate-800">`;
             d.forEach(t => { 
@@ -433,7 +473,23 @@
         async function guardarPredicciones() {
             if (isLocked) return alert("Cerrado!");
             const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳ Guardando..."; btn.disabled = true;
-            const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: { champion: document.getElementById('bonus-campeon').value, runner_up: document.getElementById('bonus-subcampeon').value, disappointment: document.getElementById('bonus-decepcion').value, top_scorer: document.getElementById('bonus-goleador').value.trim() } };
+            
+            // 🔥 ACA ESTAN LOS 7 CAMPOS MANDADOS AL BACKEND
+            const payload = { 
+                action: "save_predictions", 
+                user_email: currentUser.email, 
+                predictions: [], 
+                bonus: { 
+                    champion: document.getElementById('bonus-campeon').value, 
+                    runner_up: document.getElementById('bonus-subcampeon').value, 
+                    disappointment: document.getElementById('bonus-decepcion').value, 
+                    top_scorer: document.getElementById('bonus-goleador').value.trim(),
+                    best_player: document.getElementById('bonus-best_player').value.trim(),
+                    best_gk: document.getElementById('bonus-best_gk').value.trim(),
+                    revelation: document.getElementById('bonus-revelation').value.trim()
+                } 
+            };
+            
             partidosGlobales.forEach(p => { const gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value; if(gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) }); });
             try { await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); alert("¡Guardado! 🏆"); cargarData(); } catch(e) { alert("Error"); }
             btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
