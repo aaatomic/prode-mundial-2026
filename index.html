@@ -36,13 +36,19 @@
                 <section>
                     <h3 class="font-bold text-white mb-1">⚽ Puntaje por Partido:</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><span class="text-green-400 font-bold">3 puntos:</span> Pegar el resultado exacto.</li>
-                        <li><span class="text-yellow-400 font-bold">1 punto:</span> Acertar el ganador o empate.</li>
+                        <li><span class="text-green-400 font-bold">3 puntos:</span> Pegar el resultado exacto (ej: pusiste 2-1 y salió 2-1).</li>
+                        <li><span class="text-yellow-400 font-bold">1 punto:</span> Acertar el ganador o empate, pero no el resultado exacto (ej: pusiste 1-0 y salió 3-0).</li>
+                        <li><span class="text-red-400 font-bold">0 puntos:</span> No acertar ninguna de las anteriores.</li>
                     </ul>
                 </section>
                 <section>
-                    <h3 class="font-bold text-white mb-1">🏆 Fase Eliminatoria (Penales):</h3>
-                    <p class="text-xs text-slate-400">En los partidos de eliminación directa, no se puede empatar en el pronóstico. Si creés que van a penales, sumale 1 gol al ganador de la tanda para que avance de ronda en tu fixture.</p>
+                    <h3 class="font-bold text-white mb-1">🌟 Puntaje Bonus:</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><span class="text-gold font-bold">30 puntos:</span> Campeón.</li>
+                        <li><span class="text-silver font-bold">15 puntos:</span> Subcampeón.</li>
+                        <li><span class="text-blue-400 font-bold">10 puntos:</span> Goleador del torneo.</li>
+                        <li><span class="text-red-400 font-bold">10 puntos:</span> País Decepción.</li>
+                    </ul>
                 </section>
                 <section class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
                     <p>⚠️ <strong>Importante:</strong> Una vez que cierre el contador, ya no se podrán realizar más cambios.</p>
@@ -92,35 +98,36 @@
             
             <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-3 shadow-sm">⏳ Calculando...</div>
             
-            <div class="bg-slate-900 border border-slate-800 rounded-xl mb-6 shadow-sm flex items-center py-2 px-3 overflow-hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl mb-3 shadow-sm flex items-center py-2 px-3 overflow-hidden">
                 <span class="text-lg mr-2 shrink-0">📢</span>
                 <div class="marquee text-sm font-bold text-green-400 tracking-wide"><span id="banner-text">Cargando novedades...</span></div>
             </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl mb-6 shadow-sm overflow-hidden">
+                <button onclick="toggleChat()" class="w-full flex justify-between items-center p-3 text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors">
+                    <span>💬 Chat mistiquero</span>
+                    <span id="chat-arrow">▼</span>
+                </button>
+                <div id="chat-container" class="hidden flex-col border-t border-slate-800">
+                    <div id="chat-messages" class="p-3 h-48 overflow-y-auto space-y-3 flex flex-col text-sm bg-slate-950/50">
+                        <div class="text-center text-slate-500 italic text-xs">Cargando mensajes...</div>
+                    </div>
+                    <div class="p-2 border-t border-slate-800 flex gap-2 bg-slate-900">
+                        <input type="text" id="chat-input" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-green-500 text-white" placeholder="Escribí tu chicana acá...">
+                        <button onclick="enviarChat()" id="btn-enviar-chat" class="bg-green-500 hover:bg-green-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition-colors">Enviar</button>
+                    </div>
+                </div>
+            </div>
             
-            <div class="flex flex-wrap bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800 gap-1">
-                <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 min-w-[70px] py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Grupos</button>
-                <button onclick="cambiarTab('eliminatorias')" id="btn-tab-eliminatorias" class="flex-1 min-w-[70px] py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all border border-green-900/30 bg-green-900/10">🏆 Finales</button>
-                <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 min-w-[70px] py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🌟 Bonus</button>
-                <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 min-w-[70px] py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🏅 Ranking</button>
+            <div class="flex bg-slate-900 p-1 rounded-xl mb-6 border border-slate-800">
+                <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow transition-all">⚽ Partidos</button>
+                <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🌟 Bonus</button>
+                <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">🏅 Ranking</button>
             </div>
             
             <div id="tab-pronosticos" class="tab-content active space-y-4">
-                <div id="groups-nav" class="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-2"></div>
+                <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
                 <div id="matches-container"></div>
-            </div>
-
-            <div id="tab-eliminatorias" class="tab-content space-y-4">
-                <div class="bg-yellow-900/30 border border-yellow-700/50 p-3 rounded-lg text-xs text-yellow-300 mb-4 text-center">
-                    <strong>Regla de Oro:</strong> En esta fase no hay empates. Si creés que van a penales, sumale un gol al que pasa de ronda. ¡El cuadro se arma solo!
-                </div>
-                <div id="ko-nav" class="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-2">
-                    <button onclick="cambiarGrupoManual('16avos', false, true)" class="btn-ko-false shrink-0 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-green-500 text-slate-950">16avos</button>
-                    <button onclick="cambiarGrupoManual('Octavos', false, true)" class="btn-ko-false shrink-0 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-400">Octavos</button>
-                    <button onclick="cambiarGrupoManual('Cuartos', false, true)" class="btn-ko-false shrink-0 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-400">Cuartos</button>
-                    <button onclick="cambiarGrupoManual('Semis', false, true)" class="btn-ko-false shrink-0 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-400">Semis</button>
-                    <button onclick="cambiarGrupoManual('Final', false, true)" class="btn-ko-false shrink-0 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-400">Final</button>
-                </div>
-                <div id="ko-matches-container"></div>
             </div>
             
             <div id="tab-bonus" class="tab-content">
@@ -135,6 +142,14 @@
                 <div class="space-y-4">
                     <h3 class="text-xl font-bold text-center text-slate-300">👀 Esto pusieron todos...</h3>
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3" id="bonus-summary-container"></div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto shadow-sm">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+                                <tr><th class="px-3 py-3">Participante</th><th class="px-3 py-3 text-gold">Campeón</th><th class="px-3 py-3 text-silver">Subcampeón</th><th class="px-3 py-3 text-red-400">Decepción</th><th class="px-3 py-3 text-blue-400">Goleador</th></tr>
+                            </thead>
+                            <tbody id="bonus-table-body" class="divide-y divide-slate-800/60"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
@@ -143,7 +158,7 @@
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                     <table class="w-full text-sm text-left">
                         <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-center">Inscripción</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante (toca para ver)</th><th class="px-4 py-3 text-center">Inscripción</th><th class="px-4 py-3 text-right">Puntos</th></tr>
                         </thead>
                         <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
                     </table>
@@ -156,7 +171,7 @@
                 <button onclick="mostrarPantalla('main-app-screen')" class="bg-slate-800 p-2 rounded-lg text-slate-400">⬅️ Volver</button>
                 <div><h2 class="text-xl font-bold">Viendo a: <span id="spy-user-name" class="text-green-400">...</span></h2><p class="text-xs text-slate-500">Total: <span id="spy-user-points">0</span> pts</p></div>
             </div>
-            <div id="spy-groups-nav" class="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-2"></div>
+            <div id="spy-groups-nav" class="grid grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
             <div id="spy-matches-container"></div>
         </div>
     </div>
@@ -173,28 +188,63 @@
         let isLocked = false;
         let authMode = 'login';
 
-        // 🔥 MATRIZ DEL FIXTURE DE ELIMINACIÓN (Quién juega contra quién)
-        const knockoutTree = {
-            73: { next: 89, slot: 'A' }, 74: { next: 89, slot: 'B' },
-            75: { next: 90, slot: 'A' }, 76: { next: 90, slot: 'B' },
-            77: { next: 91, slot: 'A' }, 78: { next: 91, slot: 'B' },
-            79: { next: 92, slot: 'A' }, 80: { next: 92, slot: 'B' },
-            81: { next: 93, slot: 'A' }, 82: { next: 93, slot: 'B' },
-            83: { next: 94, slot: 'A' }, 84: { next: 94, slot: 'B' },
-            85: { next: 95, slot: 'A' }, 86: { next: 95, slot: 'B' },
-            87: { next: 96, slot: 'A' }, 88: { next: 96, slot: 'B' },
-            89: { next: 97, slot: 'A' }, 90: { next: 97, slot: 'B' },
-            91: { next: 98, slot: 'A' }, 92: { next: 98, slot: 'B' },
-            93: { next: 99, slot: 'A' }, 94: { next: 99, slot: 'B' },
-            95: { next: 100, slot: 'A' }, 96: { next: 100, slot: 'B' },
-            97: { next: 101, slot: 'A' }, 98: { next: 101, slot: 'B' },
-            99: { next: 102, slot: 'A' }, 100: { next: 102, slot: 'B' },
-            101: { next: 104, slot: 'A' }, 102: { next: 104, slot: 'B' }
-        };
-
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
         function toggleReglas() { document.getElementById('modal-reglas').classList.toggle('active'); }
+        
+        function toggleChat() {
+            const container = document.getElementById('chat-container');
+            const arrow = document.getElementById('chat-arrow');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden'); container.classList.add('flex'); arrow.innerText = '▲';
+                const msgBox = document.getElementById('chat-messages');
+                msgBox.scrollTop = msgBox.scrollHeight;
+            } else {
+                container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼';
+            }
+        }
+
+        function dibujarChat(mensajes) {
+            const box = document.getElementById('chat-messages');
+            if (!mensajes || mensajes.length === 0) {
+                box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>';
+                return;
+            }
+            box.innerHTML = '';
+            mensajes.forEach(m => {
+                const esMio = (m.name === currentUser.name);
+                const align = esMio ? 'items-end' : 'items-start';
+                const bg = esMio ? 'bg-green-900/40 border border-green-800/50 text-green-100' : 'bg-slate-800 border border-slate-700 text-slate-200';
+                
+                box.innerHTML += `
+                    <div class="flex flex-col ${align} w-full">
+                        <span class="text-[10px] text-slate-500 mb-0.5 px-1">${m.name}</span>
+                        <div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div>
+                    </div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function enviarChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const btn = document.getElementById('btn-enviar-chat');
+            btn.disabled = true; btn.innerText = "⏳";
+            
+            const box = document.getElementById('chat-messages');
+            box.innerHTML += `<div class="flex flex-col items-end w-full opacity-50"><span class="text-[10px] text-slate-500 mb-0.5 px-1">${currentUser.name}</span><div class="bg-green-900/40 border border-green-800/50 text-green-100 px-3 py-2 rounded-xl max-w-[85%] break-words">${msg}</div></div>`;
+            box.scrollTop = box.scrollHeight;
+            input.value = "";
+
+            try {
+                await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "send_chat", name: currentUser.name, message: msg }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                cargarData(); 
+            } catch(e) { alert("Error al enviar"); }
+            
+            btn.disabled = false; btn.innerText = "Enviar";
+        }
 
         function actualizarCartelPago(estaPago) {
             const el = document.getElementById('user-payment-status');
@@ -219,7 +269,7 @@
             document.querySelectorAll('.app-screen').forEach(el => el.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             const isMainApp = (id === 'main-app-screen');
-            const isTabActive = document.getElementById('tab-pronosticos').classList.contains('active') || document.getElementById('tab-eliminatorias').classList.contains('active');
+            const isTabActive = document.getElementById('tab-pronosticos').classList.contains('active') || document.getElementById('tab-bonus').classList.contains('active');
             document.getElementById('floating-save').style.display = (isMainApp && isTabActive && !isLocked) ? 'flex' : 'none';
         }
 
@@ -244,7 +294,9 @@
                 partidosGlobales = res.matches; equiposGlobales = res.teams || [];
                 const miRanking = res.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
+                
                 if(res.bannerMessage) document.getElementById('banner-text').innerText = res.bannerMessage;
+                if(res.chatMessages) dibujarChat(res.chatMessages); 
                 
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
@@ -261,92 +313,39 @@
                     document.getElementById('bonus-goleador').value = res.userBonus.top_scorer || "";
                 }
 
-                renderizarContenido(res, 'groups-nav', 'matches-container', false); 
-                renderizarEliminatorias(res, 'ko-matches-container', false);
-                dibujarRanking(res.ranking);
+                renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
             } catch(e) { console.error(e); }
         }
 
-        // 🔥 FUNCIÓN QUE ACTUALIZA EL ÁRBOL EN VIVO
-        function procesarArbolEliminatorio(isReadOnly) {
-            if(isReadOnly) return;
-            // Recorremos los partidos desde 73 hasta 102
-            for(let id = 73; id <= 102; id++) {
-                const gA = document.getElementById(`goles_a_${id}`);
-                const gB = document.getElementById(`goles_b_${id}`);
-                const nameA = document.getElementById(`team_name_a_${id}`);
-                const nameB = document.getElementById(`team_name_b_${id}`);
-                
-                if(gA && gB && gA.value !== "" && gB.value !== "" && knockoutTree[id]) {
-                    const valA = parseInt(gA.value); const valB = parseInt(gB.value);
-                    let ganador = "";
-                    if(valA > valB) ganador = nameA ? nameA.innerText : "";
-                    else if(valB > valA) ganador = nameB ? nameB.innerText : "";
-                    else ganador = "Empate (Corregir)"; // Forzamos a que pongan ganador
-
-                    const nextMatch = knockoutTree[id].next;
-                    const slot = knockoutTree[id].slot;
-                    const targetEl = document.getElementById(`team_name_${slot.toLowerCase()}_${nextMatch}`);
-                    
-                    if(targetEl && ganador && ganador !== "Empate (Corregir)") {
-                        targetEl.innerText = ganador;
-                        targetEl.classList.add('text-green-400'); // Resalta que fue autocompletado
-                    }
-                }
-            }
-        }
-
-        function renderizarEliminatorias(data, containerId, isReadOnly) {
-            const partidos = data.matches; const userPreds = data.userPredictions || []; const container = document.getElementById(containerId); 
-            const fases = ["16avos", "Octavos", "Cuartos", "Semis", "Final"];
-            container.innerHTML = '';
-            
-            fases.forEach((fase, idx) => {
-                const fullId = (isReadOnly ? 'spy-' : '') + fase;
-                const partidosFase = partidos.filter(p => (p.group || "").includes(fase));
-                
-                let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">`;
-                
-                partidosFase.forEach(p => {
-                    const pred = userPreds.find(up => up.match_id === p.id); const sCode = (p.status || '').toUpperCase(); let sColor = 'bg-slate-500', sText = 'PENDIENTE';
-                    if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; } else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
-                    let ptsBox = '<span class="text-[10px] font-bold text-slate-600 border border-slate-800 px-2 py-0.5 rounded">0 pts</span>';
-                    if(pred && pred.points !== undefined && pred.points !== "") {
-                        if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded-full shadow-sm">+3 pts</span>';
-                        else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-300 bg-green-900/20 px-2 py-0.5 rounded-full">+1 pt</span>';
-                    }
-                    
-                    let pref = isReadOnly ? 'spy-' : '';
-                    let inA = `${pref}goles_a_${p.id}`, inB = `${pref}goles_b_${p.id}`;
-                    let tA = `${pref}team_name_a_${p.id}`, tB = `${pref}team_name_b_${p.id}`;
-                    let onInput = isReadOnly ? '' : `oninput="procesarArbolEliminatorio(false)"`;
-
-                    html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm">
-                        <div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-400">${sText} - Partido ${p.id}</span></div><div class="text-[10px] text-slate-500 font-medium">${new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false})} hs</div><div>${ptsBox}</div></div>
-                        <div class="flex justify-between items-center gap-1">
-                            <div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate" id="${tA}">${p.team_a}</div>
-                            <div class="flex gap-1 items-center shrink-0">
-                                <input type="number" id="${inA}" ${onInput} value="${pred?pred.pred_a:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 transition-all">
-                                <span class="text-slate-600">-</span>
-                                <input type="number" id="${inB}" ${onInput} value="${pred?pred.pred_b:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 transition-all">
-                            </div>
-                            <div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate" id="${tB}">${p.team_b}</div>
-                        </div>
-                        <div class="border-t border-slate-800/50 pt-2 mt-2"><button onclick="document.getElementById('${pref}real_score_${p.id}').classList.toggle('hidden')" class="w-full text-[9px] text-slate-500 uppercase tracking-tighter">Resultado Real ▼</button><div id="${pref}real_score_${p.id}" class="hidden mt-1 text-center font-mono text-lg font-bold text-white">${p.score_a || p.goles_a || '-'} - ${p.score_b || p.goles_b || '-'}</div></div>
-                    </div>`;
-                });
-                container.innerHTML += html + '</div>';
+        function renderizarOjoDelPueblo(allBonus) {
+            const sumContainer = document.getElementById('bonus-summary-container'); const tbBody = document.getElementById('bonus-table-body');
+            if(!allBonus || allBonus.length === 0) return;
+            const getVotes = (field) => {
+                const counts = {};
+                allBonus.forEach(b => { if(b[field]) { let valor = field === 'top_scorer' ? b[field].trim().toUpperCase() : b[field]; counts[valor] = (counts[valor] || 0) + 1; } });
+                const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+                if(sorted.length === 0) return '<span class="text-slate-600">Sin votos</span>'; 
+                return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
+            };
+            sumContainer.innerHTML = `
+                <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('champion')}</div></div>
+                <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('runner_up')}</div></div>
+                <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('disappointment')}</div></div>
+                <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded">${getVotes('top_scorer')}</div></div>`;
+            let trHtml = '';
+            allBonus.sort((a, b) => a.name.localeCompare(b.name)).forEach(b => {
+                let badge = (b.email === currentUser.email) ? `<span class="bg-green-500/20 text-green-400 px-1 text-[8px] ml-1">Vos</span>` : '';
+                trHtml += `<tr class="hover:bg-slate-800/40"><td class="px-3 py-2 font-medium border-r border-slate-800/50">${b.name}${badge}</td><td class="px-3 py-2">${b.champion || '-'}</td><td class="px-3 py-2">${b.runner_up || '-'}</td><td class="px-3 py-2">${b.disappointment || '-'}</td><td class="px-3 py-2">${b.top_scorer || '-'}</td></tr>`;
             });
-            setTimeout(() => procesarArbolEliminatorio(isReadOnly), 500); // Llenar el árbol apenas carga
+            tbBody.innerHTML = trHtml;
         }
 
         function renderizarContenido(data, navId, containerId, isReadOnly) {
-            const partidos = data.matches; const userPreds = data.userPredictions || []; const container = document.getElementById(containerId); const nav = document.getElementById(navId); 
-            const grupos = [...new Set(partidos.filter(p => p.group && p.group.includes("Grupo")).map(p => p.group))].sort();
+            const partidos = data.matches; const userPreds = data.userPredictions || []; const container = document.getElementById(containerId); const nav = document.getElementById(navId); const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort();
             nav.innerHTML = ''; container.innerHTML = '';
             grupos.forEach((grupo, idx) => {
                 const cleanId = grupo.replace(/\s/g, ''); const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
-                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly}, false)" class="btn-group-${isReadOnly} px-4 py-2 shrink-0 rounded-lg text-xs font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
+                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
                 const partidosGrupo = partidos.filter(p => p.group === grupo); let ptsGrupo = 0;
                 partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
                 let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
@@ -367,10 +366,8 @@
             });
         }
 
-        function cambiarGrupoManual(grupo, isSpy, isKO) {
-            const containerSelector = isSpy ? '#spy-matches-container' : (isKO ? '#ko-matches-container' : '#matches-container'); 
-            const navSelector = isSpy ? '.btn-group-true' : (isKO ? '.btn-ko-false' : '.btn-group-false'); 
-            const prefix = isSpy ? 'spy-' : '';
+        function cambiarGrupoManual(grupo, isSpy) {
+            const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; const prefix = isSpy ? 'spy-' : '';
             document.querySelectorAll(navSelector).forEach(b => { b.classList.remove('bg-green-500', 'text-slate-950'); b.classList.add('bg-slate-800', 'text-slate-400'); if(b.innerText === grupo) { b.classList.add('bg-green-500', 'text-slate-950'); b.classList.remove('bg-slate-800', 'text-slate-400'); } });
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
         }
@@ -388,44 +385,56 @@
             }); return Object.values(t).sort((a,b) => (b.Pts - a.Pts) || ((b.GF-b.GC) - (a.GF-a.GC)) || (b.GF - a.GF));
         }
 
+        // 🔥 FUNCIÓN ACTUALIZADA: Se agrega la columna DG y su cálculo (GF - GC)
         function generarTablaHTML(tit, d) {
             let h = `<div class="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm"><div class="bg-slate-800 py-1 text-center text-[9px] font-bold text-slate-400 uppercase">${tit}</div><table class="w-full text-[8px] text-center border-collapse"><thead class="bg-slate-950 text-slate-500 uppercase"><tr><th class="py-1 text-left pl-1">Eq</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th class="text-green-500">Pts</th></tr></thead><tbody class="divide-y divide-slate-800">`;
-            d.forEach(t => { h += `<tr><td class="text-left pl-1 py-1 truncate font-medium max-w-[40px]">${t.nombre}</td><td>${t.PJ}</td><td>${t.G}</td><td>${t.E}</td><td>${t.P}</td><td>${t.GF}</td><td>${t.GC}</td><td>${t.GF - t.GC}</td><td class="font-bold text-green-400">${t.Pts}</td></tr>`; }); return h + '</tbody></table></div>';
+            d.forEach(t => { 
+                h += `<tr><td class="text-left pl-1 py-1 truncate font-medium max-w-[40px]">${t.nombre}</td><td>${t.PJ}</td><td>${t.G}</td><td>${t.E}</td><td>${t.P}</td><td>${t.GF}</td><td>${t.GC}</td><td>${t.GF - t.GC}</td><td class="font-bold text-green-400">${t.Pts}</td></tr>`; 
+            }); 
+            return h + '</tbody></table></div>';
+        }
+
+        async function verPerfilOtro(email, nombre, puntos) {
+            document.getElementById('spy-user-name').innerText = nombre; document.getElementById('spy-user-points').innerText = puntos;
+            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse">Cargando...</div>'; mostrarPantalla('user-view-screen');
+            try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
         }
 
         function dibujarRanking(ranking) {
-            const tbody = document.getElementById('ranking-body'); const podium = document.getElementById('podium-container'); tbody.innerHTML = ''; podium.innerHTML = '';
+            const tbody = document.getElementById('ranking-body'); 
+            const podium = document.getElementById('podium-container'); 
+            tbody.innerHTML = ''; 
+            podium.innerHTML = '';
+            
             ranking.forEach((u, i) => {
                 const badge = i < 3 ? `<span class="bg-${i===0?'gold':i===1?'silver':'bronze'}/20 text-${i===0?'gold':i===1?'silver':'bronze'} px-2 py-1 rounded-full font-bold">${i+1}</span>` : `<span class="bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold">${i+1}</span>`;
-                const paidChip = u.has_paid ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-800 bg-green-900/30 text-green-400">Pago</span>` : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-800 bg-red-900/30 text-red-400">No pago</span>`;
-                tbody.innerHTML += `<tr class="hover:bg-slate-800 transition-colors"><td class="px-4 py-3 text-center">${badge}</td><td class="px-4 py-3 font-medium">${u.name} ${u.email === currentUser.email ? '(Vos)' : ''}</td><td class="px-4 py-3 text-center">${paidChip}</td><td class="px-4 py-3 text-right font-bold text-green-400">${u.points}</td></tr>`;
+                
+                const paidChip = u.has_paid 
+                    ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-800 bg-green-900/30 text-green-400">Pago</span>` 
+                    : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-800 bg-red-900/30 text-red-400">No pago</span>`;
+
+                tbody.innerHTML += `<tr onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="hover:bg-slate-800 cursor-pointer transition-colors">
+                    <td class="px-4 py-3 text-center">${badge}</td>
+                    <td class="px-4 py-3 font-medium">${u.name} ${u.email === currentUser.email ? '(Vos)' : ''}</td>
+                    <td class="px-4 py-3 text-center">${paidChip}</td>
+                    <td class="px-4 py-3 text-right font-bold text-green-400">${u.points}</td>
+                </tr>`;
+                
                 if(i < 3) {
                     const color = i===0?'gold':(i===1?'silver':'bronze');
-                    podium.innerHTML += `<div class="bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center ${i===0?'-mt-2 order-2':'order-'+(i+1)} shadow-lg"><div class="text-xl">${i===0?'👑':(i===1?'🥈':'🥉')}</div><div class="text-[10px] truncate font-bold text-slate-300">${u.name}</div><div class="text-lg font-bold text-${color}">${u.points}</div></div>`;
+                    podium.innerHTML += `<div onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center cursor-pointer ${i===0?'-mt-2 order-2':'order-'+(i+1)} shadow-lg"><div class="text-xl">${i===0?'👑':(i===1?'🥈':'🥉')}</div><div class="text-[10px] truncate font-bold text-slate-300">${u.name}</div><div class="text-lg font-bold text-${color}">${u.points}</div></div>`;
                 }
             });
         }
 
         function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
-        
-        function cambiarTab(n) { 
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
-            document.getElementById('tab-'+n).classList.add('active'); 
-            ['pronosticos','eliminatorias','bonus','ranking'].forEach(t => {
-                const btn = document.getElementById('btn-tab-'+t);
-                if(btn) {
-                    btn.className = t===n ? "flex-1 min-w-[70px] py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 min-w-[70px] py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white";
-                    if(t==='eliminatorias' && n==='eliminatorias') btn.classList.add('border', 'border-green-900/50', 'bg-green-900/20', 'text-green-400');
-                }
-            }); 
-            mostrarPantalla('main-app-screen'); 
-        }
+        function cambiarTab(n) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400"); mostrarPantalla('main-app-screen'); }
 
         async function guardarPredicciones() {
             if (isLocked) return alert("Cerrado!");
             const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳ Guardando..."; btn.disabled = true;
             const payload = { action: "save_predictions", user_email: currentUser.email, predictions: [], bonus: { champion: document.getElementById('bonus-campeon').value, runner_up: document.getElementById('bonus-subcampeon').value, disappointment: document.getElementById('bonus-decepcion').value, top_scorer: document.getElementById('bonus-goleador').value.trim() } };
-            partidosGlobales.forEach(p => { const gA = document.getElementById(`goles_a_${p.id}`); const gB = document.getElementById(`goles_b_${p.id}`); if(gA && gB && gA.value !== "" && gB.value !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA.value), pred_b: parseInt(gB.value) }); });
+            partidosGlobales.forEach(p => { const gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value; if(gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) }); });
             try { await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); alert("¡Guardado! 🏆"); cargarData(); } catch(e) { alert("Error"); }
             btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
         }
