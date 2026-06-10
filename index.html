@@ -48,6 +48,7 @@
                         <li><span class="text-silver font-bold">15 puntos:</span> Subcampeón.</li>
                         <li><span class="text-blue-400 font-bold">10 puntos:</span> Goleador del torneo.</li>
                         <li><span class="text-red-400 font-bold">10 puntos:</span> País Decepción.</li>
+                        <li><span class="text-orange-400 font-bold">10 puntos:</span> País Revelación. 🔥</li>
                         <li><span class="text-purple-400 font-bold">10 puntos:</span> Mejor Jugador del torneo.</li>
                         <li><span class="text-teal-400 font-bold">10 puntos:</span> Mejor Arquero.</li>
                         <li><span class="text-pink-400 font-bold">10 puntos:</span> Jugador Revelación.</li>
@@ -134,7 +135,7 @@
             </div>
             
             <div id="tab-bonus" class="tab-content">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm mb-8">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8">
                     <h3 class="text-green-400 font-bold border-b border-slate-800 pb-3 mb-4 text-lg">Mis Elegidos</h3>
                     
                     <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 mb-5 space-y-4">
@@ -142,6 +143,7 @@
                         <div><label class="block text-sm text-slate-400 mb-1">Campeón (30 pts)</label><select id="bonus-campeon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                         <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                         <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">País Revelación (10 pts)</label><select id="bonus-surprise_team" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
                     </div>
 
                     <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 space-y-4">
@@ -156,7 +158,7 @@
                 <div class="space-y-4">
                     <h3 class="text-xl font-bold text-center text-slate-300">👀 Esto pusieron todos...</h3>
                     
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm" id="bonus-summary-container"></div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm animate-pulse flex flex-col gap-4" id="bonus-summary-container">Cargando estadísticas...</div>
                     
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto no-scrollbar shadow-sm">
                         <table class="w-full text-left text-xs whitespace-nowrap">
@@ -166,6 +168,7 @@
                                     <th class="px-3 py-3 text-gold">Campeón</th>
                                     <th class="px-3 py-3 text-silver">Subcampeón</th>
                                     <th class="px-3 py-3 text-red-400">Decepción</th>
+                                    <th class="px-3 py-3 text-orange-400">P. Revelación</th>
                                     <th class="px-3 py-3 text-blue-400">Goleador</th>
                                     <th class="px-3 py-3 text-purple-400">M. Jugador</th>
                                     <th class="px-3 py-3 text-teal-400">M. Arquero</th>
@@ -329,7 +332,10 @@
 
                 let options = '<option value="">Elegí...</option>';
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
-                ['bonus-campeon','bonus-subcampeon','bonus-decepcion'].forEach(id => document.getElementById(id).innerHTML = options);
+                ['bonus-campeon','bonus-subcampeon','bonus-decepcion','bonus-surprise_team'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.innerHTML = options;
+                });
                 
                 if(res.userBonus) {
                     document.getElementById('bonus-campeon').value = res.userBonus.champion || "";
@@ -339,6 +345,10 @@
                     document.getElementById('bonus-best_player').value = res.userBonus.best_player || "";
                     document.getElementById('bonus-best_gk').value = res.userBonus.best_gk || "";
                     document.getElementById('bonus-revelation').value = res.userBonus.revelation || "";
+                    // 🔥 CARGAMOS EL VALOR DEL NUEVO CAMPO DESDE EL SERVIDOR
+                    if(document.getElementById('bonus-surprise_team')) {
+                        document.getElementById('bonus-surprise_team').value = res.userBonus.surprise_team || "";
+                    }
                 }
 
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
@@ -361,13 +371,14 @@
                 return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
             };
             
-            // 🔥 RESUMEN SEPARADO EN 2 CAJAS (UNA ABAJO DE LA OTRA)
+            // 🔥 RESUMEN DE 2 CAJAS (UNA ABAJO DE LA OTRA) CON EL NUEVO PAÍS REVELACIÓN INCLUIDO
             sumContainer.innerHTML = `
-                <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 space-y-3 mb-4">
+                <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 space-y-3 mb-2">
                     <h4 class="text-slate-300 font-semibold text-sm border-b border-slate-800/50 pb-1 mb-2">🌎 Países</h4>
                     <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('champion')}</div></div>
                     <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('runner_up')}</div></div>
                     <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('disappointment')}</div></div>
+                    <div><span class="text-orange-400 font-bold text-xs block">🔥 P. Revelación</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('surprise_team')}</div></div>
                 </div>
                 
                 <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 space-y-3">
@@ -382,11 +393,13 @@
             let trHtml = '';
             allBonus.sort((a, b) => a.name.localeCompare(b.name)).forEach(b => {
                 let badge = (b.email === currentUser.email) ? `<span class="bg-green-500/20 text-green-400 px-1 text-[8px] ml-1">Vos</span>` : '';
+                // 🔥 ADEMÁS: Añadimos la columna b.surprise_team al cuerpo de la gran tabla
                 trHtml += `<tr class="hover:bg-slate-800/40">
                     <td class="px-3 py-2 font-medium sticky left-0 bg-slate-900 border-r border-slate-800/50 z-10">${b.name}${badge}</td>
                     <td class="px-3 py-2">${b.champion || '-'}</td>
                     <td class="px-3 py-2">${b.runner_up || '-'}</td>
                     <td class="px-3 py-2">${b.disappointment || '-'}</td>
+                    <td class="px-3 py-2 text-orange-400">${b.surprise_team || '-'}</td>
                     <td class="px-3 py-2 capitalize">${b.top_scorer || '-'}</td>
                     <td class="px-3 py-2 capitalize">${b.best_player || '-'}</td>
                     <td class="px-3 py-2 capitalize">${b.best_gk || '-'}</td>
@@ -500,7 +513,9 @@
                     top_scorer: document.getElementById('bonus-goleador').value.trim(),
                     best_player: document.getElementById('bonus-best_player').value.trim(),
                     best_gk: document.getElementById('bonus-best_gk').value.trim(),
-                    revelation: document.getElementById('bonus-revelation').value.trim()
+                    revelation: document.getElementById('bonus-revelation').value.trim(),
+                    // 🔥 SE ADICIONA LA VARIABLE SURPRISE_TEAM AL PAYLOAD POST
+                    surprise_team: document.getElementById('bonus-surprise_team').value
                 } 
             };
             
