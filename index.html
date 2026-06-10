@@ -134,20 +134,30 @@
             </div>
             
             <div id="tab-bonus" class="tab-content">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8">
-                    <h3 class="text-green-400 font-bold border-b border-slate-800 pb-2">Mis Elegidos</h3>
-                    <div><label class="block text-sm text-slate-400 mb-1">Campeón (30 pts)</label><select id="bonus-campeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Mejor Jugador del Torneo (10 pts)</label><input type="text" id="bonus-best_player" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Dibu Martínez"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Jugador Revelación (10 pts)</label><input type="text" id="bonus-revelation" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Lamine Yamal"></div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm mb-8">
+                    <h3 class="text-green-400 font-bold border-b border-slate-800 pb-3 mb-4 text-lg">Mis Elegidos</h3>
+                    
+                    <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 mb-5 space-y-4">
+                        <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">🌎 Países</h4>
+                        <div><label class="block text-sm text-slate-400 mb-1">Campeón (30 pts)</label><select id="bonus-campeon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                    </div>
+
+                    <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 space-y-4">
+                        <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">🏃‍♂️ Jugadores</h4>
+                        <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Mejor Jugador del Torneo (10 pts)</label><input type="text" id="bonus-best_player" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Dibu Martínez"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Jugador Revelación (10 pts)</label><input type="text" id="bonus-revelation" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Lamine Yamal"></div>
+                    </div>
                 </div>
 
                 <div class="space-y-4">
                     <h3 class="text-xl font-bold text-center text-slate-300">👀 Esto pusieron todos...</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm" id="bonus-summary-container"></div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm" id="bonus-summary-container"></div>
+                    
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden overflow-x-auto no-scrollbar shadow-sm">
                         <table class="w-full text-left text-xs whitespace-nowrap">
                             <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
@@ -321,7 +331,6 @@
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion'].forEach(id => document.getElementById(id).innerHTML = options);
                 
-                // 🔥 ACA CARGAMOS LOS 7 CAMPOS DEL USUARIO
                 if(res.userBonus) {
                     document.getElementById('bonus-campeon').value = res.userBonus.champion || "";
                     document.getElementById('bonus-subcampeon').value = res.userBonus.runner_up || "";
@@ -341,7 +350,6 @@
             if(!allBonus || allBonus.length === 0) return;
             const getVotes = (field) => {
                 const counts = {};
-                // Aseguramos que los inputs de texto agrupen bien sin importar mayúsculas/minúsculas
                 allBonus.forEach(b => { 
                     if(b[field]) { 
                         let valor = ['top_scorer', 'best_player', 'best_gk', 'revelation'].includes(field) ? b[field].trim().toUpperCase() : b[field]; 
@@ -353,15 +361,22 @@
                 return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
             };
             
-            // 🔥 AGRANDAMOS EL CONTENEDOR A 2 COLUMNAS Y AGREGAMOS LAS NUEVAS STATS
+            // 🔥 RESUMEN SEPARADO EN 2 CAJAS (UNA ABAJO DE LA OTRA)
             sumContainer.innerHTML = `
-                <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('champion')}</div></div>
-                <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('runner_up')}</div></div>
-                <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('disappointment')}</div></div>
-                <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('top_scorer')}</div></div>
-                <div><span class="text-purple-400 font-bold text-xs block">⭐ M. Jugador</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('best_player')}</div></div>
-                <div><span class="text-teal-400 font-bold text-xs block">🧤 M. Arquero</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('best_gk')}</div></div>
-                <div class="sm:col-span-2"><span class="text-pink-400 font-bold text-xs block">🚀 Revelación</span><div class="text-xs mt-0.5 bg-slate-950/50 p-2 rounded border border-slate-800/50">${getVotes('revelation')}</div></div>
+                <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 space-y-3 mb-4">
+                    <h4 class="text-slate-300 font-semibold text-sm border-b border-slate-800/50 pb-1 mb-2">🌎 Países</h4>
+                    <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('champion')}</div></div>
+                    <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('runner_up')}</div></div>
+                    <div><span class="text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('disappointment')}</div></div>
+                </div>
+                
+                <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 space-y-3">
+                    <h4 class="text-slate-300 font-semibold text-sm border-b border-slate-800/50 pb-1 mb-2">🏃‍♂️ Jugadores</h4>
+                    <div><span class="text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('top_scorer')}</div></div>
+                    <div><span class="text-purple-400 font-bold text-xs block">⭐ M. Jugador</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('best_player')}</div></div>
+                    <div><span class="text-teal-400 font-bold text-xs block">🧤 M. Arquero</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('best_gk')}</div></div>
+                    <div><span class="text-pink-400 font-bold text-xs block">🚀 Revelación</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-800/50 bg-slate-900/50">${getVotes('revelation')}</div></div>
+                </div>
             `;
             
             let trHtml = '';
@@ -474,7 +489,6 @@
             if (isLocked) return alert("Cerrado!");
             const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳ Guardando..."; btn.disabled = true;
             
-            // 🔥 ACA ESTAN LOS 7 CAMPOS MANDADOS AL BACKEND
             const payload = { 
                 action: "save_predictions", 
                 user_email: currentUser.email, 
