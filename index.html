@@ -339,7 +339,7 @@ async function cargarData() {
                 
                 // 🔥 MAGIA DE LA PAUSA: Cambia el cartel de novedades a color amarillo
                 if(res.isGlobalPaused) {
-                    document.getElementById('banner-text').innerText = "⚠️ JUEGO PAUSADO POR EL ADMIN (Revisión de VAR) ⚠️";
+                    document.getElementById('banner-text').innerText = "⚠️ NO SE PUEDEN HACER CAMBIOS (VAR) ⚠️";
                     document.getElementById('banner-text').parentElement.className = "marquee text-sm font-bold text-yellow-400 tracking-wide";
                 } else {
                     if(res.bannerMessage) document.getElementById('banner-text').innerText = res.bannerMessage;
