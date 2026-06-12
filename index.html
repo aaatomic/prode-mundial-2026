@@ -24,7 +24,7 @@
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
+<body class="bg-slate-950 text-slate-100 font-sans pb-10 min-h-screen">
 
     <div id="modal-reglas" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[80vh]">
@@ -36,9 +36,9 @@
                 <section>
                     <h3 class="font-bold text-white mb-1">⚽ Puntaje por Partido:</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><span class="text-green-400 font-bold">3 puntos:</span> Pegar el resultado exacto (ej: pusiste 2-1 y salió 2-1).</li>
-                        <li><span class="text-yellow-400 font-bold">1 punto:</span> Acertar el ganador o empate, pero no el resultado exacto (ej: pusiste 1-0 y salió 3-0).</li>
-                        <li><span class="text-red-400 font-bold">0 puntos:</span> No acertar ninguna de las anteriores.</li>
+                        <li><span class="text-green-400 font-bold">3 puntos:</span> Pegar el resultado exacto.</li>
+                        <li><span class="text-yellow-400 font-bold">1 punto:</span> Acertar ganador/empate, pero sin resultado exacto.</li>
+                        <li><span class="text-red-400 font-bold">0 puntos:</span> No acertar ninguna.</li>
                     </ul>
                 </section>
                 <section>
@@ -56,8 +56,8 @@
                         <li><span class="text-yellow-500 font-bold">25 puntos:</span> Hay bombinigusini? 💣</li>
                     </ul>
                 </section>
-                <section class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
-                    <p>⚠️ <strong>Importante:</strong> Una vez que cierre el contador, ya no se podrán realizar más cambios.</p>
+                <section class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs text-yellow-500">
+                    <p>⚠️ <strong>Atención:</strong> Podés cambiar tu pronóstico hasta el momento exacto en que arranca cada partido. Luego de eso, se bloquea. <br><br><strong>Los Bonus ya están definitivamente cerrados.</strong></p>
                 </section>
             </div>
             <button onclick="toggleReglas()" class="w-full mt-6 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold transition-all text-white">Entendido</button>
@@ -102,8 +102,6 @@
                 <span id="user-total-points" class="text-green-400 font-black text-3xl">0</span>
             </div>
             
-            <div id="timer-container" class="bg-slate-900 border border-yellow-500/30 text-yellow-400 font-mono text-center text-lg font-bold p-3 rounded-xl mb-3 shadow-sm">⏳ Calculando...</div>
-            
             <div class="bg-slate-900 border border-slate-800 rounded-xl mb-3 shadow-sm flex items-center py-2 px-3 overflow-hidden">
                 <span class="text-lg mr-2 shrink-0">📢</span>
                 <div class="marquee text-sm font-bold text-green-400 tracking-wide"><span id="banner-text">Cargando novedades...</span></div>
@@ -132,35 +130,50 @@
             </div>
             
             <div id="tab-pronosticos" class="tab-content active space-y-4">
+                
+                <a href="https://www.espn.com.ar/futbol/resultados/_/liga/fifa.world" target="_blank" class="w-full bg-slate-900 border border-slate-800 hover:border-green-500 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm group cursor-pointer mb-2">
+                    <div class="flex items-center gap-3">
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        </span>
+                        <span class="font-bold text-slate-200 text-sm group-hover:text-green-400 transition-colors">Seguir partidos en vivo</span>
+                    </div>
+                    <span class="text-[9px] font-extrabold bg-slate-950 border border-slate-700 text-slate-400 px-2 py-1 rounded-md">ESPN ↗</span>
+                </a>
+
                 <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
                 <div id="matches-container"></div>
             </div>
             
             <div id="tab-bonus" class="tab-content">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8">
-                    <h3 class="text-green-400 font-bold border-b border-slate-800 pb-3 mb-4 text-lg">Mis Elegidos</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm mb-8 relative overflow-hidden">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                        <h3 class="text-green-400 font-bold text-lg">Mis Elegidos</h3>
+                        <span class="bg-red-900/30 text-red-400 border border-red-800/50 px-2 py-1 rounded text-xs font-bold">🔒 CERRADO</span>
+                    </div>
                     
                     <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 mb-5 space-y-4">
                         <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">🌎 Países</h4>
-                        <div><label class="block text-sm text-slate-400 mb-1">Campeón (30 pts)</label><select id="bonus-campeon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                        <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                        <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
-                        <div><label class="block text-sm text-slate-400 mb-1">País Revelación (10 pts)</label><select id="bonus-surprise_team" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Campeón (30 pts)</label><select id="bonus-campeon" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none opacity-50 cursor-not-allowed"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Subcampeón (15 pts)</label><select id="bonus-subcampeon" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none opacity-50 cursor-not-allowed"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none opacity-50 cursor-not-allowed"></select></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">País Revelación (10 pts)</label><select id="bonus-surprise_team" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none opacity-50 cursor-not-allowed"></select></div>
                     </div>
 
                     <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 mb-5 space-y-4">
                         <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">🏃‍♂️ Jugadores</h4>
-                        <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Messi"></div>
-                        <div><label class="block text-sm text-slate-400 mb-1">Mejor Jugador del Torneo (10 pts)</label><input type="text" id="bonus-best_player" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Mbappé"></div>
-                        <div><label class="block text-sm text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Dibu Martínez"></div>
-                        <div><label class="block text-sm text-slate-400 mb-1">Jugador Revelación (10 pts)</label><input type="text" id="bonus-revelation" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500" placeholder="Ej: Lamine Yamal"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 opacity-50 cursor-not-allowed" placeholder="Ej: Messi"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Mejor Jugador del Torneo (10 pts)</label><input type="text" id="bonus-best_player" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 opacity-50 cursor-not-allowed" placeholder="Ej: Mbappé"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 opacity-50 cursor-not-allowed" placeholder="Ej: Dibu Martínez"></div>
+                        <div><label class="block text-sm text-slate-400 mb-1">Jugador Revelación (10 pts)</label><input type="text" id="bonus-revelation" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 opacity-50 cursor-not-allowed" placeholder="Ej: Lamine Yamal"></div>
                     </div>
 
                     <div class="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 space-y-4">
                         <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">✨ Extras</h4>
                         <div>
                             <label class="block text-sm text-slate-400 mb-1">Juega shooting? 🔫 (50 pts)</label>
-                            <select id="bonus-shooting" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none">
+                            <select id="bonus-shooting" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none opacity-50 cursor-not-allowed">
                                 <option value="">Elegí...</option>
                                 <option value="SI">SI</option>
                                 <option value="NO">NO</option>
@@ -168,7 +181,7 @@
                         </div>
                         <div>
                             <label class="block text-sm text-slate-400 mb-1">Hay bombinigusini? 💣 (25 pts)</label>
-                            <select id="bonus-bomb" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none">
+                            <select id="bonus-bomb" disabled class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-white appearance-none opacity-50 cursor-not-allowed">
                                 <option value="">Elegí...</option>
                                 <option value="SI">SI</option>
                                 <option value="NO">NO</option>
@@ -228,16 +241,11 @@
         </div>
     </div>
 
-    <div id="floating-save" class="fixed bottom-0 left-0 w-full p-4 bg-slate-950/80 backdrop-blur-md border-t border-slate-800 flex justify-center z-50 hidden">
-        <button onclick="guardarPredicciones()" id="btn-guardar" class="bg-green-500 text-slate-950 font-bold text-lg py-3 px-8 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all w-full max-w-2xl">💾 Guardar Pronósticos</button>
-    </div>
-
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzUzjYnU_tXEZwWb5GIWbiXrnV9_4TZtZU_AZrh47m5dhcc0YC90tl7gyUajUOtOZuG8g/exec"; 
         let partidosGlobales = [];
         let equiposGlobales = []; 
         let currentUser = null;
-        let isLocked = false;
         let authMode = 'login';
 
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
@@ -320,25 +328,7 @@
         function mostrarPantalla(id) {
             document.querySelectorAll('.app-screen').forEach(el => el.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-            const isMainApp = (id === 'main-app-screen');
-            const isTabActive = document.getElementById('tab-pronosticos').classList.contains('active') || document.getElementById('tab-bonus').classList.contains('active');
-            document.getElementById('floating-save').style.display = (isMainApp && isTabActive && !isLocked) ? 'flex' : 'none';
         }
-
-        const lockDate = new Date("2026-06-11T18:59:00Z").getTime();
-        setInterval(() => {
-            if(!currentUser || !currentUser.is_approved) return;
-            const distance = lockDate - new Date().getTime();
-            const t = document.getElementById("timer-container");
-            if (distance < 0) {
-                isLocked = true;
-                t.innerHTML = "🔒 CERRADO"; t.className = "bg-slate-900 border border-red-500/30 text-red-500 font-mono text-center text-lg font-bold p-3 rounded-xl mb-3 shadow-sm";
-                document.getElementById('floating-save').style.display = 'none';
-            } else {
-                const d = Math.floor(distance/(1000*60*60*24)), h = Math.floor((distance%(1000*60*60*24))/(1000*60*60)), m = Math.floor((distance%(1000*60*60))/(1000*60)), s = Math.floor((distance%(1000*60))/1000);
-                t.innerHTML = `⏳ Cierra en: ${d}d ${h}h ${m}m ${s}s`;
-            }
-        }, 1000);
 
         async function cargarData() {
             try {
@@ -370,7 +360,6 @@
                     document.getElementById('bonus-best_gk').value = res.userBonus.best_gk || "";
                     document.getElementById('bonus-revelation').value = res.userBonus.revelation || "";
                     document.getElementById('bonus-surprise_team').value = res.userBonus.surprise_team || "";
-                    // 🔥 CARGAR CAMPOS NUEVOS
                     document.getElementById('bonus-shooting').value = res.userBonus.shooting || "";
                     document.getElementById('bonus-bomb').value = res.userBonus.bomb || "";
                 }
@@ -395,7 +384,6 @@
                 return sorted.map(e => `<span class="text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-600 mx-1">•</span> ');
             };
             
-            // 🔥 RESUMEN SEPARADO EN 3 CAJAS CON EL DISEÑO FIJO SIN TITILEO
             sumContainer.innerHTML = `
                 <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50 space-y-3 mb-2">
                     <h4 class="text-slate-300 font-semibold text-sm border-b border-slate-800/50 pb-1 mb-2">🌎 Países</h4>
@@ -443,6 +431,9 @@
         function renderizarContenido(data, navId, containerId, isReadOnly) {
             const partidos = data.matches; const userPreds = data.userPredictions || []; const container = document.getElementById(containerId); const nav = document.getElementById(navId); const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort();
             nav.innerHTML = ''; container.innerHTML = '';
+            
+            const now = new Date().getTime(); 
+
             grupos.forEach((grupo, idx) => {
                 const cleanId = grupo.replace(/\s/g, ''); const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
                 nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap bg-${idx===0?'green-500':'slate-800'} text-${idx===0?'slate-950':'slate-400'}">${grupo}</button>`;
@@ -451,16 +442,41 @@
                 let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
                     <div class="bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-800 shadow-inner"><span class="text-xs text-slate-400">Puntos en este grupo:</span><span class="text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
+                
                 partidosGrupo.forEach(p => {
-                    const pred = userPreds.find(up => up.match_id === p.id); const sCode = (p.status || '').toUpperCase(); let sColor = 'bg-slate-500', sText = 'PENDIENTE';
-                    if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; } else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
+                    const pred = userPreds.find(up => up.match_id === p.id); 
+                    const sCode = (p.status || '').toUpperCase(); 
+                    let sColor = 'bg-slate-500', sText = 'PENDIENTE';
+                    if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; } 
+                    else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
+                    
                     let ptsBox = '<span class="text-[10px] font-bold text-slate-600 border border-slate-800 px-2 py-0.5 rounded">0 pts</span>';
                     if(pred && pred.points !== undefined && pred.points !== "") {
                         if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded-full shadow-sm">+3 pts</span>';
                         else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-300 bg-green-900/20 px-2 py-0.5 rounded-full">+1 pt</span>';
                     }
+
+                    const matchTime = new Date(p.kickoff_time).getTime();
+                    const isMatchLocked = now >= matchTime;
+                    const disableInputs = isReadOnly || isMatchLocked;
+                    
+                    let timeStr = new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) + ' hs';
+                    if(isMatchLocked) timeStr += ' <span class="text-red-400 ml-1">🔒</span>'; 
+                    
                     const fA = getFlagUrl(p.team_a), fB = getFlagUrl(p.team_b);
-                    html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm"><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-400">${sText}</span></div><div class="text-[10px] text-slate-500 font-medium">${new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false})} hs</div><div>${ptsBox}</div></div><div class="flex justify-between items-center gap-1"><div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate">${p.team_a} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-700"></div><div class="flex gap-1 items-center shrink-0"><input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500"><span class="text-slate-600">-</span><input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${isReadOnly?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500"></div><div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-700"> ${p.team_b}</div></div><div class="border-t border-slate-800/50 pt-2 mt-2"><button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="w-full text-[9px] text-slate-500 uppercase tracking-tighter">Resultado Real ▼</button><div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-1 text-center font-mono text-lg font-bold text-white">${p.score_a !== "" ? p.score_a : '-'} - ${p.score_b !== "" ? p.score_b : '-'}</div></div></div>`;
+                    
+                    const boxStyle = isMatchLocked ? 'opacity-70 grayscale-[30%]' : '';
+
+                    let actionArea = '';
+                    if (!isReadOnly) {
+                        if (isMatchLocked) {
+                            actionArea = `<span class="text-[9px] font-bold text-red-400 bg-red-900/20 border border-red-800/30 px-2 py-1 rounded">CERRADO</span>`;
+                        } else {
+                            actionArea = `<button id="btn-save-${p.id}" onclick="guardarUnPartido(${p.id})" class="bg-green-600 hover:bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-sm transition-colors">Guardar</button>`;
+                        }
+                    }
+
+                    html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}"><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-400">${sText}</span></div><div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div></div><div class="flex justify-between items-center gap-1"><div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate">${p.team_a} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-700"></div><div class="flex gap-1 items-center shrink-0"><input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${disableInputs?'cursor-not-allowed':''}"><span class="text-slate-600">-</span><input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${disableInputs?'cursor-not-allowed':''}"></div><div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-700"> ${p.team_b}</div></div><div class="border-t border-slate-800/50 pt-2 mt-2 flex justify-between items-center"><button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="text-[9px] text-slate-500 uppercase tracking-tighter hover:text-white transition-colors">Resultado Real ▼</button>${actionArea}</div><div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-2 text-center font-mono text-lg font-bold text-white bg-slate-950/50 rounded py-1">${p.score_a !== "" ? p.score_a : '-'} - ${p.score_b !== "" ? p.score_b : '-'}</div></div>`;
                 });
                 container.innerHTML += html + '</div>';
             });
@@ -527,34 +543,46 @@
         }
 
         function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
-        function cambiarTab(n) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById('tab-'+n).classList.add('active'); ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400"); mostrarPantalla('main-app-screen'); }
+        function cambiarTab(n) { 
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
+            document.getElementById('tab-'+n).classList.add('active'); 
+            ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all"); 
+            mostrarPantalla('main-app-screen'); 
+        }
 
-        async function guardarPredicciones() {
-            if (isLocked) return alert("Cerrado!");
-            const btn = document.getElementById('btn-guardar'); btn.innerText = "⏳ Guardando..."; btn.disabled = true;
+        async function guardarUnPartido(matchId) {
+            const gA = document.getElementById(`goles_a_${matchId}`).value;
+            const gB = document.getElementById(`goles_b_${matchId}`).value;
             
+            if (gA === "" || gB === "") {
+                alert("Tenés que completar los goles de ambos equipos antes de guardar.");
+                return;
+            }
+
+            const btn = document.getElementById(`btn-save-${matchId}`);
+            btn.innerText = "⏳";
+            btn.disabled = true;
+
             const payload = { 
                 action: "save_predictions", 
                 user_email: currentUser.email, 
-                predictions: [], 
-                bonus: { 
-                    champion: document.getElementById('bonus-campeon').value, 
-                    runner_up: document.getElementById('bonus-subcampeon').value, 
-                    disappointment: document.getElementById('bonus-decepcion').value, 
-                    top_scorer: document.getElementById('bonus-goleador').value.trim(),
-                    best_player: document.getElementById('bonus-best_player').value.trim(),
-                    best_gk: document.getElementById('bonus-best_gk').value.trim(),
-                    revelation: document.getElementById('bonus-revelation').value.trim(),
-                    surprise_team: document.getElementById('bonus-surprise_team').value,
-                    // 🔥 NUEVOS EXTRAS ENVIADOS AL SERVIDOR
-                    shooting: document.getElementById('bonus-shooting').value,
-                    bomb: document.getElementById('bonus-bomb').value
-                } 
+                predictions: [{ match_id: matchId, pred_a: parseInt(gA), pred_b: parseInt(gB) }] 
             };
-            
-            partidosGlobales.forEach(p => { const gA = document.getElementById(`goles_a_${p.id}`).value, gB = document.getElementById(`goles_b_${p.id}`).value; if(gA !== "" && gB !== "") payload.predictions.push({ match_id: p.id, pred_a: parseInt(gA), pred_b: parseInt(gB) }); });
-            try { await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); alert("¡Guardado! 🏆"); cargarData(); } catch(e) { alert("Error"); }
-            btn.innerText = "💾 Guardar Pronósticos"; btn.disabled = false;
+
+            try { 
+                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); 
+                btn.innerText = "✅";
+                btn.classList.replace('bg-green-600', 'bg-slate-600');
+                setTimeout(() => { 
+                    btn.innerText = "Guardar"; 
+                    btn.disabled = false; 
+                    btn.classList.replace('bg-slate-600', 'bg-green-600');
+                }, 2000);
+            } catch(e) { 
+                alert("Error al guardar."); 
+                btn.innerText = "Guardar";
+                btn.disabled = false;
+            }
         }
 
         async function procesarAuth() {
