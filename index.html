@@ -612,6 +612,37 @@
             }
         }
 
+        // ⏱️ RELOJ GUARDIÁN: Chequea cada 30 segundos si algún partido ya empezó y lo bloquea en pantalla
+        setInterval(() => {
+            if (!partidosGlobales || partidosGlobales.length === 0) return;
+            const now = new Date().getTime();
+            
+            partidosGlobales.forEach(p => {
+                const matchTime = new Date(p.kickoff_time).getTime();
+                
+                // Si ya pasamos la hora de inicio...
+                if (now >= matchTime) {
+                    const inputA = document.getElementById(`goles_a_${p.id}`);
+                    const inputB = document.getElementById(`goles_b_${p.id}`);
+                    const btn = document.getElementById(`btn-save-${p.id}`);
+                    
+                    // Si el input sigue habilitado, lo bloqueamos en vivo
+                    if (inputA && !inputA.disabled) {
+                        inputA.disabled = true; inputA.classList.add('cursor-not-allowed', 'opacity-70');
+                        inputB.disabled = true; inputB.classList.add('cursor-not-allowed', 'opacity-70');
+                        
+                        // Volamos el botón verde y clavamos el cartel de CERRADO
+                        if (btn) {
+                            btn.outerHTML = `<span class="text-[9px] font-bold text-red-400 bg-red-900/20 border border-red-800/30 px-2 py-1 rounded">CERRADO</span>`;
+                        }
+                    }
+                }
+            });
+        }, 30000); // 30000 milisegundos = 30 segundos
+
+
+
+        
         checkSession();
     </script>
 </body>
