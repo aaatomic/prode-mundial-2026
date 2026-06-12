@@ -507,15 +507,30 @@ async function cargarData() {
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
         }
 
-        function calcularTabla(partidos, tipo, predicciones) {
+function calcularTabla(partidos, tipo, predicciones) {
             let t = {}; partidos.forEach(p => { [p.team_a, p.team_b].forEach(tm => { if(tm && !t[tm]) t[tm] = { nombre: tm, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 }; })});
             partidos.forEach(p => {
                 let gA = null, gB = null;
-                if(tipo === 'real') { if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { gA = parseInt(p.score_a || p.goles_a); gB = parseInt(p.score_b || p.goles_b); } } 
-                else { const pr = predicciones ? predicciones.find(up => up.match_id === p.id) : null; if(pr && pr.pred_a !== "" && pr.pred_b !== "") { gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); } }
-                if(gA != null && !isNaN(gA)) {
+                if(tipo === 'real') { 
+                    if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { 
+                        // 🔥 FIX: Validamos estrictamente que lea el 0 y no lo confunda con vacío
+                        gA = (p.score_a !== "" && p.score_a !== undefined) ? parseInt(p.score_a) : parseInt(p.goles_a); 
+                        gB = (p.score_b !== "" && p.score_b !== undefined) ? parseInt(p.score_b) : parseInt(p.goles_b); 
+                    } 
+                } 
+                else { 
+                    const pr = predicciones ? predicciones.find(up => up.match_id === p.id) : null; 
+                    if(pr && pr.pred_a !== "" && pr.pred_b !== "") { 
+                        gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); 
+                    } 
+                }
+                
+                // 🔥 FIX: Aseguramos que ambos goles sean números válidos antes de hacer matemática
+                if(gA != null && !isNaN(gA) && gB != null && !isNaN(gB)) {
                     t[p.team_a].PJ++; t[p.team_b].PJ++; t[p.team_a].GF+=gA; t[p.team_a].GC+=gB; t[p.team_b].GF+=gB; t[p.team_b].GC+=gA;
-                    if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; } else if(gA < gB) { t[p.team_b].G++; t[p.team_a].P++; t[p.team_b].Pts+=3; } else { t[p.team_a].E++; t[p.team_b].E++; t[p.team_a].Pts+=1; t[p.team_b].Pts+=1; }
+                    if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; } 
+                    else if(gA < gB) { t[p.team_b].G++; t[p.team_a].P++; t[p.team_b].Pts+=3; } 
+                    else { t[p.team_a].E++; t[p.team_b].E++; t[p.team_a].Pts+=1; t[p.team_b].Pts+=1; }
                 }
             }); return Object.values(t).sort((a,b) => (b.Pts - a.Pts) || ((b.GF-b.GC) - (a.GF-a.GC)) || (b.GF - a.GF));
         }
