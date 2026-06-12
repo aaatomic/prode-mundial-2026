@@ -107,6 +107,34 @@
                 <div class="marquee text-sm font-bold text-green-400 tracking-wide"><span id="banner-text">Cargando novedades...</span></div>
             </div>
 
+            <div class="bg-slate-900 border border-slate-800 rounded-xl mb-3 shadow-sm p-4 overflow-hidden relative">
+                <h3 class="text-white font-bold mb-3 flex items-center gap-2">⚖️ Votación Activa</h3>
+                <p class="text-sm text-slate-300 mb-4">¿Votás actualizar el partido libremente hasta que empiece?</p>
+                
+                <div id="voting-buttons" class="flex gap-3 mb-2">
+                    <button onclick="enviarVoto('SI')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-lg transition-colors shadow-sm">SÍ, quiero</button>
+                    <button onclick="enviarVoto('NO')" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-lg transition-colors shadow-sm">NO, que se bloquee</button>
+                </div>
+
+                <div id="voting-results" class="hidden">
+                    <div class="flex h-7 w-full rounded-lg overflow-hidden bg-slate-800 mb-3 shadow-inner border border-slate-700">
+                        <div id="bar-si" class="bg-green-500 flex items-center justify-center text-[11px] font-bold text-slate-950 transition-all duration-700 w-0"></div>
+                        <div id="bar-no" class="bg-red-500 flex items-center justify-center text-[11px] font-bold text-white transition-all duration-700 w-0"></div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3 text-xs text-slate-400">
+                        <div class="flex-1 bg-slate-950/40 p-3 rounded-lg border border-slate-800/50">
+                            <span class="text-green-400 font-bold block mb-1">Votaron SÍ:</span>
+                            <span id="list-si" class="leading-relaxed">-</span>
+                        </div>
+                        <div class="flex-1 bg-slate-950/40 p-3 rounded-lg border border-slate-800/50">
+                            <span class="text-red-400 font-bold block mb-1">Votaron NO:</span>
+                            <span id="list-no" class="leading-relaxed">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-slate-900 border border-slate-800 rounded-xl mb-6 shadow-sm overflow-hidden">
                 <button onclick="toggleChat()" class="w-full flex justify-between items-center p-3 text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors">
                     <span>💬 Chat mistiquero</span>
@@ -330,16 +358,68 @@
             document.getElementById(id).style.display = 'block';
         }
 
-async function cargarData() {
+        // 🔥 NUEVA FUNCION: Dibuja las barras y listas de la votación
+        function renderizarVotacion(votes) {
+            const btnContainer = document.getElementById('voting-buttons');
+            const resContainer = document.getElementById('voting-results');
+            
+            const siVotes = votes.filter(v => v.vote === 'SI');
+            const noVotes = votes.filter(v => v.vote === 'NO');
+            const total = votes.length;
+
+            const myVote = votes.find(v => v.email === currentUser.email);
+            if (myVote) {
+                btnContainer.style.display = 'none';
+                resContainer.style.display = 'block';
+            } else {
+                btnContainer.style.display = 'flex';
+                if (total > 0) resContainer.style.display = 'block';
+            }
+
+            const listSi = document.getElementById('list-si');
+            const listNo = document.getElementById('list-no');
+            const barSi = document.getElementById('bar-si');
+            const barNo = document.getElementById('bar-no');
+
+            if (total > 0) {
+                const pctSi = (siVotes.length / total) * 100;
+                const pctNo = (noVotes.length / total) * 100;
+                
+                barSi.style.width = `${pctSi}%`; 
+                barSi.innerText = siVotes.length > 0 ? `${siVotes.length} (${Math.round(pctSi)}%)` : '';
+                
+                barNo.style.width = `${pctNo}%`;
+                barNo.innerText = noVotes.length > 0 ? `${noVotes.length} (${Math.round(pctNo)}%)` : '';
+
+                listSi.innerHTML = siVotes.length > 0 ? siVotes.map(v => `<span class="whitespace-nowrap bg-green-900/40 text-green-300 px-2 py-0.5 rounded-md inline-block mr-1 mb-1 border border-green-800/50">${v.name}</span>`).join('') : 'Aún nadie';
+                listNo.innerHTML = noVotes.length > 0 ? noVotes.map(v => `<span class="whitespace-nowrap bg-red-900/40 text-red-300 px-2 py-0.5 rounded-md inline-block mr-1 mb-1 border border-red-800/50">${v.name}</span>`).join('') : 'Aún nadie';
+            }
+        }
+
+        // 🔥 NUEVA FUNCION: Mandar el voto al servidor
+        async function enviarVoto(voteOption) {
+            const btnContainer = document.getElementById('voting-buttons');
+            btnContainer.innerHTML = '<span class="text-slate-400 text-sm w-full text-center py-2 animate-pulse">Registrando voto en la urna... 🗳️</span>';
+
+            try {
+                const payload = { action: "submit_vote", email: currentUser.email, name: currentUser.name, vote: voteOption };
+                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                cargarData(); 
+            } catch(e) {
+                alert("Error al enviar voto");
+                cargarData(); 
+            }
+        }
+
+        async function cargarData() {
             try {
                 const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
                 partidosGlobales = res.matches; equiposGlobales = res.teams || [];
                 const miRanking = res.ranking.find(r => r.email === currentUser.email);
                 document.getElementById('user-total-points').innerText = miRanking ? miRanking.points : "0";
                 
-                // 🔥 MAGIA DE LA PAUSA: Cambia el cartel de novedades a color amarillo
                 if(res.isGlobalPaused) {
-                    document.getElementById('banner-text').innerText = "⚠️ NO SE PUEDEN HACER CAMBIOS (VAR) ⚠️";
+                    document.getElementById('banner-text').innerText = "⚠️ JUEGO PAUSADO POR EL ADMIN (Revisión de VAR) ⚠️";
                     document.getElementById('banner-text').parentElement.className = "marquee text-sm font-bold text-yellow-400 tracking-wide";
                 } else {
                     if(res.bannerMessage) document.getElementById('banner-text').innerText = res.bannerMessage;
@@ -347,6 +427,9 @@ async function cargarData() {
                 }
 
                 if(res.chatMessages) dibujarChat(res.chatMessages); 
+                
+                // 🔥 Acá llamamos al renderizado de la votación
+                renderizarVotacion(res.votes || []);
                 
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
@@ -449,7 +532,7 @@ async function cargarData() {
             nav.innerHTML = ''; container.innerHTML = '';
             
             const now = new Date().getTime(); 
-            const isGlobalPaused = data.isGlobalPaused || false; // 🔥 Leemos el estado global
+            const isGlobalPaused = data.isGlobalPaused || false; 
 
             grupos.forEach((grupo, idx) => {
                 const cleanId = grupo.replace(/\s/g, ''); const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
@@ -475,7 +558,6 @@ async function cargarData() {
 
                     const matchTime = new Date(p.kickoff_time).getTime();
                     const isMatchLocked = now >= matchTime;
-                    // 🔥 Bloqueamos si el partido arrancó O si el admin pausó
                     const disableInputs = isReadOnly || isMatchLocked || isGlobalPaused; 
                     
                     let timeStr = new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) + ' hs';
@@ -495,7 +577,7 @@ async function cargarData() {
                         }
                     }
 
-                    html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}"><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-400">${sText}</span></div><div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div></div><div class="flex justify-between items-center gap-1"><div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate">${p.team_a} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-700"></div><div class="flex gap-1 items-center shrink-0"><input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${disableInputs?'cursor-not-allowed':''}"><span class="text-slate-600">-</span><input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${disableInputs?'cursor-not-allowed':''}"></div><div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-700"> ${p.team_b}</div></div><div class="border-t border-slate-800/50 pt-2 mt-2 flex justify-between items-center"><button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="text-[9px] text-slate-500 uppercase tracking-tighter hover:text-white transition-colors">Resultado Real ▼</button>${actionArea}</div><div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-2 text-center font-mono text-lg font-bold text-white bg-slate-950/50 rounded py-1">${p.score_a !== "" ? p.score_a : '-'} - ${p.score_b !== "" ? p.score_b : '-'}</div></div>`;
+                    html += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}"><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-400">${sText}</span></div><div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div></div><div class="flex justify-between items-center gap-1"><div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate">${p.team_a} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-700"></div><div class="flex gap-1 items-center shrink-0"><input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${disableInputs?'cursor-not-allowed':''}"><span class="text-slate-600">-</span><input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-950 border border-slate-800 rounded-lg outline-none focus:border-green-500 ${disableInputs?'cursor-not-allowed':''}"></div><div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-700"> ${p.team_b}</div></div><div class="border-t border-slate-800/50 pt-2 mt-2 flex justify-between items-center"><button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="text-[9px] text-slate-500 uppercase tracking-tighter hover:text-white transition-colors">Resultado Real ▼</button>${actionArea}</div><div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-2 text-center font-mono text-lg font-bold text-white bg-slate-950/50 rounded py-1">${(p.score_a !== "" && p.score_a !== undefined) ? p.score_a : '-'} - ${(p.score_b !== "" && p.score_b !== undefined) ? p.score_b : '-'}</div></div>`;
                 });
                 container.innerHTML += html + '</div>';
             });
@@ -507,13 +589,12 @@ async function cargarData() {
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
         }
 
-function calcularTabla(partidos, tipo, predicciones) {
+        function calcularTabla(partidos, tipo, predicciones) {
             let t = {}; partidos.forEach(p => { [p.team_a, p.team_b].forEach(tm => { if(tm && !t[tm]) t[tm] = { nombre: tm, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 }; })});
             partidos.forEach(p => {
                 let gA = null, gB = null;
                 if(tipo === 'real') { 
                     if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { 
-                        // 🔥 FIX: Validamos estrictamente que lea el 0 y no lo confunda con vacío
                         gA = (p.score_a !== "" && p.score_a !== undefined) ? parseInt(p.score_a) : parseInt(p.goles_a); 
                         gB = (p.score_b !== "" && p.score_b !== undefined) ? parseInt(p.score_b) : parseInt(p.goles_b); 
                     } 
@@ -524,8 +605,6 @@ function calcularTabla(partidos, tipo, predicciones) {
                         gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); 
                     } 
                 }
-                
-                // 🔥 FIX: Aseguramos que ambos goles sean números válidos antes de hacer matemática
                 if(gA != null && !isNaN(gA) && gB != null && !isNaN(gB)) {
                     t[p.team_a].PJ++; t[p.team_b].PJ++; t[p.team_a].GF+=gA; t[p.team_a].GC+=gB; t[p.team_b].GF+=gB; t[p.team_b].GC+=gA;
                     if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; } 
@@ -604,7 +683,16 @@ function calcularTabla(partidos, tipo, predicciones) {
             };
 
             try { 
-                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }}); 
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const result = await response.json();
+                
+                if (result.status === "error") {
+                    alert(result.message);
+                    btn.innerText = "Guardar";
+                    btn.disabled = false;
+                    return;
+                }
+                
                 btn.innerText = "✅";
                 btn.classList.replace('bg-green-600', 'bg-slate-600');
                 setTimeout(() => { 
@@ -646,37 +734,26 @@ function calcularTabla(partidos, tipo, predicciones) {
             }
         }
 
-        // ⏱️ RELOJ GUARDIÁN: Chequea cada 30 segundos si algún partido ya empezó y lo bloquea en pantalla
         setInterval(() => {
             if (!partidosGlobales || partidosGlobales.length === 0) return;
             const now = new Date().getTime();
             
             partidosGlobales.forEach(p => {
                 const matchTime = new Date(p.kickoff_time).getTime();
-                
-                // Si ya pasamos la hora de inicio...
                 if (now >= matchTime) {
                     const inputA = document.getElementById(`goles_a_${p.id}`);
                     const inputB = document.getElementById(`goles_b_${p.id}`);
                     const btn = document.getElementById(`btn-save-${p.id}`);
                     
-                    // Si el input sigue habilitado, lo bloqueamos en vivo
                     if (inputA && !inputA.disabled) {
                         inputA.disabled = true; inputA.classList.add('cursor-not-allowed', 'opacity-70');
                         inputB.disabled = true; inputB.classList.add('cursor-not-allowed', 'opacity-70');
-                        
-                        // Volamos el botón verde y clavamos el cartel de CERRADO
-                        if (btn) {
-                            btn.outerHTML = `<span class="text-[9px] font-bold text-red-400 bg-red-900/20 border border-red-800/30 px-2 py-1 rounded">CERRADO</span>`;
-                        }
+                        if (btn) { btn.outerHTML = `<span class="text-[9px] font-bold text-red-400 bg-red-900/20 border border-red-800/30 px-2 py-1 rounded">CERRADO</span>`; }
                     }
                 }
             });
-        }, 30000); // 30000 milisegundos = 30 segundos
+        }, 30000);
 
-
-
-        
         checkSession();
     </script>
 </body>
