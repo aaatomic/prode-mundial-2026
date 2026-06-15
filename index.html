@@ -552,7 +552,7 @@
             try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
         }
 
-// 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Completo con Hora)
+// 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Ultra-Compacto para Celulares)
         async function toggleDetalleRanking(email, name, points, index) {
             const trDetalle = document.getElementById(`detalle-row-${index}`);
             const divContent = document.getElementById(`content-row-${index}`);
@@ -570,20 +570,34 @@
                 
                 try {
                     const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
-                    
-                    // Ordenamos TODOS los partidos cronológicamente (del primero al último)
                     const todosLosPartidos = res.matches.sort((a,b) => new Date(a.kickoff_time) - new Date(b.kickoff_time));
                     
+                    // Diccionario de 3 letras formato FIFA
+                    const fifaCodes = {
+                        "méxico":"MEX", "sudáfrica":"RSA", "corea del sur":"KOR", "república checa":"CZE",
+                        "canadá":"CAN", "bosnia y herzegovina":"BIH", "estados unidos":"USA", "paraguay":"PAR",
+                        "qatar":"QAT", "suiza":"SUI", "brasil":"BRA", "marruecos":"MAR",
+                        "haití":"HAI", "escocia":"SCO", "australia":"AUS", "turquía":"TUR",
+                        "alemania":"GER", "curazao":"CUW", "países bajos":"NED", "japón":"JPN",
+                        "costa de marfil":"CIV", "ecuador":"ECU", "suecia":"SWE", "túnez":"TUN",
+                        "españa":"ESP", "cabo verde":"CPV", "bélgica":"BEL", "egipto":"EGY",
+                        "arabia saudita":"KSA", "uruguay":"URU", "irán":"IRN", "nueva zelanda":"NZL",
+                        "francia":"FRA", "senegal":"SEN", "irak":"IRQ", "noruega":"NOR",
+                        "argentina":"ARG", "argelia":"ALG", "austria":"AUT", "jordania":"JOR",
+                        "portugal":"POR", "rd de congo":"COD", "inglaterra":"ENG", "croacia":"CRO",
+                        "ghana":"GHA", "panamá":"PAN", "uzbekistán":"UZB", "colombia":"COL"
+                    };
+
                     let html = `
-                    <div class="overflow-x-auto no-scrollbar mb-3">
-                        <table class="w-full text-left text-[10px] whitespace-nowrap border-collapse">
+                    <div class="overflow-x-hidden mb-3">
+                        <table class="w-full text-left text-[10px] sm:text-xs border-collapse">
                             <thead class="text-slate-400 border-b border-slate-800 uppercase tracking-wider bg-slate-900/80">
                                 <tr>
-                                    <th class="py-2 px-2">Fecha y Hora</th>
-                                    <th class="py-2 px-2">Partido</th>
-                                    <th class="py-2 px-2 text-center">Res. Final</th>
-                                    <th class="py-2 px-2 text-center text-green-400">Su Pronóstico</th>
-                                    <th class="py-2 px-2 text-right">Pts</th>
+                                    <th class="py-2 px-1">Fecha</th>
+                                    <th class="py-2 px-1">Partido</th>
+                                    <th class="py-2 px-1 text-center">Real</th>
+                                    <th class="py-2 px-1 text-center text-green-400">Pron.</th>
+                                    <th class="py-2 px-1 text-right">Pts</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-800/50">
@@ -594,25 +608,26 @@
                         const sCode = (m.status || '').toUpperCase();
                         const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
                         
-                        // 1. FECHA Y HORA 🔥 (Acá agregamos la hora)
+                        // 1. FECHA (Corta: 11/6 16:00)
                         const d = new Date(m.kickoff_time);
-                        const diaSemana = d.toLocaleDateString('es-AR', { weekday: 'short' });
                         const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                        const fechaStr = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)} ${d.getDate()}/${d.getMonth()+1} <span class="text-slate-600 ml-1">${hora}</span>`;
+                        const fechaStr = `<span class="whitespace-nowrap">${d.getDate()}/${d.getMonth()+1} <span class="text-slate-600 ml-0.5">${hora}</span></span>`;
                         
-                        // 2. PARTIDO
-                        const partidoStr = `<span class="truncate max-w-[100px] inline-block align-bottom">${m.team_a}</span> - <span class="truncate max-w-[100px] inline-block align-bottom">${m.team_b}</span>`;
+                        // 2. PARTIDO (Abreviado 3 letras)
+                        const cA = fifaCodes[m.team_a.toLowerCase().trim()] || m.team_a.substring(0,3).toUpperCase();
+                        const cB = fifaCodes[m.team_b.toLowerCase().trim()] || m.team_b.substring(0,3).toUpperCase();
+                        const partidoStr = `<span class="font-bold text-slate-300">${cA}</span> <span class="text-slate-600 text-[8px] mx-0.5">-</span> <span class="font-bold text-slate-300">${cB}</span>`;
                         
                         // 3. RESULTADO FINAL
                         let resFinalStr = '<span class="text-slate-600">-</span>';
                         if (isTerminado) {
-                            resFinalStr = `<span class="font-bold text-white bg-slate-950 border border-slate-800 px-2 py-0.5 rounded shadow-inner tracking-widest">${(m.score_a !== "" && m.score_a !== undefined) ? m.score_a : m.goles_a} - ${(m.score_b !== "" && m.score_b !== undefined) ? m.score_b : m.goles_b}</span>`;
+                            resFinalStr = `<span class="font-bold text-white bg-slate-950 border border-slate-800 px-1 py-0.5 rounded shadow-inner whitespace-nowrap">${(m.score_a !== "" && m.score_a !== undefined) ? m.score_a : m.goles_a} - ${(m.score_b !== "" && m.score_b !== undefined) ? m.score_b : m.goles_b}</span>`;
                         }
 
                         // 4. PRONOSTICO DEL USUARIO
-                        let predStr = '<span class="text-slate-600">? - ?</span>';
+                        let predStr = '<span class="text-slate-600">?</span>';
                         if (pred && pred.pred_a !== "" && pred.pred_b !== "") {
-                            predStr = `<span class="font-bold text-green-400">${pred.pred_a} - ${pred.pred_b}</span>`;
+                            predStr = `<span class="font-bold text-green-400 whitespace-nowrap">${pred.pred_a} - ${pred.pred_b}</span>`;
                         }
 
                         // 5. PUNTOS
@@ -621,16 +636,16 @@
                             let pts = 0;
                             if(pred && pred.points !== "" && pred.points !== undefined) pts = parseInt(pred.points);
                             let ptsColor = pts === 3 ? 'text-green-400 bg-green-900/20' : pts === 1 ? 'text-green-300 bg-green-900/10' : 'text-slate-500 bg-slate-900/50 border border-slate-800';
-                            ptsStr = `<span class="font-bold px-1.5 py-0.5 rounded ${ptsColor}">+${pts}</span>`;
+                            ptsStr = `<span class="font-bold px-1 py-0.5 rounded ${ptsColor}">+${pts}</span>`;
                         }
                         
                         html += `
                         <tr class="hover:bg-slate-800/30 transition-colors">
-                            <td class="py-2 px-2 text-slate-500">${fechaStr}</td>
-                            <td class="py-2 px-2 font-medium text-slate-300">${partidoStr}</td>
-                            <td class="py-2 px-2 text-center">${resFinalStr}</td>
-                            <td class="py-2 px-2 text-center">${predStr}</td>
-                            <td class="py-2 px-2 text-right">${ptsStr}</td>
+                            <td class="py-2 px-1 text-slate-500">${fechaStr}</td>
+                            <td class="py-2 px-1">${partidoStr}</td>
+                            <td class="py-2 px-1 text-center">${resFinalStr}</td>
+                            <td class="py-2 px-1 text-center">${predStr}</td>
+                            <td class="py-2 px-1 text-right">${ptsStr}</td>
                         </tr>
                         `;
                     });
@@ -639,7 +654,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <button onclick="verPerfilOtroDesdeRanking('${name}', ${points}, this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold py-2.5 rounded-lg transition-all border border-slate-700 text-xs flex justify-center items-center gap-2 shadow-sm">🔍 Ver en pantalla completa</button>
+                    <button onclick="verPerfilOtroDesdeRanking('${name}', ${points}, this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold py-2.5 rounded-lg transition-all border border-slate-700 text-xs flex justify-center items-center gap-2 shadow-sm">🔍 Ver en pantalla grande</button>
                     `;
                     
                     divContent.innerHTML = html;
