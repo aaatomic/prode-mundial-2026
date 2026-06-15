@@ -696,7 +696,7 @@
             renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true);
         }
 
-// 🔥 RANKING ACTUALIZADO (Alineación corregida para html2canvas)
+// 🔥 RANKING ACTUALIZADO (Alineación forzada anti-bugs de html2canvas)
         function dibujarRanking(ranking) {
             const tbody = document.getElementById('ranking-body'); 
             const podium = document.getElementById('podium-container'); 
@@ -704,9 +704,9 @@
             podium.innerHTML = '';
             
             ranking.forEach((u, i) => {
-                // 🔥 FIX 1: Círculos perfectos y centrados con Flexbox fijo
+                // 🔥 FIX 1: Números centrados obligando al line-height a ser igual al height
                 const bgClass = i === 0 ? 'bg-gold/20 text-gold' : i === 1 ? 'bg-silver/20 text-silver' : i === 2 ? 'bg-bronze/20 text-bronze' : 'bg-slate-800 text-slate-400';
-                const badge = `<div class="inline-flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs ${bgClass}">${i+1}</div>`;
+                const badge = `<div style="width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; display: inline-block;" class="font-bold text-xs ${bgClass}">${i+1}</div>`;
                 
                 const paidChip = u.has_paid 
                     ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-800 bg-green-900/30 text-green-400">Pago</span>` 
@@ -727,11 +727,13 @@
                 
                 if(i < 3) {
                     const color = i===0?'gold':(i===1?'silver':'bronze');
-                    // 🔥 FIX 2: Separación estricta de bloque y leading-none para el emoji
-                    podium.innerHTML += `<div onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center cursor-pointer ${i===0?'-mt-2 order-2':'order-'+(i+1)} shadow-lg flex flex-col items-center justify-between min-h-[90px]">
-                        <span class="text-2xl block leading-none mb-2">${i===0?'👑':(i===1?'🥈':'🥉')}</span>
-                        <div class="text-[10px] truncate font-bold text-slate-300 w-full">${u.name}</div>
-                        <div class="text-lg font-bold text-${color} mt-0.5">${u.points}</div>
+                    const emoji = i===0?'👑':(i===1?'🥈':'🥉');
+                    // 🔥 FIX 2: Bloques separados y rígidos para que el emoji no aplaste al texto
+                    podium.innerHTML += `
+                    <div onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center cursor-pointer ${i===0?'-mt-2 order-2':'order-'+(i+1)} shadow-lg block">
+                        <div style="height: 32px; line-height: 32px; font-size: 24px; margin-bottom: 8px;">${emoji}</div>
+                        <div class="text-[10px] truncate font-bold text-slate-300 w-full" style="line-height: 1.2;">${u.name}</div>
+                        <div class="text-lg font-bold text-${color} mt-1" style="line-height: 1.2;">${u.points}</div>
                     </div>`;
                 }
             });
