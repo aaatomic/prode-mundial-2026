@@ -224,7 +224,12 @@
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                         <table class="w-full text-sm text-left">
                             <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                                <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-center">Inscripción</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+                                <tr>
+                                    <th class="px-4 py-3 text-center w-12">#</th>
+                                    <th class="px-4 py-3">Participante <span data-html2canvas-ignore="true" class="text-[10px] font-normal lowercase ml-1">(toca para ver)</span></th>
+                                    <th class="px-4 py-3 text-center" data-html2canvas-ignore="true">Inscripción</th>
+                                    <th class="px-4 py-3 text-right">Puntos</th>
+                                </tr>
                             </thead>
                             <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
                         </table>
@@ -691,15 +696,15 @@
                     ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-800 bg-green-900/30 text-green-400">Pago</span>` 
                     : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-800 bg-red-900/30 text-red-400">No pago</span>`;
 
-                // 🔥 FILA DE TABLA CLICKEABLE PARA EL ACORDEON
+                // 🔥 FILA CLICKEABLE (Con atributos de invisibilidad para la foto)
                 tbody.innerHTML += `
                 <tr onclick="toggleDetalleRanking('${u.email}', '${u.name}', ${u.points}, ${i})" class="hover:bg-slate-800 cursor-pointer transition-colors">
                     <td class="px-4 py-3 text-center">${badge}</td>
-                    <td class="px-4 py-3 font-medium">${u.name} ${u.email === currentUser.email ? '(Vos)' : ''}</td>
-                    <td class="px-4 py-3 text-center">${paidChip}</td>
-                    <td class="px-4 py-3 text-right font-bold text-green-400">${u.points} <span class="text-[10px] text-slate-500 ml-1">▼</span></td>
+                    <td class="px-4 py-3 font-medium">${u.name} <span data-html2canvas-ignore="true" class="text-slate-500">${u.email === currentUser.email ? '(Vos)' : ''}</span></td>
+                    <td class="px-4 py-3 text-center" data-html2canvas-ignore="true">${paidChip}</td>
+                    <td class="px-4 py-3 text-right font-bold text-green-400">${u.points} <span class="text-[10px] text-slate-500 ml-1" data-html2canvas-ignore="true">▼</span></td>
                 </tr>
-                <tr id="detalle-row-${i}" class="hidden bg-slate-900/40 border-b border-slate-800">
+                <tr id="detalle-row-${i}" class="hidden bg-slate-900/40 border-b border-slate-800" data-html2canvas-ignore="true">
                     <td colspan="4" class="p-0">
                         <div id="content-row-${i}" class="px-4 py-3 text-xs text-slate-300"></div>
                     </td>
