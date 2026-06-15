@@ -545,7 +545,7 @@
             try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
         }
 
-        // 🔥 NUEVA FUNCION: Acordeon en el ranking
+// 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Completo)
         async function toggleDetalleRanking(email, name, points, index) {
             const trDetalle = document.getElementById(`detalle-row-${index}`);
             const divContent = document.getElementById(`content-row-${index}`);
@@ -559,41 +559,80 @@
             trDetalle.classList.remove('hidden');
 
             if (divContent.innerHTML === '') {
-                divContent.innerHTML = '<div class="text-center py-4 animate-pulse text-slate-500">Buscando resultados de ' + name + '... 🔍</div>';
+                divContent.innerHTML = '<div class="text-center py-4 animate-pulse text-slate-500">Buscando el historial de ' + name + '... 🔍</div>';
                 
                 try {
                     const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
-                    const terminados = res.matches.filter(m => ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((m.status||'').toUpperCase()));
                     
-                    let html = `<div class="font-bold text-slate-400 mb-2 pb-1 border-b border-slate-800">Últimos partidos jugados:</div><div class="space-y-1 mb-3">`;
+                    // Ordenamos TODOS los partidos cronológicamente (del primero al último)
+                    const todosLosPartidos = res.matches.sort((a,b) => new Date(a.kickoff_time) - new Date(b.kickoff_time));
                     
-                    if (terminados.length === 0) {
-                        html += `<div class="text-slate-500 italic py-2">Aún no hay partidos terminados.</div>`;
-                    } else {
-                        terminados.sort((a,b) => new Date(b.kickoff_time) - new Date(a.kickoff_time));
+                    let html = `
+                    <div class="overflow-x-auto no-scrollbar mb-3">
+                        <table class="w-full text-left text-[10px] whitespace-nowrap border-collapse">
+                            <thead class="text-slate-400 border-b border-slate-800 uppercase tracking-wider bg-slate-900/80">
+                                <tr>
+                                    <th class="py-2 px-2">Fecha</th>
+                                    <th class="py-2 px-2">Partido</th>
+                                    <th class="py-2 px-2 text-center">Res. Final</th>
+                                    <th class="py-2 px-2 text-center text-green-400">Su Pronóstico</th>
+                                    <th class="py-2 px-2 text-right">Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/50">
+                    `;
+                    
+                    todosLosPartidos.forEach(m => {
+                        const pred = res.userPredictions.find(up => up.match_id === m.id);
+                        const sCode = (m.status || '').toUpperCase();
+                        const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
                         
-                        terminados.forEach(m => {
-                            const pred = res.userPredictions.find(up => up.match_id === m.id);
+                        // 1. FECHA
+                        const d = new Date(m.kickoff_time);
+                        const diaSemana = d.toLocaleDateString('es-AR', { weekday: 'short' });
+                        const fechaStr = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)} ${d.getDate()}/${d.getMonth()+1}`;
+                        
+                        // 2. PARTIDO
+                        const partidoStr = `<span class="truncate max-w-[100px] inline-block align-bottom">${m.team_a}</span> - <span class="truncate max-w-[100px] inline-block align-bottom">${m.team_b}</span>`;
+                        
+                        // 3. RESULTADO FINAL
+                        let resFinalStr = '<span class="text-slate-600">-</span>';
+                        if (isTerminado) {
+                            resFinalStr = `<span class="font-bold text-white bg-slate-950 border border-slate-800 px-2 py-0.5 rounded shadow-inner tracking-widest">${(m.score_a !== "" && m.score_a !== undefined) ? m.score_a : m.goles_a} - ${(m.score_b !== "" && m.score_b !== undefined) ? m.score_b : m.goles_b}</span>`;
+                        }
+
+                        // 4. PRONOSTICO DEL USUARIO
+                        let predStr = '<span class="text-slate-600">? - ?</span>';
+                        if (pred && pred.pred_a !== "" && pred.pred_b !== "") {
+                            predStr = `<span class="font-bold text-green-400">${pred.pred_a} - ${pred.pred_b}</span>`;
+                        }
+
+                        // 5. PUNTOS
+                        let ptsStr = '<span class="text-slate-600">-</span>';
+                        if (isTerminado) {
                             let pts = 0;
                             if(pred && pred.points !== "" && pred.points !== undefined) pts = parseInt(pred.points);
-                            
                             let ptsColor = pts === 3 ? 'text-green-400 bg-green-900/20' : pts === 1 ? 'text-green-300 bg-green-900/10' : 'text-slate-500 bg-slate-900/50 border border-slate-800';
-                            let predText = pred && pred.pred_a !== "" ? `${pred.pred_a} - ${pred.pred_b}` : `? - ?`;
-                            
-                            html += `
-                            <div class="flex justify-between items-center py-1.5 px-2 hover:bg-slate-800/50 rounded transition-colors">
-                                <div class="flex flex-1 items-center gap-2">
-                                    <span class="text-slate-300 w-24 text-right truncate">${m.team_a}</span>
-                                    <span class="font-bold text-white bg-slate-950 border border-slate-800 px-2 py-0.5 rounded shadow-inner tracking-widest">${predText}</span>
-                                    <span class="text-slate-300 w-24 text-left truncate">${m.team_b}</span>
-                                </div>
-                                <div class="font-bold px-1.5 py-0.5 rounded text-[10px] ${ptsColor}">+${pts} pts</div>
-                            </div>`;
-                        });
-                    }
-                    html += `</div>`;
+                            ptsStr = `<span class="font-bold px-1.5 py-0.5 rounded ${ptsColor}">+${pts}</span>`;
+                        }
+                        
+                        html += `
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="py-2 px-2 text-slate-500">${fechaStr}</td>
+                            <td class="py-2 px-2 font-medium text-slate-300">${partidoStr}</td>
+                            <td class="py-2 px-2 text-center">${resFinalStr}</td>
+                            <td class="py-2 px-2 text-center">${predStr}</td>
+                            <td class="py-2 px-2 text-right">${ptsStr}</td>
+                        </tr>
+                        `;
+                    });
                     
-                    html += `<button onclick="verPerfilOtroDesdeRanking('${name}', ${points}, this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold py-2.5 rounded-lg transition-all border border-slate-700 text-xs flex justify-center items-center gap-2 shadow-sm">🔍 Ver todos los pronósticos de ${name}</button>`;
+                    html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <button onclick="verPerfilOtroDesdeRanking('${name}', ${points}, this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold py-2.5 rounded-lg transition-all border border-slate-700 text-xs flex justify-center items-center gap-2 shadow-sm">🔍 Ver en pantalla completa</button>
+                    `;
                     
                     divContent.innerHTML = html;
                     divContent.setAttribute('data-fullres', JSON.stringify(res));
