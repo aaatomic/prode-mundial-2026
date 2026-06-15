@@ -545,7 +545,7 @@
             try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
         }
 
-// 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Completo)
+// 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Completo con Hora)
         async function toggleDetalleRanking(email, name, points, index) {
             const trDetalle = document.getElementById(`detalle-row-${index}`);
             const divContent = document.getElementById(`content-row-${index}`);
@@ -572,7 +572,7 @@
                         <table class="w-full text-left text-[10px] whitespace-nowrap border-collapse">
                             <thead class="text-slate-400 border-b border-slate-800 uppercase tracking-wider bg-slate-900/80">
                                 <tr>
-                                    <th class="py-2 px-2">Fecha</th>
+                                    <th class="py-2 px-2">Fecha y Hora</th>
                                     <th class="py-2 px-2">Partido</th>
                                     <th class="py-2 px-2 text-center">Res. Final</th>
                                     <th class="py-2 px-2 text-center text-green-400">Su Pronóstico</th>
@@ -587,10 +587,11 @@
                         const sCode = (m.status || '').toUpperCase();
                         const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
                         
-                        // 1. FECHA
+                        // 1. FECHA Y HORA 🔥 (Acá agregamos la hora)
                         const d = new Date(m.kickoff_time);
                         const diaSemana = d.toLocaleDateString('es-AR', { weekday: 'short' });
-                        const fechaStr = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)} ${d.getDate()}/${d.getMonth()+1}`;
+                        const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        const fechaStr = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)} ${d.getDate()}/${d.getMonth()+1} <span class="text-slate-600 ml-1">${hora}</span>`;
                         
                         // 2. PARTIDO
                         const partidoStr = `<span class="truncate max-w-[100px] inline-block align-bottom">${m.team_a}</span> - <span class="truncate max-w-[100px] inline-block align-bottom">${m.team_b}</span>`;
