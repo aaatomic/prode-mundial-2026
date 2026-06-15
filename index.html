@@ -107,34 +107,6 @@
                 <div class="marquee text-sm font-bold text-green-400 tracking-wide"><span id="banner-text">Cargando novedades...</span></div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-xl mb-3 shadow-sm p-4 overflow-hidden relative">
-                <h3 class="text-white font-bold mb-3 flex items-center gap-2">⚖️ Votación Activa</h3>
-                <p class="text-sm text-slate-300 mb-4">¿Votás actualizar el partido libremente hasta que empiece?</p>
-                
-                <div id="voting-buttons" class="flex gap-3 mb-2">
-                    <button onclick="enviarVoto('SI')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-lg transition-colors shadow-sm">SÍ, quiero</button>
-                    <button onclick="enviarVoto('NO')" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-lg transition-colors shadow-sm">NO, que se bloquee</button>
-                </div>
-
-                <div id="voting-results" class="hidden">
-                    <div class="flex h-7 w-full rounded-lg overflow-hidden bg-slate-800 mb-3 shadow-inner border border-slate-700">
-                        <div id="bar-si" class="bg-green-500 flex items-center justify-center text-[11px] font-bold text-slate-950 transition-all duration-700 w-0"></div>
-                        <div id="bar-no" class="bg-red-500 flex items-center justify-center text-[11px] font-bold text-white transition-all duration-700 w-0"></div>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row gap-3 text-xs text-slate-400">
-                        <div class="flex-1 bg-slate-950/40 p-3 rounded-lg border border-slate-800/50">
-                            <span class="text-green-400 font-bold block mb-1">Votaron SÍ:</span>
-                            <span id="list-si" class="leading-relaxed">-</span>
-                        </div>
-                        <div class="flex-1 bg-slate-950/40 p-3 rounded-lg border border-slate-800/50">
-                            <span class="text-red-400 font-bold block mb-1">Votaron NO:</span>
-                            <span id="list-no" class="leading-relaxed">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="bg-slate-900 border border-slate-800 rounded-xl mb-6 shadow-sm overflow-hidden">
                 <button onclick="toggleChat()" class="w-full flex justify-between items-center p-3 text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors">
                     <span>💬 Chat mistiquero</span>
@@ -158,7 +130,6 @@
             </div>
             
             <div id="tab-pronosticos" class="tab-content active space-y-4">
-                
                 <a href="https://www.espn.com.ar/futbol/resultados/_/liga/fifa.world" target="_blank" class="w-full bg-slate-900 border border-slate-800 hover:border-green-500 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm group cursor-pointer mb-2">
                     <div class="flex items-center gap-3">
                         <span class="relative flex h-3 w-3">
@@ -251,7 +222,7 @@
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                     <table class="w-full text-sm text-left">
                         <thead class="bg-slate-950/50 text-slate-400 border-b border-slate-800">
-                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante (toca para ver)</th><th class="px-4 py-3 text-center">Inscripción</th><th class="px-4 py-3 text-right">Puntos</th></tr>
+                            <tr><th class="px-4 py-3 text-center w-12">#</th><th class="px-4 py-3">Participante</th><th class="px-4 py-3 text-center">Inscripción</th><th class="px-4 py-3 text-right">Puntos</th></tr>
                         </thead>
                         <tbody id="ranking-body" class="divide-y divide-slate-800"></tbody>
                     </table>
@@ -358,59 +329,6 @@
             document.getElementById(id).style.display = 'block';
         }
 
-        // 🔥 NUEVA FUNCION: Dibuja las barras y listas de la votación
-        function renderizarVotacion(votes) {
-            const btnContainer = document.getElementById('voting-buttons');
-            const resContainer = document.getElementById('voting-results');
-            
-            const siVotes = votes.filter(v => v.vote === 'SI');
-            const noVotes = votes.filter(v => v.vote === 'NO');
-            const total = votes.length;
-
-            const myVote = votes.find(v => v.email === currentUser.email);
-            if (myVote) {
-                btnContainer.style.display = 'none';
-                resContainer.style.display = 'block';
-            } else {
-                btnContainer.style.display = 'flex';
-                if (total > 0) resContainer.style.display = 'block';
-            }
-
-            const listSi = document.getElementById('list-si');
-            const listNo = document.getElementById('list-no');
-            const barSi = document.getElementById('bar-si');
-            const barNo = document.getElementById('bar-no');
-
-            if (total > 0) {
-                const pctSi = (siVotes.length / total) * 100;
-                const pctNo = (noVotes.length / total) * 100;
-                
-                barSi.style.width = `${pctSi}%`; 
-                barSi.innerText = siVotes.length > 0 ? `${siVotes.length} (${Math.round(pctSi)}%)` : '';
-                
-                barNo.style.width = `${pctNo}%`;
-                barNo.innerText = noVotes.length > 0 ? `${noVotes.length} (${Math.round(pctNo)}%)` : '';
-
-                listSi.innerHTML = siVotes.length > 0 ? siVotes.map(v => `<span class="whitespace-nowrap bg-green-900/40 text-green-300 px-2 py-0.5 rounded-md inline-block mr-1 mb-1 border border-green-800/50">${v.name}</span>`).join('') : 'Aún nadie';
-                listNo.innerHTML = noVotes.length > 0 ? noVotes.map(v => `<span class="whitespace-nowrap bg-red-900/40 text-red-300 px-2 py-0.5 rounded-md inline-block mr-1 mb-1 border border-red-800/50">${v.name}</span>`).join('') : 'Aún nadie';
-            }
-        }
-
-        // 🔥 NUEVA FUNCION: Mandar el voto al servidor
-        async function enviarVoto(voteOption) {
-            const btnContainer = document.getElementById('voting-buttons');
-            btnContainer.innerHTML = '<span class="text-slate-400 text-sm w-full text-center py-2 animate-pulse">Registrando voto en la urna... 🗳️</span>';
-
-            try {
-                const payload = { action: "submit_vote", email: currentUser.email, name: currentUser.name, vote: voteOption };
-                await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
-                cargarData(); 
-            } catch(e) {
-                alert("Error al enviar voto");
-                cargarData(); 
-            }
-        }
-
         async function cargarData() {
             try {
                 const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
@@ -427,9 +345,6 @@
                 }
 
                 if(res.chatMessages) dibujarChat(res.chatMessages); 
-                
-                // 🔥 Acá llamamos al renderizado de la votación
-                renderizarVotacion(res.votes || []);
                 
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
@@ -622,12 +537,85 @@
             return h + '</tbody></table></div>';
         }
 
+        // 🔥 FUNCION EXCLUSIVA PARA EL PODIO: Sigue abriendo la pantalla gigante
         async function verPerfilOtro(email, nombre, puntos) {
             document.getElementById('spy-user-name').innerText = nombre; document.getElementById('spy-user-points').innerText = puntos;
-            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse">Cargando...</div>'; mostrarPantalla('user-view-screen');
+            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse">Cargando...</div>'; 
+            mostrarPantalla('user-view-screen');
             try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
         }
 
+        // 🔥 NUEVA FUNCION: Acordeon en el ranking
+        async function toggleDetalleRanking(email, name, points, index) {
+            const trDetalle = document.getElementById(`detalle-row-${index}`);
+            const divContent = document.getElementById(`content-row-${index}`);
+
+            if (!trDetalle.classList.contains('hidden')) {
+                trDetalle.classList.add('hidden');
+                return;
+            }
+
+            document.querySelectorAll('[id^="detalle-row-"]').forEach(el => el.classList.add('hidden'));
+            trDetalle.classList.remove('hidden');
+
+            if (divContent.innerHTML === '') {
+                divContent.innerHTML = '<div class="text-center py-4 animate-pulse text-slate-500">Buscando resultados de ' + name + '... 🔍</div>';
+                
+                try {
+                    const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
+                    const terminados = res.matches.filter(m => ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((m.status||'').toUpperCase()));
+                    
+                    let html = `<div class="font-bold text-slate-400 mb-2 pb-1 border-b border-slate-800">Últimos partidos jugados:</div><div class="space-y-1 mb-3">`;
+                    
+                    if (terminados.length === 0) {
+                        html += `<div class="text-slate-500 italic py-2">Aún no hay partidos terminados.</div>`;
+                    } else {
+                        terminados.sort((a,b) => new Date(b.kickoff_time) - new Date(a.kickoff_time));
+                        
+                        terminados.forEach(m => {
+                            const pred = res.userPredictions.find(up => up.match_id === m.id);
+                            let pts = 0;
+                            if(pred && pred.points !== "" && pred.points !== undefined) pts = parseInt(pred.points);
+                            
+                            let ptsColor = pts === 3 ? 'text-green-400 bg-green-900/20' : pts === 1 ? 'text-green-300 bg-green-900/10' : 'text-slate-500 bg-slate-900/50 border border-slate-800';
+                            let predText = pred && pred.pred_a !== "" ? `${pred.pred_a} - ${pred.pred_b}` : `? - ?`;
+                            
+                            html += `
+                            <div class="flex justify-between items-center py-1.5 px-2 hover:bg-slate-800/50 rounded transition-colors">
+                                <div class="flex flex-1 items-center gap-2">
+                                    <span class="text-slate-300 w-24 text-right truncate">${m.team_a}</span>
+                                    <span class="font-bold text-white bg-slate-950 border border-slate-800 px-2 py-0.5 rounded shadow-inner tracking-widest">${predText}</span>
+                                    <span class="text-slate-300 w-24 text-left truncate">${m.team_b}</span>
+                                </div>
+                                <div class="font-bold px-1.5 py-0.5 rounded text-[10px] ${ptsColor}">+${pts} pts</div>
+                            </div>`;
+                        });
+                    }
+                    html += `</div>`;
+                    
+                    html += `<button onclick="verPerfilOtroDesdeRanking('${name}', ${points}, this)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold py-2.5 rounded-lg transition-all border border-slate-700 text-xs flex justify-center items-center gap-2 shadow-sm">🔍 Ver todos los pronósticos de ${name}</button>`;
+                    
+                    divContent.innerHTML = html;
+                    divContent.setAttribute('data-fullres', JSON.stringify(res));
+
+                } catch(e) {
+                    divContent.innerHTML = '<div class="text-red-400 text-center py-2">Error al cargar datos.</div>';
+                }
+            }
+        }
+        
+        // 🔥 NUEVA FUNCION: Botón "Ver más" que usa la data ya cargada
+        function verPerfilOtroDesdeRanking(name, points, btnElement) {
+            const divContent = btnElement.parentElement;
+            const res = JSON.parse(divContent.getAttribute('data-fullres'));
+            document.getElementById('spy-user-name').innerText = name; 
+            document.getElementById('spy-user-points').innerText = points;
+            document.getElementById('spy-matches-container').innerHTML = ''; 
+            mostrarPantalla('user-view-screen');
+            renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true);
+        }
+
+        // 🔥 RANKING ACTUALIZADO CON DESPLEGABLE
         function dibujarRanking(ranking) {
             const tbody = document.getElementById('ranking-body'); 
             const podium = document.getElementById('podium-container'); 
@@ -641,11 +629,18 @@
                     ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-800 bg-green-900/30 text-green-400">Pago</span>` 
                     : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-800 bg-red-900/30 text-red-400">No pago</span>`;
 
-                tbody.innerHTML += `<tr onclick="verPerfilOtro('${u.email}', '${u.name}', ${u.points})" class="hover:bg-slate-800 cursor-pointer transition-colors">
+                // 🔥 FILA DE TABLA CLICKEABLE PARA EL ACORDEON
+                tbody.innerHTML += `
+                <tr onclick="toggleDetalleRanking('${u.email}', '${u.name}', ${u.points}, ${i})" class="hover:bg-slate-800 cursor-pointer transition-colors">
                     <td class="px-4 py-3 text-center">${badge}</td>
                     <td class="px-4 py-3 font-medium">${u.name} ${u.email === currentUser.email ? '(Vos)' : ''}</td>
                     <td class="px-4 py-3 text-center">${paidChip}</td>
-                    <td class="px-4 py-3 text-right font-bold text-green-400">${u.points}</td>
+                    <td class="px-4 py-3 text-right font-bold text-green-400">${u.points} <span class="text-[10px] text-slate-500 ml-1">▼</span></td>
+                </tr>
+                <tr id="detalle-row-${i}" class="hidden bg-slate-900/40 border-b border-slate-800">
+                    <td colspan="4" class="p-0">
+                        <div id="content-row-${i}" class="px-4 py-3 text-xs text-slate-300"></div>
+                    </td>
                 </tr>`;
                 
                 if(i < 3) {
