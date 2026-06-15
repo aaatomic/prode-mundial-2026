@@ -65,6 +65,18 @@
         </div>
     </div>
 
+    <div id="modal-share" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-sm items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-green-400">¡Ranking Listo! 📸</h2>
+                <button onclick="document.getElementById('modal-share').classList.add('hidden'); document.getElementById('modal-share').classList.remove('flex');" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <p class="text-slate-400 text-sm mb-4 text-center">Tu navegador bloqueó el envío directo. <strong>Mantené presionada</strong> la imagen de abajo para compartirla o copiarla al grupo.</p>
+            <img id="share-img-preview" src="" class="max-h-[55vh] object-contain rounded-xl border border-slate-700 mb-4 shadow-lg">
+            <button onclick="document.getElementById('modal-share').classList.add('hidden'); document.getElementById('modal-share').classList.remove('flex');" class="w-full bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold transition-all text-white">Cerrar</button>
+        </div>
+    </div>
+
     <div class="max-w-3xl mx-auto p-2 sm:p-4 md:p-6">
         <h1 class="text-3xl md:text-4xl font-extrabold text-center text-green-400 mb-8 mt-4">🏆 Prode Mundial 2026</h1>
         
@@ -131,6 +143,7 @@
             </div>
             
             <div id="tab-pronosticos" class="tab-content active space-y-4">
+                
                 <a href="https://www.espn.com.ar/futbol/resultados/_/liga/fifa.world" target="_blank" class="w-full bg-slate-900 border border-slate-800 hover:border-green-500 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm group cursor-pointer mb-2">
                     <div class="flex items-center gap-3">
                         <span class="relative flex h-3 w-3">
@@ -241,6 +254,7 @@
                     Compartir en WhatsApp
                 </button>
             </div>
+        </div>
 
         <div id="user-view-screen" class="app-screen">
             <div class="flex items-center gap-4 mb-6">
@@ -557,7 +571,7 @@
             try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
         }
 
-// 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Ultra-Compacto para Celulares)
+        // 🔥 NUEVA FUNCION: Acordeon en el ranking (Historial Ultra-Compacto para Celulares)
         async function toggleDetalleRanking(email, name, points, index) {
             const trDetalle = document.getElementById(`detalle-row-${index}`);
             const divContent = document.getElementById(`content-row-${index}`);
@@ -816,8 +830,7 @@
             });
         }, 30000);
 
-
-// 🔥 FUNCIÓN PARA COMPARTIR IMAGEN POR WHATSAPP
+        // 🔥 FUNCIÓN PARA COMPARTIR (VERSIÓN BULLETPROOF)
         async function compartirRankingWhatsApp() {
             const btn = document.getElementById('btn-share-wa');
             const originalHTML = btn.innerHTML;
@@ -841,39 +854,40 @@
 
                 // 2. Sacamos la foto
                 const canvas = await html2canvas(captureArea, {
-                    backgroundColor: '#020617', // Fondo azul oscuro (slate-950)
+                    backgroundColor: '#020617', 
                     scale: 2 // Alta calidad
                 });
 
-                // 3. Borramos el título para que no quede en la app web
+                // 3. Borramos el título
                 captureArea.removeChild(titleDiv);
 
-                // 4. Convertimos a imagen
+                // 4. Transformamos la foto a datos
+                const imgData = canvas.toDataURL("image/png");
+
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "ranking_prode.png", { type: "image/png" });
+                    let sharedNatively = false;
 
-                    // Si es celular (soporta Web Share API con archivos)
+                    // Intentamos el método directo
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
                                 files: [file],
                                 title: 'Ranking Prode Mundial 2026',
-                                text: '¡Así viene la tabla de posiciones del Prode! ⚽🏆'
+                                text: '🏆 ¡Así viene la tabla de posiciones del Prode!'
                             });
+                            sharedNatively = true;
                         } catch (e) {
-                            console.log("El usuario canceló el menú de compartir.");
+                            console.log("El usuario canceló o el celu bloqueó la acción.");
                         }
-                    } else {
-                        // Si es compu (descarga automática)
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'Ranking_Prode.png';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        alert("✅ Imagen descargada con éxito.\nYa podés arrastrarla a WhatsApp Web para enviarla al grupo.");
+                    } 
+
+                    // SI FALLÓ O EL CELULAR LO BLOQUEÓ -> ABRIMOS EL MODAL SALVAVIDAS
+                    if (!sharedNatively) {
+                        document.getElementById('share-img-preview').src = imgData;
+                        const modal = document.getElementById('modal-share');
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
                     }
                     
                     btn.innerHTML = originalHTML;
@@ -888,7 +902,6 @@
             }
         }
 
-        
         checkSession();
     </script>
 </body>
