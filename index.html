@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,12 +25,11 @@
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         
-        /* Estilos optimizados para las tarjetas de partidos de la llave */
-        .sim-round-panel { display: none; }
-        .sim-round-panel.active { display: grid; }
-        .bracket-card { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-md flex flex-col gap-2 transition-all; }
-        .bracket-row { @apply flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900 transition-all cursor-pointer; }
-        .bracket-row.selected-win { @apply border-green-500 bg-green-500/10 dark:bg-green-500/10; }
+        /* Estilos ultra compactos para la llave del simulador */
+        .bracket-match { @apply w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded shadow-sm flex flex-col justify-center overflow-hidden; }
+        .bracket-team { @apply px-0.5 py-1 sm:px-1 sm:py-1.5 flex items-center justify-between font-medium text-slate-800 dark:text-slate-200 transition-colors; }
+        .bracket-team.winner { @apply bg-green-50 dark:bg-green-900/20; }
+        .bracket-divider { @apply border-b border-slate-200 dark:border-slate-800 w-full; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-10 min-h-screen transition-colors duration-300">
@@ -187,7 +186,7 @@
                     </div>
 
                     <div class="bg-slate-50 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-800/50 p-4 mb-5 space-y-4">
-                        <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">🏃‍♂️ Jugadores</h4>
+                        <h4 class="text-slate-800 dark:text-slate-300 font-semibold mb-2 flex items-center gap-2">🏃‍♂️ Jugadores</h4>
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white opacity-50 cursor-not-allowed" placeholder="Ej: Messi"></div>
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Mejor Jugador del Torneo (10 pts)</label><input type="text" id="bonus-best_player" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white opacity-50 cursor-not-allowed" placeholder="Ej: Mbappé"></div>
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white opacity-50 cursor-not-allowed" placeholder="Ej: Dibu Martínez"></div>
@@ -195,7 +194,7 @@
                     </div>
 
                     <div class="bg-slate-50 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-800/50 p-4 space-y-4">
-                        <h4 class="text-slate-300 font-semibold mb-2 flex items-center gap-2">✨ Extras</h4>
+                        <h4 class="text-slate-800 dark:text-slate-300 font-semibold mb-2 flex items-center gap-2">✨ Extras</h4>
                         <div>
                             <label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Juega shooting? 🔫 (50 pts)</label>
                             <select id="bonus-shooting" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white appearance-none opacity-50 cursor-not-allowed">
@@ -266,41 +265,28 @@
                     Compartir en WhatsApp
                 </button>
             </div>
-            
+
+            <!-- 🔥 PESTAÑA DE SIMULADOR DE LLAVES -->
             <div id="tab-simulador" class="tab-content">
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm mb-6">
                     <h3 class="text-green-600 dark:text-green-400 font-bold text-lg mb-2">Simulador de Eliminatorias</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-5">Toca los equipos de cada grupo para definir posiciones: <strong>1º clic (Oro)</strong>, <strong>2º clic (Plata)</strong>, <strong>3º clic (Bronce)</strong>.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-6">Elegí el 1ro, 2do y hasta un 3ro (si corresponde) de cada grupo para armar tu llave ideal. ¡Ojo, solo avanzan 8 terceros en total!</p>
                     
-                    <div id="sim-groups-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                    <div id="sim-groups-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
                         <div class="text-center text-slate-500 animate-pulse col-span-full">Cargando grupos...</div>
                     </div>
                     
-                    <div id="sim-thirds-section" class="hidden border-t border-slate-200 dark:border-slate-800 pt-4 mb-6">
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-2">🗳️ Seleccionar los 8 Mejores Terceros (en orden del 1 al 8)</h4>
-                        <p class="text-[11px] text-slate-500 mb-3">Tocá en orden desde el mejor tercero (1) hasta el octavo (8).</p>
-                        <div id="sim-thirds-container" class="flex flex-wrap gap-2"></div>
-                    </div>
-                    
                     <button onclick="generarLlaveSimulador()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all shadow-sm">
-                        Generar Fase Final 🏆
+                        Generar Llave de 16avos 🏆
                     </button>
                     <div id="sim-error-msg" class="text-red-600 dark:text-red-400 text-xs text-center font-bold mt-3 hidden"></div>
                 </div>
 
-                <div id="sim-bracket-container" class="hidden bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 w-full shadow-sm">
-                    <h3 class="text-center font-black text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
+                <div id="sim-bracket-container" class="hidden bg-slate-50 dark:bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full overflow-hidden">
+                    <h3 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-[10px] sm:text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
                     
-                    <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg mb-4 text-[10px] sm:text-xs font-bold border border-slate-200 dark:border-slate-800">
-                        <button onclick="cambiarFaseInterna('R32')" id="btn-fase-R32" class="flex-1 py-1.5 rounded text-white bg-slate-700">16avos</button>
-                        <button onclick="cambiarFaseInterna('R16')" id="btn-fase-R16" class="flex-1 py-1.5 rounded text-slate-400">Octavos</button>
-                        <button onclick="cambiarFaseInterna('QF')" id="btn-fase-QF" class="flex-1 py-1.5 rounded text-slate-400">Cuartos</button>
-                        <button onclick="cambiarFaseInterna('SF')" id="btn-fase-SF" class="flex-1 py-1.5 rounded text-slate-400">Semis</button>
-                        <button onclick="cambiarFaseInterna('F')" id="btn-fase-F" class="flex-1 py-1.5 rounded text-slate-400">FINAL</button>
-                    </div>
-
-                    <div id="sim-bracket-render" class="w-full">
-                        </div>
+                    <!-- Contenedor Ultra Compacto Flex (Se adapta a la pantalla) -->
+                    <div class="flex justify-between w-full gap-0.5 sm:gap-1 pb-2" id="sim-bracket-render"></div>
                 </div>
             </div>
             
@@ -323,25 +309,42 @@
         let currentUser = null;
         let authMode = 'login';
         
-        // Estado de selecciones de fase de grupos del simulador
-        let simGruposData = {}; // Guardará { 'Grupo A': { teams: [], slots: [null, null, null] } }
-        let simMejoresTerceros = []; // Guardará lista de strings en orden del 1 al 8
-        let faseActivaInterna = 'R32';
+        // Diccionario Global FIFA para todo el sistema
+        const fifaCodes = {
+            "méxico":"MEX", "sudáfrica":"RSA", "corea del sur":"KOR", "república checa":"CZE",
+            "canadá":"CAN", "bosnia y herzegovina":"BIH", "estados unidos":"USA", "paraguay":"PAR",
+            "qatar":"QAT", "suiza":"SUI", "brasil":"BRA", "marruecos":"MAR",
+            "haití":"HAI", "escocia":"SCO", "australia":"AUS", "turquía":"TUR",
+            "alemania":"GER", "curazao":"CUW", "países bajos":"NED", "japón":"JPN",
+            "costa de marfil":"CIV", "ecuador":"ECU", "suecia":"SWE", "túnez":"TUN",
+            "españa":"ESP", "cabo verde":"CPV", "bélgica":"BEL", "egipto":"EGY",
+            "arabia saudita":"KSA", "uruguay":"URU", "irán":"IRN", "nueva zelanda":"NZL",
+            "francia":"FRA", "senegal":"SEN", "irak":"IRQ", "noruega":"NOR",
+            "argentina":"ARG", "argelia":"ALG", "austria":"AUT", "jordania":"JOR",
+            "portugal":"POR", "rd de congo":"COD", "inglaterra":"ENG", "croacia":"CRO",
+            "ghana":"GHA", "panamá":"PAN", "uzbekistán":"UZB", "colombia":"COL"
+        };
 
-        // Estado de las eliminatorias directas del simulador
+        // Estado Global del Simulador
         let simBracketState = {
-            R32: Array(16).fill({a: null, b: null, winner: null}),
-            R16: Array(8).fill({a: null, b: null, winner: null}),
-            QF: Array(4).fill({a: null, b: null, winner: null}),
-            SF: Array(2).fill({a: null, b: null, winner: null}),
-            F: Array(1).fill({a: null, b: null, winner: null})
+            R32: Array(16).fill({a: null, b: null}),
+            R16: Array(8).fill({a: null, b: null}),
+            QF: Array(4).fill({a: null, b: null}),
+            SF: Array(2).fill({a: null, b: null}),
+            F: Array(1).fill({a: null, b: null})
         };
 
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
-            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
         }
+
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
         function toggleReglas() { document.getElementById('modal-reglas').classList.toggle('active'); }
@@ -353,33 +356,50 @@
                 container.classList.remove('hidden'); container.classList.add('flex'); arrow.innerText = '▲';
                 const msgBox = document.getElementById('chat-messages');
                 msgBox.scrollTop = msgBox.scrollHeight;
-            } else { container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼'; }
+            } else {
+                container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼';
+            }
         }
 
         function dibujarChat(mensajes) {
             const box = document.getElementById('chat-messages');
-            if (!mensajes || mensajes.length === 0) { box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>'; return; }
+            if (!mensajes || mensajes.length === 0) {
+                box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>';
+                return;
+            }
             box.innerHTML = '';
             mensajes.forEach(m => {
                 const esMio = (m.name === currentUser.name);
                 const align = esMio ? 'items-end' : 'items-start';
                 const bg = esMio ? 'bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100' : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200';
-                box.innerHTML += `<div class="flex flex-col ${align} w-full"><span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${m.name}</span><div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div></div>`;
+                
+                box.innerHTML += `
+                    <div class="flex flex-col ${align} w-full">
+                        <span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${m.name}</span>
+                        <div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div>
+                    </div>`;
             });
             box.scrollTop = box.scrollHeight;
         }
 
         async function enviarChat() {
             const input = document.getElementById('chat-input');
-            const msg = input.value.trim(); if(!msg) return;
-            const btn = document.getElementById('btn-enviar-chat'); btn.disabled = true; btn.innerText = "⏳";
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const btn = document.getElementById('btn-enviar-chat');
+            btn.disabled = true; btn.innerText = "⏳";
+            
             const box = document.getElementById('chat-messages');
             box.innerHTML += `<div class="flex flex-col items-end w-full opacity-50"><span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${currentUser.name}</span><div class="bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100 px-3 py-2 rounded-xl max-w-[85%] break-words">${msg}</div></div>`;
-            box.scrollTop = box.scrollHeight; input.value = "";
+            box.scrollTop = box.scrollHeight;
+            input.value = "";
+
             try {
                 await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "send_chat", name: currentUser.name, message: msg }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
                 cargarData(); 
             } catch(e) { alert("Error al enviar"); }
+            
             btn.disabled = false; btn.innerText = "Enviar";
         }
 
@@ -396,7 +416,8 @@
                 if(currentUser.is_approved) { 
                     mostrarPantalla('main-app-screen'); 
                     document.getElementById('user-display-name').innerText = currentUser.name;
-                    actualizarCartelPago(currentUser.has_paid); cargarData(); 
+                    actualizarCartelPago(currentUser.has_paid);
+                    cargarData(); 
                 } else { mostrarPantalla('pending-screen'); }
             } else { mostrarPantalla('auth-screen'); }
         }
@@ -422,6 +443,7 @@
                 }
 
                 if(res.chatMessages) dibujarChat(res.chatMessages); 
+                
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
                 actualizarCartelPago(res.userPaid);
@@ -429,7 +451,8 @@
                 let options = '<option value="">Elegí...</option>';
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion','bonus-surprise_team'].forEach(id => {
-                    const el = document.getElementById(id); if(el) el.innerHTML = options;
+                    const el = document.getElementById(id);
+                    if(el) el.innerHTML = options;
                 });
                 
                 if(res.userBonus) {
@@ -445,277 +468,239 @@
                     document.getElementById('bonus-bomb').value = res.userBonus.bomb || "";
                 }
 
+                const lockDateBonus = new Date("2026-06-11T18:59:00Z").getTime();
+                if (new Date().getTime() >= lockDateBonus) {
+                    document.querySelectorAll('.bonus-input').forEach(el => {
+                        el.disabled = true;
+                        el.classList.add('opacity-50', 'cursor-not-allowed');
+                    });
+                }
+
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
                 
-                // Inicializar Estructura del Simulador una sola vez
-                inicializarSimuladorEstructura();
+                // INICIALIZAMOS EL SIMULADOR
+                inicializarSimuladorGrupos();
             } catch(e) { console.error(e); }
         }
 
-        // --- 🕹️ NÚCLEO AVANZADO DEL SIMULADOR ---
+        // --- INICIO LÓGICA DEL SIMULADOR ---
 
-        function inicializarSimuladorEstructura() {
-            let gruposTemp = {};
+        function inicializarSimuladorGrupos() {
+            let grupos = {};
             partidosGlobales.forEach(p => {
                 let gr = p.group || "Sin Grupo";
-                if (!gruposTemp[gr]) gruposTemp[gr] = new Set();
-                if (p.team_a) gruposTemp[gr].add(p.team_a);
-                if (p.team_b) gruposTemp[gr].add(p.team_b);
+                if (!grupos[gr]) grupos[gr] = new Set();
+                if (p.team_a) grupos[gr].add(p.team_a);
+                if (p.team_b) grupos[gr].add(p.team_b);
             });
             
-            Object.keys(gruposTemp).sort().forEach(gNombre => {
-                if(!simGruposData[gNombre]) {
-                    simGruposData[gNombre] = {
-                        teams: Array.from(gruposTemp[gNombre]).sort(),
-                        slots: [null, null, null] // [0]=1ro, [1]=2do, [2]=3ro
-                    };
-                }
-            });
-            dibujarPillsGrupos();
-        }
-
-        function dibujarPillsGrupos() {
             let html = '';
-            Object.keys(simGruposData).forEach(gNombre => {
-                const gObj = simGruposData[gNombre];
-                let pillsHtml = '';
-                
-                gObj.teams.forEach(tName => {
-                    const idxSlot = gObj.slots.indexOf(tName);
-                    let badgeStyle = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200';
-                    let labelPos = '';
-                    
-                    if(idxSlot === 0) { badgeStyle = 'bg-amber-500 border border-amber-600 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90">(1º)</span>'; }
-                    else if(idxSlot === 1) { badgeStyle = 'bg-slate-400 border border-slate-500 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90">(2º)</span>'; }
-                    else if(idxSlot === 2) { badgeStyle = 'bg-amber-700 border border-amber-800 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90">(3º)</span>'; }
-                    else if(gObj.slots.filter(s => s !== null).length === 3) {
-                        badgeStyle = 'bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-900/60 opacity-40';
-                    }
-
-                    pillsHtml += `
-                    <button onclick="clickTeamPill('${gNombre}', '${tName}')" class="px-2 py-1.5 text-[10px] rounded transition-all flex items-center justify-between gap-1 truncate ${badgeStyle}">
-                        <span class="truncate">${tName}</span>${labelPos}
-                    </button>`;
-                });
-
+            Object.keys(grupos).sort().forEach(gNombre => {
+                let equipos = Array.from(grupos[gNombre]).sort();
+                let opts = `<option value="">Elegí...</option>` + equipos.map(e => `<option value="${e}">${e}</option>`).join('');
                 html += `
-                <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <h4 class="font-black text-center mb-3 text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">${gNombre}</h4>
-                    <div class="grid grid-cols-2 gap-2">${pillsHtml}</div>
+                <div class="bg-slate-50 dark:bg-slate-950 p-2 sm:p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <h4 class="font-bold text-center mb-2 text-slate-800 dark:text-slate-200 text-[10px] sm:text-xs uppercase">${gNombre}</h4>
+                    <select id="sim-${gNombre}-1" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥇 1ro</option>${opts}
+                    </select>
+                    <select id="sim-${gNombre}-2" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥈 2do</option>${opts}
+                    </select>
+                    <select id="sim-${gNombre}-3" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥉 3ro (Opcional)</option>${opts}
+                    </select>
                 </div>`;
             });
             document.getElementById('sim-groups-container').innerHTML = html;
-            actualizarSeccionTerceros();
         }
 
-        function clickTeamPill(grupo, team) {
-            const gObj = simGruposData[grupo];
-            const idxSlot = gObj.slots.indexOf(team);
-
-            if (idxSlot > -1) {
-                // Si ya tenía posición, lo sacamos de ahí
-                gObj.slots[idxSlot] = null;
-                // Si era tercero, lo removemos también de la lista de mejores 8 de forma segura
-                if(idxSlot === 2) simMejoresTerceros = simMejoresTerceros.filter(t => t !== team);
-            } else {
-                // Buscamos el primer slot libre
-                const freeSlot = gObj.slots.indexOf(null);
-                if (freeSlot > -1) {
-                    gObj.slots[freeSlot] = team;
-                }
-            }
-            dibujarPillsGrupos();
-        }
-
-        function actualizarSeccionTerceros() {
-            const containerSec = document.getElementById('sim-thirds-section');
-            const containerBox = document.getElementById('sim-thirds-container');
+        // Filtro Anti-Trampas para que no elijan al mismo equipo 2 veces
+        function actualizarSelectsGrupo(grupo) {
+            const val1 = document.getElementById(`sim-${grupo}-1`).value;
+            const val2 = document.getElementById(`sim-${grupo}-2`).value;
+            const val3 = document.getElementById(`sim-${grupo}-3`).value;
             
-            // Recolectamos todos los terceros actuales de los 12 grupos
-            let candidatosTerceros = [];
-            Object.keys(simGruposData).forEach(g => {
-                if(simGruposData[g].slots[2]) candidatosTerceros.push(simGruposData[g].slots[2]);
+            const selected = [val1, val2, val3].filter(v => v !== "");
+            
+            [1, 2, 3].forEach(pos => {
+                const select = document.getElementById(`sim-${grupo}-${pos}`);
+                const currentValue = select.value;
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    if (selected.includes(opt.value) && opt.value !== currentValue) {
+                        opt.disabled = true;
+                        opt.classList.add('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
+                    } else {
+                        opt.disabled = false;
+                        opt.classList.remove('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
+                    }
+                });
             });
-
-            // Si no hay ningún tercero elegido aún, escondemos la sección
-            if(candidatosTerceros.length === 0) { containerSec.classList.add('hidden'); return; }
-            containerSec.classList.remove('hidden');
-
-            // Limpiamos de la urna a los que dejaron de ser terceros
-            simMejoresTerceros = simMejoresTerceros.filter(t => candidatosTerceros.includes(t));
-
-            let html = '';
-            candidatosTerceros.sort().forEach(tName => {
-                const rankIdx = simMejoresTerceros.indexOf(tName);
-                let style = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300';
-                let indicator = '';
-
-                if (rankIdx > -1) {
-                    style = 'bg-green-500 border border-green-600 text-white font-bold';
-                    indicator = `<span class="w-4 h-4 bg-white text-green-600 rounded-full inline-flex items-center justify-center text-[9px] font-black shadow-sm">${rankIdx + 1}</span>`;
-                }
-
-                html += `
-                <button onclick="clickTerceroUrna('${tName}')" class="px-3 py-2 text-xs rounded-lg transition-all flex items-center gap-2 shadow-sm ${style}">
-                    <span>${tName}</span>${indicator}
-                </button>`;
-            });
-            containerBox.innerHTML = html;
-        }
-
-        function clickTerceroUrna(team) {
-            const idx = simMejoresTerceros.indexOf(team);
-            if (idx > -1) {
-                // Deseleccionar y reajustar lista
-                simMejoresTerceros.splice(idx, 1);
-            } else {
-                // Agregar sólo si no llegamos al tope de 8
-                if (simMejoresTerceros.length < 8) simMejoresTerceros.push(team);
-            }
-            actualizarSeccionTerceros();
         }
 
         function generarLlaveSimulador() {
             const errorMsg = document.getElementById('sim-error-msg');
-            let primeros = [], segundos = [];
-            let errorFalta = false;
-
-            Object.keys(simGruposData).forEach(g => {
-                const s = simGruposData[g].slots;
-                if(!s[0] || !s[1]) errorFalta = true;
-                if(s[0]) primeros.push(s[0]);
-                if(s[1]) segundos.push(s[1]);
+            let primeros = [], segundos = [], terceros = [];
+            let duplicateError = false;
+            let gruposMap = {};
+            
+            document.querySelectorAll('[id^="sim-Grupo"]').forEach(sel => {
+                if (sel.value) {
+                    let parts = sel.id.split('-');
+                    let grupo = parts[1]; let pos = parts[2];
+                    if(!gruposMap[grupo]) gruposMap[grupo] = new Set();
+                    if(gruposMap[grupo].has(sel.value)) duplicateError = true;
+                    gruposMap[grupo].add(sel.value);
+                    
+                    if (pos === "1") primeros.push(sel.value);
+                    if (pos === "2") segundos.push(sel.value);
+                    if (pos === "3") terceros.push(sel.value);
+                }
             });
 
-            if (errorFalta) {
-                errorMsg.innerText = "🚨 Error: Tenés que elegir el 1º y 2º puesto de TODOS los grupos antes de continuar.";
+            if (duplicateError) {
+                errorMsg.innerText = "🚨 Error: Pusiste al mismo equipo 2 veces en el mismo grupo.";
                 errorMsg.classList.remove('hidden'); return;
             }
-            if (simMejoresTerceros.length !== 8) {
-                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a los 8 mejores terceros en la urna inferior (elegiste ${simMejoresTerceros.length}).`;
+            if (primeros.length !== 12 || segundos.length !== 12) {
+                errorMsg.innerText = "🚨 Error: Faltan elegir los 1ros o 2dos puestos de algunos grupos.";
+                errorMsg.classList.remove('hidden'); return;
+            }
+            if (terceros.length !== 8) {
+                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a 8 mejores terceros (elegiste ${terceros.length}).`;
                 errorMsg.classList.remove('hidden'); return;
             }
 
             errorMsg.classList.add('hidden');
             
-            // Cruce FIFA inteligente para evitar enfrentamientos repetidos del mismo grupo en 16avos
             let equipos32 = [];
-            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(simMejoresTerceros[7-i]); }
+            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(terceros[i]); }
             for(let i=8; i<12; i++) { equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); }
-            for(let i=4; i<8; i++) { equipos32.push(segundos[i]); equipos32.push(segundos[i+4]); }
+            for(let i=4; i<12; i++) { equipos32.push(segundos[i]); }
 
-            // Poblamos la primera ronda (16avos)
-            simBracketState = { 
-                R32: [], 
-                R16: Array(8).fill({a:null, b:null, winner:null}), 
-                QF: Array(4).fill({a:null, b:null, winner:null}), 
-                SF: Array(2).fill({a:null, b:null, winner:null}), 
-                F: Array(1).fill({a:null, b:null, winner:null}) 
-            };
+            simBracketState = { R32: [], R16: Array(8).fill({a:null, b:null}), QF: Array(4).fill({a:null, b:null}), SF: Array(2).fill({a:null, b:null}), F: Array(1).fill({a:null, b:null}) };
             for (let i = 0; i < 16; i++) {
                 simBracketState.R32.push({ a: equipos32[i*2], b: equipos32[i*2+1], winner: null });
             }
             
             document.getElementById('sim-bracket-container').classList.remove('hidden');
-            cambiarFaseInterna('R32');
             dibujarLlave();
         }
 
-        function cambiarFaseInterna(faseId) {
-            faseActivaInterna = faseId;
-            document.querySelectorAll('[id^="btn-fase-"]').forEach(btn => {
-                btn.className = "flex-1 py-1.5 rounded text-slate-500 dark:text-slate-400 transition-all font-semibold";
-            });
-            const activeBtn = document.getElementById(`btn-fase-${faseId}`);
-            if(activeBtn) activeBtn.className = "flex-1 py-1.5 rounded text-white bg-green-500 shadow-sm font-bold";
+        function avanzarEnLlave(rondaActual, matchIndex, equipoGanador) {
+            if(!equipoGanador || equipoGanador === "---") return;
+            simBracketState[rondaActual][matchIndex].winner = equipoGanador;
+            
+            let rondasSiguientes = ['R32', 'R16', 'QF', 'SF', 'F'];
+            let idxRonda = rondasSiguientes.indexOf(rondaActual);
+            
+            if (idxRonda < 4) {
+                let nextRonda = rondasSiguientes[idxRonda + 1];
+                let nextMatchIndex = Math.floor(matchIndex / 2);
+                let esLadoA = (matchIndex % 2 === 0);
+                
+                let nextMatch = {...simBracketState[nextRonda][nextMatchIndex]};
+                if (esLadoA) nextMatch.a = equipoGanador;
+                else nextMatch.b = equipoGanador;
+                
+                // Si cambiás de opinión y elegís al otro, se borra el camino viejo
+                if (simBracketState[nextRonda][nextMatchIndex][esLadoA?'a':'b'] !== equipoGanador) {
+                     nextMatch.winner = null;
+                     limpiarCascada(nextRonda, nextMatchIndex);
+                }
+                simBracketState[nextRonda][nextMatchIndex] = nextMatch;
+            }
             dibujarLlave();
         }
 
-        function renderMatchCard(ronda, index, match) {
+        function limpiarCascada(rondaDesde, matchIndex) {
+            let rondas = ['R16', 'QF', 'SF', 'F'];
+            let startIdx = rondas.indexOf(rondaDesde);
+            let currMatchIdx = matchIndex;
+            for(let i = startIdx; i < 3; i++) {
+                let nextRonda = rondas[i+1];
+                let nextMatchIdx = Math.floor(currMatchIdx / 2);
+                simBracketState[nextRonda][nextMatchIdx].winner = null;
+                currMatchIdx = nextMatchIdx;
+            }
+        }
+
+        // UI Ultra-Compacta de un Partido
+        function renderMatchBox(ronda, index, match) {
             let winA = match.winner === match.a && match.a;
             let winB = match.winner === match.b && match.b;
-            
             let fA = match.a ? getFlagUrl(match.a) : '';
             let fB = match.b ? getFlagUrl(match.b) : '';
             
             let codeA = match.a ? (fifaCodes[match.a.toLowerCase().trim()] || match.a.substring(0,3).toUpperCase()) : '---';
             let codeB = match.b ? (fifaCodes[match.b.toLowerCase().trim()] || match.b.substring(0,3).toUpperCase()) : '---';
             
-            // Botones interactivos con checkmark
-            let checkA = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
-            let checkB = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
-            
-            if(winA) checkA = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">✓</span>`;
-            if(winB) checkB = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">✓</span>`;
+            let btnA = match.a ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
+            let btnB = match.b ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
 
+            if (winA) { btnA = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnB = ''; }
+            if (winB) { btnB = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnA = ''; }
+            
             return `
-            <div class="bracket-card">
-                <div onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="bracket-row ${winA ? 'selected-win' : ''}">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        ${fA ? `<img src="${fA}" class="w-4 h-4 rounded-full border border-slate-300 shrink-0">` : '<div class="w-4 h-4 shrink-0"></div>'}
-                        <span class="font-bold text-xs truncate ${winA ? 'text-green-600 dark:text-green-400' : 'text-slate-700 dark:text-slate-300'}">${codeA}</span>
-                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[90px] font-normal">${match.a || ''}</span>
+            <div class="bracket-match">
+                <div class="bracket-team ${winA ? 'winner' : ''}">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${fA ? `<img src="${fA}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
+                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeA}</span>
                     </div>
-                    ${match.a ? checkA : ''}
+                    ${btnA}
                 </div>
-                <div onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="bracket-row ${winB ? 'selected-win' : ''}">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        ${fB ? `<img src="${fB}" class="w-4 h-4 rounded-full border border-slate-300 shrink-0">` : '<div class="w-4 h-4 shrink-0"></div>'}
-                        <span class="font-bold text-xs truncate ${winB ? 'text-green-600 dark:text-green-400' : 'text-slate-700 dark:text-slate-300'}">${codeB}</span>
-                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[90px] font-normal">${match.b || ''}</span>
+                <div class="bracket-divider"></div>
+                <div class="bracket-team ${winB ? 'winner' : ''}">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${fB ? `<img src="${fB}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
+                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeB}</span>
                     </div>
-                    ${match.b ? checkB : ''}
+                    ${btnB}
                 </div>
             </div>`;
         }
 
         function dibujarLlave() {
             const b = simBracketState;
-            const container = document.getElementById('sim-bracket-render');
-            let html = '';
+            const renderDiv = document.getElementById('sim-bracket-render');
+            
+            let colL1 = '', colL2 = '', colL3 = '', colL4 = '';
+            for(let i=0; i<8; i++) colL1 += renderMatchBox('R32', i, b.R32[i]);
+            for(let i=0; i<4; i++) colL2 += renderMatchBox('R16', i, b.R16[i]);
+            for(let i=0; i<2; i++) colL3 += renderMatchBox('QF', i, b.QF[i]);
+            colL4 += renderMatchBox('SF', 0, b.SF[0]);
 
-            if (faseActivaInterna === 'R32') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<16; i++) html += renderMatchCard('R32', i, b.R32[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'R16') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<8; i++) html += renderMatchCard('R16', i, b.R16[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'QF') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<4; i++) html += renderMatchCard('QF', i, b.QF[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'SF') {
-                html = `<div class="grid grid-cols-1 gap-3 w-full max-w-md mx-auto">`;
-                for(let i=0; i<2; i++) html += renderMatchCard('SF', i, b.SF[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'F') {
-                html = `<div class="w-full max-w-sm mx-auto flex flex-col gap-4 text-center">
-                    <div class="text-gold font-black bg-gold/10 border border-gold/30 rounded-full py-1 text-xs uppercase tracking-widest">Gran Final</div>
-                    ${renderMatchCard('F', 0, b.F[0])}
-                `;
-                if(b.F[0].winner) {
-                    const winName = b.F[0].winner;
-                    const cW = fifaCodes[winName.toLowerCase().trim()] || winName.substring(0,3).toUpperCase();
-                    html += `
-                    <div class="p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center shadow-xl animate-bounce mt-2">
-                        <div class="text-3xl mb-1">👑🏆👑</div>
-                        <div class="text-xs text-slate-500 uppercase tracking-widest">Campeón del Mundo</div>
-                        <div class="text-2xl font-black text-green-500">${cW}</div>
-                        <div class="text-[10px] text-slate-400 font-medium">${winName}</div>
-                    </div>`;
-                }
-                html += `</div>`;
-            }
-            container.innerHTML = html;
+            let finalBox = `
+            <div class="flex flex-col justify-center items-center flex-1 px-0.5">
+                <div class="text-gold font-black mb-1 text-[7px] sm:text-[9px] uppercase tracking-widest bg-gold/10 px-1 py-0.5 rounded border border-gold/30">FINAL</div>
+                ${renderMatchBox('F', 0, b.F[0])}
+                ${b.F[0].winner ? `<div class="mt-2 text-center animate-bounce text-[8px] sm:text-xs font-black text-green-500">🏆<br>${fifaCodes[b.F[0].winner.toLowerCase().trim()] || b.F[0].winner.substring(0,3).toUpperCase()}</div>` : ''}
+            </div>`;
+
+            let colR4 = '', colR3 = '', colR2 = '', colR1 = '';
+            colR4 += renderMatchBox('SF', 1, b.SF[1]);
+            for(let i=2; i<4; i++) colR3 += renderMatchBox('QF', i, b.QF[i]);
+            for(let i=4; i<8; i++) colR2 += renderMatchBox('R16', i, b.R16[i]);
+            for(let i=8; i<16; i++) colR1 += renderMatchBox('R32', i, b.R32[i]);
+
+            renderDiv.innerHTML = `
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL1}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL2}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL3}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL4}</div>
+                
+                ${finalBox}
+
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR4}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR3}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR2}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR1}</div>
+            `;
         }
+        // --- FIN LÓGICA DEL SIMULADOR ---
 
-        // --- FIN NÚCLEO DEL SIMULADOR ---
 
         function renderizarOjoDelPueblo(allBonus) {
             const sumContainer = document.getElementById('bonus-summary-container'); const tbBody = document.getElementById('bonus-table-body');
@@ -791,7 +776,7 @@
                 const partidosGrupo = partidos.filter(p => p.group === grupo); let ptsGrupo = 0;
                 partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
                 let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
-                    <div class="bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-800 shadow-inner"><span class="text-xs text-slate-400">Puntos en este grupo:</span><span class="text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
+                    <div class="bg-slate-100 dark:bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-300 dark:border-slate-800 shadow-inner"><span class="text-xs text-slate-600 dark:text-slate-400">Puntos en este grupo:</span><span class="text-green-600 dark:text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
                 
                 partidosGrupo.forEach(p => {
@@ -838,19 +823,165 @@
             const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; const prefix = isSpy ? 'spy-' : '';
             document.querySelectorAll(navSelector).forEach(b => { 
                 b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400`; 
-                if(b.innerText === grupo) { b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; } 
+                if(b.innerText === grupo) { 
+                    b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; 
+                } 
             });
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
+        }
+
+        function calcularTabla(partidos, tipo, predicciones) {
+            let t = {}; partidos.forEach(p => { [p.team_a, p.team_b].forEach(tm => { if(tm && !t[tm]) t[tm] = { nombre: tm, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 }; })});
+            partidos.forEach(p => {
+                let gA = null, gB = null;
+                if(tipo === 'real') { 
+                    if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { 
+                        gA = (p.score_a !== "" && p.score_a !== undefined) ? parseInt(p.score_a) : parseInt(p.goles_a); 
+                        gB = (p.score_b !== "" && p.score_b !== undefined) ? parseInt(p.score_b) : parseInt(p.goles_b); 
+                    } 
+                } 
+                else { 
+                    const pr = predicciones ? predicciones.find(up => up.match_id === p.id) : null; 
+                    if(pr && pr.pred_a !== "" && pr.pred_b !== "") { 
+                        gA = parseInt(pr.pred_a); gB = parseInt(pr.pred_b); 
+                    } 
+                }
+                if(gA != null && !isNaN(gA) && gB != null && !isNaN(gB)) {
+                    t[p.team_a].PJ++; t[p.team_b].PJ++; t[p.team_a].GF+=gA; t[p.team_a].GC+=gB; t[p.team_b].GF+=gB; t[p.team_b].GC+=gA;
+                    if(gA > gB) { t[p.team_a].G++; t[p.team_b].P++; t[p.team_a].Pts+=3; } 
+                    else if(gA < gB) { t[p.team_b].G++; t[p.team_a].P++; t[p.team_b].Pts+=3; } 
+                    else { t[p.team_a].E++; t[p.team_b].E++; t[p.team_a].Pts+=1; t[p.team_b].Pts+=1; }
+                }
+            }); return Object.values(t).sort((a,b) => (b.Pts - a.Pts) || ((b.GF-b.GC) - (a.GF-a.GC)) || (b.GF - a.GF));
+        }
+
+        function generarTablaHTML(tit, d) {
+            let h = `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm"><div class="bg-slate-100 dark:bg-slate-800 py-1 text-center text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase">${tit}</div><table class="w-full text-[8px] text-center border-collapse"><thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-500 uppercase border-y border-slate-200 dark:border-slate-800"><tr><th class="py-1 text-left pl-1">Eq</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th class="text-green-600 dark:text-green-500">Pts</th></tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200">`;
+            d.forEach(t => { 
+                h += `<tr><td class="text-left pl-1 py-1 truncate font-medium max-w-[40px]">${t.nombre}</td><td>${t.PJ}</td><td>${t.G}</td><td>${t.E}</td><td>${t.P}</td><td>${t.GF}</td><td>${t.GC}</td><td>${t.GF - t.GC}</td><td class="font-bold text-green-600 dark:text-green-400">${t.Pts}</td></tr>`; 
+            }); 
+            return h + '</tbody></table></div>';
+        }
+
+        async function verPerfilOtro(email, nombre, puntos) {
+            document.getElementById('spy-user-name').innerText = nombre; document.getElementById('spy-user-points').innerText = puntos;
+            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse text-slate-500">Cargando...</div>'; 
+            mostrarPantalla('user-view-screen');
+            try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
+        }
+
+        async function toggleDetalleRanking(email, name, points, index) {
+            const trDetalle = document.getElementById(`detalle-row-${index}`);
+            const divContent = document.getElementById(`content-row-${index}`);
+
+            if (!trDetalle.classList.contains('hidden')) {
+                trDetalle.classList.add('hidden');
+                return;
+            }
+
+            document.querySelectorAll('[id^="detalle-row-"]').forEach(el => el.classList.add('hidden'));
+            trDetalle.classList.remove('hidden');
+
+            if (divContent.innerHTML === '') {
+                divContent.innerHTML = '<div class="text-center py-4 animate-pulse text-slate-500">Buscando el historial de ' + name + '... 🔍</div>';
+                
+                try {
+                    const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
+                    const todosLosPartidos = res.matches.sort((a,b) => new Date(a.kickoff_time) - new Date(b.kickoff_time));
+
+                    let html = `
+                    <div class="overflow-x-hidden mb-3">
+                        <table class="w-full text-left text-[10px] sm:text-xs border-collapse">
+                            <thead class="text-slate-600 dark:text-slate-400 border-b border-slate-300 dark:border-slate-800 uppercase tracking-wider bg-slate-100 dark:bg-slate-900/80">
+                                <tr>
+                                    <th class="py-2 px-1">Fecha</th>
+                                    <th class="py-2 px-1">Partido</th>
+                                    <th class="py-2 px-1 text-center">Real</th>
+                                    <th class="py-2 px-1 text-center text-green-600 dark:text-green-400">Pron.</th>
+                                    <th class="py-2 px-1 text-right">Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800/50">
+                    `;
+                    
+                    todosLosPartidos.forEach(m => {
+                        const pred = res.userPredictions.find(up => up.match_id === m.id);
+                        const sCode = (m.status || '').toUpperCase();
+                        const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
+                        
+                        const d = new Date(m.kickoff_time);
+                        const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        const fechaStr = `<span class="whitespace-nowrap text-slate-700 dark:text-slate-500">${d.getDate()}/${d.getMonth()+1} <span class="text-slate-500 dark:text-slate-600 ml-0.5">${hora}</span></span>`;
+                        
+                        const cA = fifaCodes[m.team_a.toLowerCase().trim()] || m.team_a.substring(0,3).toUpperCase();
+                        const cB = fifaCodes[m.team_b.toLowerCase().trim()] || m.team_b.substring(0,3).toUpperCase();
+                        const partidoStr = `<span class="font-bold text-slate-800 dark:text-slate-300">${cA}</span> <span class="text-slate-400 dark:text-slate-600 text-[8px] mx-0.5">-</span> <span class="font-bold text-slate-800 dark:text-slate-300">${cB}</span>`;
+                        
+                        let resFinalStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
+                        if (isTerminado) {
+                            resFinalStr = `<span class="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 px-1 py-0.5 rounded shadow-inner whitespace-nowrap">${(m.score_a !== "" && m.score_a !== undefined) ? m.score_a : m.goles_a} - ${(m.score_b !== "" && m.score_b !== undefined) ? m.score_b : m.goles_b}</span>`;
+                        }
+
+                        let predStr = '<span class="text-slate-400 dark:text-slate-600">?</span>';
+                        if (pred && pred.pred_a !== "" && pred.pred_b !== "") {
+                            predStr = `<span class="font-bold text-green-600 dark:text-green-400 whitespace-nowrap">${pred.pred_a} - ${pred.pred_b}</span>`;
+                        }
+
+                        let ptsStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
+                        if (isTerminado) {
+                            let pts = 0;
+                            if(pred && pred.points !== "" && pred.points !== undefined) pts = parseInt(pred.points);
+                            let ptsColor = pts === 3 ? 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/20' : pts === 1 ? 'text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/10' : 'text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800';
+                            ptsStr = `<span class="font-bold px-1 py-0.5 rounded ${ptsColor}">+${pts}</span>`;
+                        }
+                        
+                        html += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="py-2 px-1">${fechaStr}</td>
+                            <td class="py-2 px-1">${partidoStr}</td>
+                            <td class="py-2 px-1 text-center">${resFinalStr}</td>
+                            <td class="py-2 px-1 text-center">${predStr}</td>
+                            <td class="py-2 px-1 text-right">${ptsStr}</td>
+                        </tr>
+                        `;
+                    });
+                    
+                    html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <button onclick="verPerfilOtroDesdeRanking('${name}', ${points}, this)" class="w-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 font-bold py-2.5 rounded-lg transition-all border border-slate-300 dark:border-slate-700 text-xs flex justify-center items-center gap-2 shadow-sm">🔍 Ver en pantalla grande</button>
+                    `;
+                    
+                    divContent.innerHTML = html;
+                    divContent.setAttribute('data-fullres', JSON.stringify(res));
+
+                } catch(e) {
+                    divContent.innerHTML = '<div class="text-red-600 dark:text-red-400 text-center py-2">Error al cargar datos.</div>';
+                }
+            }
+        }
+        
+        function verPerfilOtroDesdeRanking(name, points, btnElement) {
+            const divContent = btnElement.parentElement;
+            const res = JSON.parse(divContent.getAttribute('data-fullres'));
+            document.getElementById('spy-user-name').innerText = name; 
+            document.getElementById('spy-user-points').innerText = points;
+            document.getElementById('spy-matches-container').innerHTML = ''; 
+            mostrarPantalla('user-view-screen');
+            renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true);
         }
 
         function dibujarRanking(ranking) {
             const tbody = document.getElementById('ranking-body'); 
             const podium = document.getElementById('podium-container'); 
-            tbody.innerHTML = ''; podium.innerHTML = '';
+            tbody.innerHTML = ''; 
+            podium.innerHTML = '';
             
             ranking.forEach((u, i) => {
                 const bgClass = i === 0 ? 'bg-gold/20 text-yellow-600 dark:text-gold' : i === 1 ? 'bg-silver/20 text-slate-600 dark:text-silver' : i === 2 ? 'bg-bronze/20 text-amber-700 dark:text-bronze' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400';
                 const badge = `<div style="width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; display: inline-block;" class="font-bold text-xs ${bgClass}">${i+1}</div>`;
+                
                 const paidChip = u.has_paid 
                     ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-300 dark:border-green-800 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Pago</span>` 
                     : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-300 dark:border-red-800 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">No pago</span>`;
@@ -863,7 +994,9 @@
                     <td class="px-4 py-3 text-right font-bold text-green-600 dark:text-green-400 align-middle">${u.points} <span class="text-[10px] text-slate-400 dark:text-slate-500 ml-1" data-html2canvas-ignore="true">▼</span></td>
                 </tr>
                 <tr id="detalle-row-${i}" class="hidden bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800" data-html2canvas-ignore="true">
-                    <td colspan="4" class="p-0"><div id="content-row-${i}" class="px-4 py-3 text-xs text-slate-700 dark:text-slate-300"></div></td>
+                    <td colspan="4" class="p-0">
+                        <div id="content-row-${i}" class="px-4 py-3 text-xs text-slate-700 dark:text-slate-300"></div>
+                    </td>
                 </tr>`;
                 
                 if(i < 3) {
@@ -878,6 +1011,61 @@
                     </div>`;
                 }
             });
+        }
+
+        function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        function cambiarTab(n) { 
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
+            document.getElementById('tab-'+n).classList.add('active'); 
+            ['pronosticos','bonus','ranking','simulador'].forEach(t => {
+                const el = document.getElementById('btn-tab-'+t);
+                if(el) el.className = t===n ? "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all" : "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all";
+            });
+            mostrarPantalla('main-app-screen'); 
+        }
+
+        async function guardarUnPartido(matchId) {
+            const gA = document.getElementById(`goles_a_${matchId}`).value;
+            const gB = document.getElementById(`goles_b_${matchId}`).value;
+            
+            if (gA === "" || gB === "") {
+                alert("Tenés que completar los goles de ambos equipos antes de guardar.");
+                return;
+            }
+
+            const btn = document.getElementById(`btn-save-${matchId}`);
+            btn.innerText = "⏳";
+            btn.disabled = true;
+
+            const payload = { 
+                action: "save_predictions", 
+                user_email: currentUser.email, 
+                predictions: [{ match_id: matchId, pred_a: parseInt(gA), pred_b: parseInt(gB) }] 
+            };
+
+            try { 
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const result = await response.json();
+                
+                if (result.status === "error") {
+                    alert(result.message);
+                    btn.innerText = "Guardar";
+                    btn.disabled = false;
+                    return;
+                }
+                
+                btn.innerText = "✅";
+                btn.classList.replace('bg-green-600', 'bg-slate-500');
+                setTimeout(() => { 
+                    btn.innerText = "Guardar"; 
+                    btn.disabled = false; 
+                    btn.classList.replace('bg-slate-500', 'bg-green-600');
+                }, 2000);
+            } catch(e) { 
+                alert("Error al guardar."); 
+                btn.innerText = "Guardar";
+                btn.disabled = false;
+            }
         }
 
         async function procesarAuth() {
@@ -910,12 +1098,14 @@
         setInterval(() => {
             if (!partidosGlobales || partidosGlobales.length === 0) return;
             const now = new Date().getTime();
+            
             partidosGlobales.forEach(p => {
                 const matchTime = new Date(p.kickoff_time).getTime();
                 if (now >= matchTime) {
                     const inputA = document.getElementById(`goles_a_${p.id}`);
                     const inputB = document.getElementById(`goles_b_${p.id}`);
                     const btn = document.getElementById(`btn-save-${p.id}`);
+                    
                     if (inputA && !inputA.disabled) {
                         inputA.disabled = true; inputA.classList.add('cursor-not-allowed', 'opacity-70');
                         inputB.disabled = true; inputB.classList.add('cursor-not-allowed', 'opacity-70');
@@ -924,6 +1114,70 @@
                 }
             });
         }, 30000);
+
+        async function compartirRankingWhatsApp() {
+            const btn = document.getElementById('btn-share-wa');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '⏳ Sacando foto...';
+            btn.disabled = true;
+
+            try {
+                const captureArea = document.getElementById('ranking-capture-area');
+                const titleDiv = document.createElement('div');
+                const fecha = new Date().toLocaleDateString('es-AR');
+                titleDiv.id = 'temp-capture-title';
+                titleDiv.innerHTML = `
+                    <div class="text-center mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-md">
+                        <h2 class="text-2xl font-extrabold text-green-600 dark:text-green-400">🏆 Prode Mundial 2026</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Ranking Oficial al ${fecha}</p>
+                    </div>
+                `;
+                captureArea.insertBefore(titleDiv, captureArea.firstChild);
+
+                const isDark = document.documentElement.classList.contains('dark');
+                const canvas = await html2canvas(captureArea, {
+                    backgroundColor: isDark ? '#020617' : '#f8fafc', 
+                    scale: 2 
+                });
+
+                captureArea.removeChild(titleDiv);
+                const imgData = canvas.toDataURL("image/png");
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], "ranking_prode.png", { type: "image/png" });
+                    let sharedNatively = false;
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Ranking Prode Mundial 2026',
+                                text: '🏆 ¡Así viene la tabla de posiciones del Prode!'
+                            });
+                            sharedNatively = true;
+                        } catch (e) {
+                            console.log("El usuario canceló o el celu bloqueó la acción.");
+                        }
+                    } 
+
+                    if (!sharedNatively) {
+                        document.getElementById('share-img-preview').src = imgData;
+                        const modal = document.getElementById('modal-share');
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                    
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }, 'image/png');
+
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error al generar la imagen.");
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
 
         checkSession();
     </script>
