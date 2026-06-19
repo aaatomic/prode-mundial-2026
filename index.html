@@ -8,13 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         tailwind.config = { darkMode: 'class', theme: { extend: { colors: { gold: '#fbbf24', silver: '#94a3b8', bronze: '#b45309' } } } }
-        
-        // 🔥 Chequeo ultra-rápido de preferencia de tema para evitar parpadeos
-        if (localStorage.theme === 'light') {
-            document.documentElement.classList.remove('dark');
-        } else {
-            document.documentElement.classList.add('dark');
-        }
+        if (localStorage.theme === 'dark') { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
     </script>
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -30,6 +24,12 @@
         .marquee { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        
+        /* Estilos específicos para la llave del simulador */
+        .bracket-match { @apply bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm flex flex-col justify-center overflow-hidden w-28 sm:w-36 text-[10px] sm:text-xs; }
+        .bracket-team { @apply px-2 py-1.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-between font-medium text-slate-800 dark:text-slate-200; }
+        .bracket-team.winner { @apply font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20; }
+        .bracket-divider { @apply border-b border-slate-200 dark:border-slate-800 w-full; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-10 min-h-screen transition-colors duration-300">
@@ -110,15 +110,10 @@
                     <p id="user-display-name" class="font-bold text-xl text-green-600 dark:text-green-400 truncate max-w-[250px] w-full text-center sm:text-left">...</p>
                 </div>
                 <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-                    
-                    <!-- 🔥 BOTÓN TOGGLE LIGHT/DARK MODE -->
                     <button onclick="toggleTheme()" class="text-[10px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-lg border border-slate-300 dark:border-slate-700 transition-all text-slate-700 dark:text-slate-300 flex items-center justify-center h-[34px] w-[34px]" title="Cambiar tema">
-                        <!-- Sol (Visible en Dark Mode) -->
                         <svg class="w-4 h-4 hidden dark:block text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        <!-- Luna (Visible en Light Mode) -->
                         <svg class="w-4 h-4 block dark:hidden text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
-
                     <span id="user-payment-status" class="text-[10px] font-bold px-2 py-1.5 rounded-md border"></span>
                     <button onclick="toggleReglas()" class="text-[10px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1">📜 Reglas</button>
                     <button onclick="cambiarNombre()" class="text-[10px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1">⚙️ Mi cuenta</button>
@@ -152,14 +147,14 @@
                 </div>
             </div>
             
-            <div class="flex bg-white dark:bg-slate-900 p-1 rounded-xl mb-6 border border-slate-200 dark:border-slate-800">
-                <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all">⚽ Partidos</button>
-                <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🌟 Bonus</button>
-                <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🏅 Ranking</button>
+            <div class="flex bg-white dark:bg-slate-900 p-1 rounded-xl mb-6 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
+                <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all">⚽ Partidos</button>
+                <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🌟 Bonus</button>
+                <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🏅 Ranking</button>
+                <button onclick="cambiarTab('simulador')" id="btn-tab-simulador" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🕹️ Simulador</button>
             </div>
             
             <div id="tab-pronosticos" class="tab-content active space-y-4">
-                
                 <a href="https://www.espn.com.ar/futbol/resultados/_/liga/fifa.world" target="_blank" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-green-400 dark:hover:border-green-500 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm group cursor-pointer mb-2">
                     <div class="flex items-center gap-3">
                         <span class="relative flex h-3 w-3">
@@ -270,6 +265,29 @@
                     Compartir en WhatsApp
                 </button>
             </div>
+            
+            <div id="tab-simulador" class="tab-content">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm mb-6">
+                    <h3 class="text-green-600 dark:text-green-400 font-bold text-lg mb-2">Simulador de Eliminatorias</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-6">Elegí el 1ro, 2do y hasta un 3ro (si corresponde) de cada grupo para armar tu llave ideal. ¡Solo avanzan 8 terceros!</p>
+                    
+                    <div id="sim-groups-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+                        <div class="text-center text-slate-500 animate-pulse col-span-full">Cargando grupos...</div>
+                    </div>
+                    
+                    <button onclick="generarLlaveSimulador()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all shadow-sm">
+                        Generar Llave de 16avos 🏆
+                    </button>
+                    <div id="sim-error-msg" class="text-red-500 text-xs text-center font-bold mt-2 hidden"></div>
+                </div>
+
+                <div id="sim-bracket-container" class="hidden bg-slate-50 dark:bg-slate-950 p-2 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
+                    <h3 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4 tracking-widest uppercase">Camino a la Gloria</h3>
+                    <div class="flex justify-between min-w-[900px] gap-2 pb-4" id="sim-bracket-render">
+                        </div>
+                </div>
+            </div>
+
         </div>
 
         <div id="user-view-screen" class="app-screen">
@@ -288,8 +306,16 @@
         let equiposGlobales = []; 
         let currentUser = null;
         let authMode = 'login';
+        
+        // Estado del Simulador
+        let simBracketState = {
+            R32: Array(16).fill({a: null, b: null}),
+            R16: Array(8).fill({a: null, b: null}),
+            QF: Array(4).fill({a: null, b: null}),
+            SF: Array(2).fill({a: null, b: null}),
+            F: Array(1).fill({a: null, b: null})
+        };
 
-        // 🔥 FUNCIÓN PARA CAMBIAR TEMA
         function toggleTheme() {
             const html = document.documentElement;
             if (html.classList.contains('dark')) {
@@ -327,7 +353,6 @@
             mensajes.forEach(m => {
                 const esMio = (m.name === currentUser.name);
                 const align = esMio ? 'items-end' : 'items-start';
-                // 🔥 Estilos de burbuja actualizados para Light/Dark mode
                 const bg = esMio ? 'bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100' : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200';
                 
                 box.innerHTML += `
@@ -434,8 +459,210 @@
                 }
 
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
+                
+                // 🔥 Iniciar Simulador
+                inicializarSimuladorGrupos();
             } catch(e) { console.error(e); }
         }
+
+        // --- LÓGICA DEL SIMULADOR ---
+        function inicializarSimuladorGrupos() {
+            let grupos = {};
+            partidosGlobales.forEach(p => {
+                let gr = p.group || "Sin Grupo";
+                if (!grupos[gr]) grupos[gr] = new Set();
+                if (p.team_a) grupos[gr].add(p.team_a);
+                if (p.team_b) grupos[gr].add(p.team_b);
+            });
+            
+            let html = '';
+            Object.keys(grupos).sort().forEach(gNombre => {
+                let equipos = Array.from(grupos[gNombre]).sort();
+                let opts = `<option value="">Elegí...</option>` + equipos.map(e => `<option value="${e}">${e}</option>`).join('');
+                html += `
+                <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <h4 class="font-bold text-center mb-2 text-slate-800 dark:text-slate-200 text-xs uppercase">${gNombre}</h4>
+                    <select id="sim-${gNombre}-1" class="w-full mb-1.5 p-1 text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥇 1ro</option>${opts}
+                    </select>
+                    <select id="sim-${gNombre}-2" class="w-full mb-1.5 p-1 text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥈 2do</option>${opts}
+                    </select>
+                    <select id="sim-${gNombre}-3" class="w-full p-1 text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥉 3ro (Opcional)</option>${opts}
+                    </select>
+                </div>`;
+            });
+            document.getElementById('sim-groups-container').innerHTML = html;
+        }
+
+        function generarLlaveSimulador() {
+            const errorMsg = document.getElementById('sim-error-msg');
+            let primeros = [], segundos = [], terceros = [];
+            
+            // Recolectar selecciones
+            const selects = document.querySelectorAll('[id^="sim-Grupo"]');
+            let duplicateError = false;
+            
+            // Agrupar por grupo para evitar repetidos
+            let gruposMap = {};
+            selects.forEach(sel => {
+                if (sel.value) {
+                    let parts = sel.id.split('-');
+                    let grupo = parts[1]; let pos = parts[2];
+                    if(!gruposMap[grupo]) gruposMap[grupo] = new Set();
+                    if(gruposMap[grupo].has(sel.value)) duplicateError = true;
+                    gruposMap[grupo].add(sel.value);
+                    
+                    if (pos === "1") primeros.push(sel.value);
+                    if (pos === "2") segundos.push(sel.value);
+                    if (pos === "3") terceros.push(sel.value);
+                }
+            });
+
+            if (duplicateError) {
+                errorMsg.innerText = "Error: Pusiste al mismo equipo 2 veces en el mismo grupo.";
+                errorMsg.classList.remove('hidden'); return;
+            }
+            if (primeros.length !== 12 || segundos.length !== 12) {
+                errorMsg.innerText = "Error: Faltan elegir primeros o segundos puestos.";
+                errorMsg.classList.remove('hidden'); return;
+            }
+            if (terceros.length !== 8) {
+                errorMsg.innerText = `Error: Tenés que elegir EXACTAMENTE 8 terceros (elegiste ${terceros.length}).`;
+                errorMsg.classList.remove('hidden'); return;
+            }
+
+            errorMsg.classList.add('hidden');
+            
+            // Juntar a los 32 equipos para armar la llave
+            // Para simplificar, distribuimos en 32 slots cruzando 1ros con 3ros/2dos
+            let equipos32 = [];
+            for(let i=0; i<8; i++) {
+                equipos32.push(primeros[i]); equipos32.push(terceros[i]); // 8 cruces 1ro vs 3ro
+            }
+            for(let i=8; i<12; i++) {
+                equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); // 4 cruces 1ro vs 2do
+            }
+            for(let i=4; i<12; i++) {
+                equipos32.push(segundos[i]); // Quedan 8 segundos que juegan entre sí (4 cruces 2do vs 2do)
+            }
+
+            // Llenar el Bracket Inicial (Round of 32)
+            simBracketState = { R32: [], R16: Array(8).fill({a:null, b:null}), QF: Array(4).fill({a:null, b:null}), SF: Array(2).fill({a:null, b:null}), F: Array(1).fill({a:null, b:null}) };
+            for (let i = 0; i < 16; i++) {
+                simBracketState.R32.push({ a: equipos32[i*2], b: equipos32[i*2+1], winner: null });
+            }
+            
+            document.getElementById('sim-bracket-container').classList.remove('hidden');
+            dibujarLlave();
+        }
+
+        function avanzarEnLlave(rondaActual, matchIndex, equipoGanador) {
+            if(!equipoGanador) return;
+            simBracketState[rondaActual][matchIndex].winner = equipoGanador;
+            
+            let rondasSiguientes = ['R32', 'R16', 'QF', 'SF', 'F'];
+            let idxRonda = rondasSiguientes.indexOf(rondaActual);
+            
+            if (idxRonda < 4) {
+                let nextRonda = rondasSiguientes[idxRonda + 1];
+                let nextMatchIndex = Math.floor(matchIndex / 2);
+                let esLadoA = (matchIndex % 2 === 0);
+                
+                // Clonar objeto para mutar
+                let nextMatch = {...simBracketState[nextRonda][nextMatchIndex]};
+                if (esLadoA) nextMatch.a = equipoGanador;
+                else nextMatch.b = equipoGanador;
+                
+                // Si cambió el equipo, resetear ganadores en cascada
+                if (simBracketState[nextRonda][nextMatchIndex][esLadoA?'a':'b'] !== equipoGanador) {
+                     nextMatch.winner = null;
+                     limpiarCascada(nextRonda, nextMatchIndex);
+                }
+                
+                simBracketState[nextRonda][nextMatchIndex] = nextMatch;
+            }
+            dibujarLlave();
+        }
+
+        function limpiarCascada(rondaDesde, matchIndex) {
+            let rondas = ['R16', 'QF', 'SF', 'F'];
+            let startIdx = rondas.indexOf(rondaDesde);
+            let currMatchIdx = matchIndex;
+            for(let i = startIdx; i < 3; i++) {
+                let nextRonda = rondas[i+1];
+                let nextMatchIdx = Math.floor(currMatchIdx / 2);
+                simBracketState[nextRonda][nextMatchIdx].winner = null;
+                currMatchIdx = nextMatchIdx;
+            }
+        }
+
+        function renderMatchBox(ronda, index, match) {
+            let winA = match.winner === match.a && match.a;
+            let winB = match.winner === match.b && match.b;
+            let fA = match.a ? getFlagUrl(match.a) : '';
+            let fB = match.b ? getFlagUrl(match.b) : '';
+            
+            return `
+            <div class="bracket-match">
+                <div onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="bracket-team ${winA ? 'winner' : ''}">
+                    <span class="truncate pr-2">${match.a || '---'}</span>
+                    ${fA ? `<img src="${fA}" class="w-3 h-3 rounded-full border border-slate-300 dark:border-slate-600">` : ''}
+                </div>
+                <div class="bracket-divider"></div>
+                <div onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="bracket-team ${winB ? 'winner' : ''}">
+                    <span class="truncate pr-2">${match.b || '---'}</span>
+                    ${fB ? `<img src="${fB}" class="w-3 h-3 rounded-full border border-slate-300 dark:border-slate-600">` : ''}
+                </div>
+            </div>`;
+        }
+
+        function dibujarLlave() {
+            const b = simBracketState;
+            const renderDiv = document.getElementById('sim-bracket-render');
+            
+            // LADO IZQUIERDO (Indices 0 a mitad)
+            let colL1 = '', colL2 = '', colL3 = '', colL4 = '';
+            for(let i=0; i<8; i++) colL1 += renderMatchBox('R32', i, b.R32[i]);
+            for(let i=0; i<4; i++) colL2 += renderMatchBox('R16', i, b.R16[i]);
+            for(let i=0; i<2; i++) colL3 += renderMatchBox('QF', i, b.QF[i]);
+            colL4 += renderMatchBox('SF', 0, b.SF[0]);
+
+            // CENTRO (Final)
+            let finalBox = `
+            <div class="flex flex-col justify-center items-center px-4">
+                <div class="text-gold font-black mb-2 text-sm uppercase tracking-widest bg-gold/10 px-3 py-1 rounded-full border border-gold/30">Gran Final</div>
+                <div class="bracket-match scale-110 shadow-gold/20 shadow-xl border-gold/50">
+                    <div onclick="avanzarEnLlave('F', 0, '${b.F[0].a}')" class="bracket-team ${b.F[0].winner===b.F[0].a && b.F[0].a ? 'winner text-lg py-3' : 'py-3'}"><span class="truncate">${b.F[0].a || '---'}</span></div>
+                    <div class="bracket-divider"></div>
+                    <div onclick="avanzarEnLlave('F', 0, '${b.F[0].b}')" class="bracket-team ${b.F[0].winner===b.F[0].b && b.F[0].b ? 'winner text-lg py-3' : 'py-3'}"><span class="truncate">${b.F[0].b || '---'}</span></div>
+                </div>
+                ${b.F[0].winner ? `<div class="mt-4 text-center animate-bounce text-2xl font-black text-green-500">🏆 ${b.F[0].winner} 🏆</div>` : ''}
+            </div>`;
+
+            // LADO DERECHO (Indices mitad al final)
+            let colR4 = '', colR3 = '', colR2 = '', colR1 = '';
+            colR4 += renderMatchBox('SF', 1, b.SF[1]);
+            for(let i=2; i<4; i++) colR3 += renderMatchBox('QF', i, b.QF[i]);
+            for(let i=4; i<8; i++) colR2 += renderMatchBox('R16', i, b.R16[i]);
+            for(let i=8; i<16; i++) colR1 += renderMatchBox('R32', i, b.R32[i]);
+
+            renderDiv.innerHTML = `
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL1}</div>
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL2}</div>
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL3}</div>
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL4}</div>
+                
+                ${finalBox}
+
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR4}</div>
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR3}</div>
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR2}</div>
+                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR1}</div>
+            `;
+        }
+        // --- FIN SIMULADOR ---
 
         function renderizarOjoDelPueblo(allBonus) {
             const sumContainer = document.getElementById('bonus-summary-container'); const tbBody = document.getElementById('bonus-table-body');
@@ -767,7 +994,10 @@
         function cambiarTab(n) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.getElementById('tab-'+n).classList.add('active'); 
-            ['pronosticos','bonus','ranking'].forEach(t => document.getElementById('btn-tab-'+t).className = t===n ? "flex-1 py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow" : "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all"); 
+            ['pronosticos','bonus','ranking','simulador'].forEach(t => {
+                const el = document.getElementById('btn-tab-'+t);
+                if(el) el.className = t===n ? "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all" : "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all";
+            });
             mostrarPantalla('main-app-screen'); 
         }
 
@@ -870,7 +1100,6 @@
 
             try {
                 const captureArea = document.getElementById('ranking-capture-area');
-                
                 const titleDiv = document.createElement('div');
                 const fecha = new Date().toLocaleDateString('es-AR');
                 titleDiv.id = 'temp-capture-title';
