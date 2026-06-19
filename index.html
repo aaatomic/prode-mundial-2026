@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,12 +25,11 @@
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         
-        /* Estilos optimizados para las tarjetas de partidos de la llave */
-        .sim-round-panel { display: none; }
-        .sim-round-panel.active { display: grid; }
-        .bracket-card { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-md flex flex-col gap-2 transition-all; }
-        .bracket-row { @apply flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900 transition-all cursor-pointer; }
-        .bracket-row.selected-win { @apply border-green-500 bg-green-500/10 dark:bg-green-500/10; }
+        /* Estilos ultra compactos para la llave del simulador */
+        .bracket-match { @apply w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded shadow-sm flex flex-col justify-center overflow-hidden; }
+        .bracket-team { @apply px-0.5 py-1 sm:px-1 sm:py-1.5 flex items-center justify-between font-medium text-slate-800 dark:text-slate-200 transition-colors; }
+        .bracket-team.winner { @apply bg-green-50 dark:bg-green-900/20; }
+        .bracket-divider { @apply border-b border-slate-200 dark:border-slate-800 w-full; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-10 min-h-screen transition-colors duration-300">
@@ -148,7 +147,6 @@
                 </div>
             </div>
             
-            <!-- 🔥 MENÚ DE PESTAÑAS (Agregado el Simulador) -->
             <div class="flex bg-white dark:bg-slate-900 p-1 rounded-xl mb-6 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
                 <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all">⚽ Partidos</button>
                 <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🌟 Bonus</button>
@@ -267,47 +265,28 @@
                     Compartir en WhatsApp
                 </button>
             </div>
-            
-            <!-- 🔥 PESTAÑA DEL SIMULADOR DE LLAVES -->
+
+            <!-- 🔥 PESTAÑA DE SIMULADOR DE LLAVES -->
             <div id="tab-simulador" class="tab-content">
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm mb-6">
                     <h3 class="text-green-600 dark:text-green-400 font-bold text-lg mb-2">Simulador de Eliminatorias</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-5">Toca los equipos de cada grupo para definir posiciones: <strong>1º clic (Oro)</strong>, <strong>2º clic (Plata)</strong>, <strong>3º clic (Bronce)</strong>.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-6">Elegí el 1ro, 2do y hasta un 3ro (si corresponde) de cada grupo para armar tu llave ideal. ¡Ojo, solo avanzan 8 terceros en total!</p>
                     
-                    <!-- 1. Los 12 Grupos con Pills -->
-                    <div id="sim-groups-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                    <div id="sim-groups-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
                         <div class="text-center text-slate-500 animate-pulse col-span-full">Cargando grupos...</div>
                     </div>
                     
-                    <!-- 2. Urna de mejores terceros -->
-                    <div id="sim-thirds-section" class="hidden border-t border-slate-200 dark:border-slate-800 pt-4 mb-6">
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-2">🗳️ Seleccionar los 8 Mejores Terceros (en orden del 1 al 8)</h4>
-                        <p class="text-[11px] text-slate-500 mb-3">Tocá en orden desde el mejor tercero (1) hasta el octavo (8).</p>
-                        <div id="sim-thirds-container" class="flex flex-wrap gap-2"></div>
-                    </div>
-                    
                     <button onclick="generarLlaveSimulador()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all shadow-sm">
-                        Generar Fase Final 🏆
+                        Generar Llave de 16avos 🏆
                     </button>
                     <div id="sim-error-msg" class="text-red-600 dark:text-red-400 text-xs text-center font-bold mt-3 hidden"></div>
                 </div>
 
-                <!-- 3. Contenedor de las llaves sin scroll horizontal -->
-                <div id="sim-bracket-container" class="hidden bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 w-full shadow-sm">
-                    <h3 class="text-center font-black text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
+                <div id="sim-bracket-container" class="hidden bg-slate-50 dark:bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full overflow-hidden">
+                    <h3 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-[10px] sm:text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
                     
-                    <!-- Pestañas internas para cambiar de fase sin desbordar la pantalla -->
-                    <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg mb-4 text-[10px] sm:text-xs font-bold border border-slate-200 dark:border-slate-800">
-                        <button onclick="cambiarFaseInterna('R32')" id="btn-fase-R32" class="flex-1 py-1.5 rounded text-white bg-slate-700">16avos</button>
-                        <button onclick="cambiarFaseInterna('R16')" id="btn-fase-R16" class="flex-1 py-1.5 rounded text-slate-400">Octavos</button>
-                        <button onclick="cambiarFaseInterna('QF')" id="btn-fase-QF" class="flex-1 py-1.5 rounded text-slate-400">Cuartos</button>
-                        <button onclick="cambiarFaseInterna('SF')" id="btn-fase-SF" class="flex-1 py-1.5 rounded text-slate-400">Semis</button>
-                        <button onclick="cambiarFaseInterna('F')" id="btn-fase-F" class="flex-1 py-1.5 rounded text-slate-400">FINAL</button>
-                    </div>
-
-                    <div id="sim-bracket-render" class="w-full">
-                        <!-- Los paneles de cada fase se renderizan acá -->
-                    </div>
+                    <!-- Contenedor Ultra Compacto Flex (Se adapta a la pantalla) -->
+                    <div class="flex justify-between w-full gap-0.5 sm:gap-1 pb-2" id="sim-bracket-render"></div>
                 </div>
             </div>
             
@@ -330,20 +309,7 @@
         let currentUser = null;
         let authMode = 'login';
         
-        // Estado de selecciones de fase de grupos del simulador
-        let simGruposData = {}; // Guardará { 'Grupo A': { teams: [], slots: [null, null, null] } }
-        let simMejoresTerceros = []; // Guardará lista de strings en orden del 1 al 8
-        let faseActivaInterna = 'R32';
-
-        // Estado de las eliminatorias directas del simulador
-        let simBracketState = {
-            R32: Array(16).fill({a: null, b: null, winner: null}),
-            R16: Array(8).fill({a: null, b: null, winner: null}),
-            QF: Array(4).fill({a: null, b: null, winner: null}),
-            SF: Array(2).fill({a: null, b: null, winner: null}),
-            F: Array(1).fill({a: null, b: null, winner: null})
-        };
-
+        // Diccionario Global FIFA para todo el sistema
         const fifaCodes = {
             "méxico":"MEX", "sudáfrica":"RSA", "corea del sur":"KOR", "república checa":"CZE",
             "canadá":"CAN", "bosnia y herzegovina":"BIH", "estados unidos":"USA", "paraguay":"PAR",
@@ -359,11 +325,26 @@
             "ghana":"GHA", "panamá":"PAN", "uzbekistán":"UZB", "colombia":"COL"
         };
 
+        // Estado Global del Simulador
+        let simBracketState = {
+            R32: Array(16).fill({a: null, b: null}),
+            R16: Array(8).fill({a: null, b: null}),
+            QF: Array(4).fill({a: null, b: null}),
+            SF: Array(2).fill({a: null, b: null}),
+            F: Array(1).fill({a: null, b: null})
+        };
+
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
-            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
         }
+
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
         function toggleReglas() { document.getElementById('modal-reglas').classList.toggle('active'); }
@@ -375,33 +356,50 @@
                 container.classList.remove('hidden'); container.classList.add('flex'); arrow.innerText = '▲';
                 const msgBox = document.getElementById('chat-messages');
                 msgBox.scrollTop = msgBox.scrollHeight;
-            } else { container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼'; }
+            } else {
+                container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼';
+            }
         }
 
         function dibujarChat(mensajes) {
             const box = document.getElementById('chat-messages');
-            if (!mensajes || mensajes.length === 0) { box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>'; return; }
+            if (!mensajes || mensajes.length === 0) {
+                box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>';
+                return;
+            }
             box.innerHTML = '';
             mensajes.forEach(m => {
                 const esMio = (m.name === currentUser.name);
                 const align = esMio ? 'items-end' : 'items-start';
                 const bg = esMio ? 'bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100' : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200';
-                box.innerHTML += `<div class="flex flex-col ${align} w-full"><span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${m.name}</span><div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div></div>`;
+                
+                box.innerHTML += `
+                    <div class="flex flex-col ${align} w-full">
+                        <span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${m.name}</span>
+                        <div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div>
+                    </div>`;
             });
             box.scrollTop = box.scrollHeight;
         }
 
         async function enviarChat() {
             const input = document.getElementById('chat-input');
-            const msg = input.value.trim(); if(!msg) return;
-            const btn = document.getElementById('btn-enviar-chat'); btn.disabled = true; btn.innerText = "⏳";
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const btn = document.getElementById('btn-enviar-chat');
+            btn.disabled = true; btn.innerText = "⏳";
+            
             const box = document.getElementById('chat-messages');
             box.innerHTML += `<div class="flex flex-col items-end w-full opacity-50"><span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${currentUser.name}</span><div class="bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100 px-3 py-2 rounded-xl max-w-[85%] break-words">${msg}</div></div>`;
-            box.scrollTop = box.scrollHeight; input.value = "";
+            box.scrollTop = box.scrollHeight;
+            input.value = "";
+
             try {
                 await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "send_chat", name: currentUser.name, message: msg }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
                 cargarData(); 
             } catch(e) { alert("Error al enviar"); }
+            
             btn.disabled = false; btn.innerText = "Enviar";
         }
 
@@ -418,7 +416,8 @@
                 if(currentUser.is_approved) { 
                     mostrarPantalla('main-app-screen'); 
                     document.getElementById('user-display-name').innerText = currentUser.name;
-                    actualizarCartelPago(currentUser.has_paid); cargarData(); 
+                    actualizarCartelPago(currentUser.has_paid);
+                    cargarData(); 
                 } else { mostrarPantalla('pending-screen'); }
             } else { mostrarPantalla('auth-screen'); }
         }
@@ -444,6 +443,7 @@
                 }
 
                 if(res.chatMessages) dibujarChat(res.chatMessages); 
+                
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
                 actualizarCartelPago(res.userPaid);
@@ -451,7 +451,8 @@
                 let options = '<option value="">Elegí...</option>';
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion','bonus-surprise_team'].forEach(id => {
-                    const el = document.getElementById(id); if(el) el.innerHTML = options;
+                    const el = document.getElementById(id);
+                    if(el) el.innerHTML = options;
                 });
                 
                 if(res.userBonus) {
@@ -467,192 +468,123 @@
                     document.getElementById('bonus-bomb').value = res.userBonus.bomb || "";
                 }
 
+                const lockDateBonus = new Date("2026-06-11T18:59:00Z").getTime();
+                if (new Date().getTime() >= lockDateBonus) {
+                    document.querySelectorAll('.bonus-input').forEach(el => {
+                        el.disabled = true;
+                        el.classList.add('opacity-50', 'cursor-not-allowed');
+                    });
+                }
+
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
                 
-                // Inicializar Estructura del Simulador
-                inicializarSimuladorEstructura();
+                // INICIALIZAMOS EL SIMULADOR
+                inicializarSimuladorGrupos();
             } catch(e) { console.error(e); }
         }
 
-        // --- 🕹️ NÚCLEO AVANZADO DEL SIMULADOR ---
+        // --- INICIO LÓGICA DEL SIMULADOR ---
 
-        function inicializarSimuladorEstructura() {
-            if (Object.keys(simGruposData).length > 0) return; // Ya se inicializó
-
-            let gruposTemp = {};
+        function inicializarSimuladorGrupos() {
+            let grupos = {};
             partidosGlobales.forEach(p => {
-                let gr = p.group;
-                if (!gr) return; 
-                // Evitamos grupos de eliminatorias explícitos
-                if (gr.toLowerCase().includes('octavo') || gr.toLowerCase().includes('cuarto') || gr.toLowerCase().includes('semi') || gr.toLowerCase().includes('final')) return;
-                
-                if (!gruposTemp[gr]) gruposTemp[gr] = new Set();
-                if (p.team_a) gruposTemp[gr].add(p.team_a);
-                if (p.team_b) gruposTemp[gr].add(p.team_b);
+                let gr = p.group || "Sin Grupo";
+                if (!grupos[gr]) grupos[gr] = new Set();
+                if (p.team_a) grupos[gr].add(p.team_a);
+                if (p.team_b) grupos[gr].add(p.team_b);
             });
             
-            Object.keys(gruposTemp).sort().forEach(gNombre => {
-                // Solo registramos grupos que tengan 3 o 4 equipos
-                if(gruposTemp[gNombre].size >= 3 && gruposTemp[gNombre].size <= 4) {
-                    simGruposData[gNombre] = {
-                        teams: Array.from(gruposTemp[gNombre]).sort(),
-                        slots: [null, null, null] // [0]=1ro, [1]=2do, [2]=3ro
-                    };
-                }
-            });
-            dibujarPillsGrupos();
-        }
-
-        function dibujarPillsGrupos() {
             let html = '';
-            Object.keys(simGruposData).forEach(gNombre => {
-                const gObj = simGruposData[gNombre];
-                let pillsHtml = '';
-                
-                gObj.teams.forEach(tName => {
-                    const idxSlot = gObj.slots.indexOf(tName);
-                    let badgeStyle = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800';
-                    let labelPos = '';
-                    
-                    if(idxSlot === 0) { badgeStyle = 'bg-amber-500 border border-amber-600 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(1º)</span>'; }
-                    else if(idxSlot === 1) { badgeStyle = 'bg-slate-400 border border-slate-500 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(2º)</span>'; }
-                    else if(idxSlot === 2) { badgeStyle = 'bg-amber-700 border border-amber-800 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(3º)</span>'; }
-                    else if(gObj.slots.filter(s => s !== null).length === 3) {
-                        badgeStyle = 'bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-900/60 opacity-40 cursor-not-allowed';
-                    }
-
-                    pillsHtml += `
-                    <button data-grupo="${gNombre.replace(/"/g, '&quot;')}" data-team="${tName.replace(/"/g, '&quot;')}" onclick="clickTeamPill(this)" class="px-2 py-1.5 text-[10px] rounded transition-all flex items-center justify-between truncate shadow-sm ${badgeStyle}">
-                        <span class="truncate">${tName}</span>${labelPos}
-                    </button>`;
-                });
-
+            Object.keys(grupos).sort().forEach(gNombre => {
+                let equipos = Array.from(grupos[gNombre]).sort();
+                let opts = `<option value="">Elegí...</option>` + equipos.map(e => `<option value="${e}">${e}</option>`).join('');
                 html += `
-                <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <h4 class="font-black text-center mb-3 text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">${gNombre}</h4>
-                    <div class="grid grid-cols-1 gap-2">${pillsHtml}</div>
+                <div class="bg-slate-50 dark:bg-slate-950 p-2 sm:p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <h4 class="font-bold text-center mb-2 text-slate-800 dark:text-slate-200 text-[10px] sm:text-xs uppercase">${gNombre}</h4>
+                    <select id="sim-${gNombre}-1" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥇 1ro</option>${opts}
+                    </select>
+                    <select id="sim-${gNombre}-2" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥈 2do</option>${opts}
+                    </select>
+                    <select id="sim-${gNombre}-3" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                        <option value="">🥉 3ro (Opcional)</option>${opts}
+                    </select>
                 </div>`;
             });
             document.getElementById('sim-groups-container').innerHTML = html;
-            actualizarSeccionTerceros();
         }
 
-        function clickTeamPill(el) {
-            const grupo = el.getAttribute('data-grupo');
-            const team = el.getAttribute('data-team');
-            const gObj = simGruposData[grupo];
-            const idxSlot = gObj.slots.indexOf(team);
-
-            if (idxSlot > -1) {
-                // Si ya tenía posición, lo sacamos
-                gObj.slots[idxSlot] = null;
-                if(idxSlot === 2) simMejoresTerceros = simMejoresTerceros.filter(t => t !== team);
-            } else {
-                // Buscamos el primer slot libre
-                const freeSlot = gObj.slots.indexOf(null);
-                if (freeSlot > -1) {
-                    gObj.slots[freeSlot] = team;
-                }
-            }
-            dibujarPillsGrupos();
-        }
-
-        function actualizarSeccionTerceros() {
-            const containerSec = document.getElementById('sim-thirds-section');
-            const containerBox = document.getElementById('sim-thirds-container');
+        // Filtro Anti-Trampas para que no elijan al mismo equipo 2 veces
+        function actualizarSelectsGrupo(grupo) {
+            const val1 = document.getElementById(`sim-${grupo}-1`).value;
+            const val2 = document.getElementById(`sim-${grupo}-2`).value;
+            const val3 = document.getElementById(`sim-${grupo}-3`).value;
             
-            let candidatosTerceros = [];
-            Object.keys(simGruposData).forEach(g => {
-                if(simGruposData[g].slots[2]) candidatosTerceros.push(simGruposData[g].slots[2]);
+            const selected = [val1, val2, val3].filter(v => v !== "");
+            
+            [1, 2, 3].forEach(pos => {
+                const select = document.getElementById(`sim-${grupo}-${pos}`);
+                const currentValue = select.value;
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    if (selected.includes(opt.value) && opt.value !== currentValue) {
+                        opt.disabled = true;
+                        opt.classList.add('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
+                    } else {
+                        opt.disabled = false;
+                        opt.classList.remove('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
+                    }
+                });
             });
-
-            if(candidatosTerceros.length === 0) { containerSec.classList.add('hidden'); return; }
-            containerSec.classList.remove('hidden');
-
-            simMejoresTerceros = simMejoresTerceros.filter(t => candidatosTerceros.includes(t));
-
-            let html = '';
-            candidatosTerceros.sort().forEach(tName => {
-                const rankIdx = simMejoresTerceros.indexOf(tName);
-                let style = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800';
-                let indicator = '';
-
-                if (rankIdx > -1) {
-                    style = 'bg-green-500 border border-green-600 text-white font-bold';
-                    indicator = `<span class="w-4 h-4 bg-white text-green-600 rounded-full inline-flex items-center justify-center text-[9px] font-black shadow-sm">${rankIdx + 1}</span>`;
-                }
-
-                html += `
-                <button data-team="${tName.replace(/"/g, '&quot;')}" onclick="clickTerceroUrna(this)" class="px-3 py-2 text-xs rounded-lg transition-all flex items-center gap-2 shadow-sm ${style}">
-                    <span>${tName}</span>${indicator}
-                </button>`;
-            });
-            containerBox.innerHTML = html;
-        }
-
-        function clickTerceroUrna(el) {
-            const team = el.getAttribute('data-team');
-            const idx = simMejoresTerceros.indexOf(team);
-            if (idx > -1) {
-                simMejoresTerceros.splice(idx, 1);
-            } else {
-                if (simMejoresTerceros.length < 8) simMejoresTerceros.push(team);
-            }
-            actualizarSeccionTerceros();
         }
 
         function generarLlaveSimulador() {
             const errorMsg = document.getElementById('sim-error-msg');
-            let primeros = [], segundos = [];
-            let errorFalta = false;
-
-            Object.keys(simGruposData).forEach(g => {
-                const s = simGruposData[g].slots;
-                if(!s[0] || !s[1]) errorFalta = true;
-                if(s[0]) primeros.push(s[0]);
-                if(s[1]) segundos.push(s[1]);
+            let primeros = [], segundos = [], terceros = [];
+            let duplicateError = false;
+            let gruposMap = {};
+            
+            document.querySelectorAll('[id^="sim-Grupo"]').forEach(sel => {
+                if (sel.value) {
+                    let parts = sel.id.split('-');
+                    let grupo = parts[1]; let pos = parts[2];
+                    if(!gruposMap[grupo]) gruposMap[grupo] = new Set();
+                    if(gruposMap[grupo].has(sel.value)) duplicateError = true;
+                    gruposMap[grupo].add(sel.value);
+                    
+                    if (pos === "1") primeros.push(sel.value);
+                    if (pos === "2") segundos.push(sel.value);
+                    if (pos === "3") terceros.push(sel.value);
+                }
             });
 
-            if (errorFalta) {
-                errorMsg.innerText = "🚨 Error: Tenés que elegir el 1º y 2º puesto de TODOS los grupos antes de continuar.";
+            if (duplicateError) {
+                errorMsg.innerText = "🚨 Error: Pusiste al mismo equipo 2 veces en el mismo grupo.";
                 errorMsg.classList.remove('hidden'); return;
             }
-            if (simMejoresTerceros.length !== 8) {
-                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a los 8 mejores terceros en la urna inferior (elegiste ${simMejoresTerceros.length}).`;
+            if (primeros.length !== 12 || segundos.length !== 12) {
+                errorMsg.innerText = "🚨 Error: Faltan elegir los 1ros o 2dos puestos de algunos grupos.";
+                errorMsg.classList.remove('hidden'); return;
+            }
+            if (terceros.length !== 8) {
+                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a 8 mejores terceros (elegiste ${terceros.length}).`;
                 errorMsg.classList.remove('hidden'); return;
             }
 
             errorMsg.classList.add('hidden');
             
-            // Cruce FIFA inteligente para evitar enfrentamientos repetidos del mismo grupo en 16avos
             let equipos32 = [];
-            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(simMejoresTerceros[7-i]); }
+            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(terceros[i]); }
             for(let i=8; i<12; i++) { equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); }
-            for(let i=4; i<8; i++) { equipos32.push(segundos[i]); equipos32.push(segundos[i+4]); }
+            for(let i=4; i<12; i++) { equipos32.push(segundos[i]); }
 
-            // Poblamos la primera ronda (16avos)
-            simBracketState = { 
-                R32: [], 
-                R16: Array(8).fill({a:null, b:null, winner:null}), 
-                QF: Array(4).fill({a:null, b:null, winner:null}), 
-                SF: Array(2).fill({a:null, b:null, winner:null}), 
-                F: Array(1).fill({a:null, b:null, winner:null}) 
-            };
+            simBracketState = { R32: [], R16: Array(8).fill({a:null, b:null}), QF: Array(4).fill({a:null, b:null}), SF: Array(2).fill({a:null, b:null}), F: Array(1).fill({a:null, b:null}) };
             for (let i = 0; i < 16; i++) {
                 simBracketState.R32.push({ a: equipos32[i*2], b: equipos32[i*2+1], winner: null });
             }
             
             document.getElementById('sim-bracket-container').classList.remove('hidden');
-            cambiarFaseInterna('R32'); // Inicializa mostrando 16avos
-        }
-
-        function cambiarFaseInterna(faseId) {
-            faseActivaInterna = faseId;
-            document.querySelectorAll('[id^="btn-fase-"]').forEach(btn => {
-                btn.className = "flex-1 py-1.5 rounded text-slate-500 dark:text-slate-400 transition-all font-semibold hover:bg-slate-200 dark:hover:bg-slate-800";
-            });
-            const activeBtn = document.getElementById(`btn-fase-${faseId}`);
-            if(activeBtn) activeBtn.className = "flex-1 py-1.5 rounded text-white bg-green-500 shadow-sm font-bold transition-all";
             dibujarLlave();
         }
 
@@ -682,13 +614,6 @@
             dibujarLlave();
         }
 
-        function avanzarEnLlaveBtn(el) {
-            const ronda = el.getAttribute('data-ronda');
-            const index = parseInt(el.getAttribute('data-index'));
-            const team = el.getAttribute('data-team');
-            avanzarEnLlave(ronda, index, team);
-        }
-
         function limpiarCascada(rondaDesde, matchIndex) {
             let rondas = ['R16', 'QF', 'SF', 'F'];
             let startIdx = rondas.indexOf(rondaDesde);
@@ -701,94 +626,79 @@
             }
         }
 
-        // Renderizado de las tarjetas individuales en la llave
-        function renderMatchCard(ronda, index, match) {
+        // UI Ultra-Compacta de un Partido
+        function renderMatchBox(ronda, index, match) {
             let winA = match.winner === match.a && match.a;
             let winB = match.winner === match.b && match.b;
-            
             let fA = match.a ? getFlagUrl(match.a) : '';
             let fB = match.b ? getFlagUrl(match.b) : '';
             
             let codeA = match.a ? (fifaCodes[match.a.toLowerCase().trim()] || match.a.substring(0,3).toUpperCase()) : '---';
             let codeB = match.b ? (fifaCodes[match.b.toLowerCase().trim()] || match.b.substring(0,3).toUpperCase()) : '---';
             
-            let safeA = match.a ? match.a.replace(/"/g, '&quot;') : '';
-            let safeB = match.b ? match.b.replace(/"/g, '&quot;') : '';
+            let btnA = match.a ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
+            let btnB = match.b ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
 
-            // Círculos interactivos de Check
-            let checkA = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
-            let checkB = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
+            if (winA) { btnA = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnB = ''; }
+            if (winB) { btnB = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnA = ''; }
             
-            if(winA) checkA = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
-            if(winB) checkB = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
-
             return `
-            <div class="bracket-card">
-                <div data-ronda="${ronda}" data-index="${index}" data-team="${safeA}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winA ? 'selected-win' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        ${fA ? `<img src="${fA}" class="w-5 h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-5 h-5 shrink-0"></div>'}
-                        <span class="font-black text-sm truncate ${winA ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeA}</span>
-                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px] font-medium hidden sm:inline-block">${match.a || ''}</span>
+            <div class="bracket-match">
+                <div class="bracket-team ${winA ? 'winner' : ''}">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${fA ? `<img src="${fA}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
+                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeA}</span>
                     </div>
-                    ${match.a ? checkA : ''}
+                    ${btnA}
                 </div>
-                <div data-ronda="${ronda}" data-index="${index}" data-team="${safeB}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winB ? 'selected-win' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        ${fB ? `<img src="${fB}" class="w-5 h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-5 h-5 shrink-0"></div>'}
-                        <span class="font-black text-sm truncate ${winB ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeB}</span>
-                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px] font-medium hidden sm:inline-block">${match.b || ''}</span>
+                <div class="bracket-divider"></div>
+                <div class="bracket-team ${winB ? 'winner' : ''}">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${fB ? `<img src="${fB}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
+                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeB}</span>
                     </div>
-                    ${match.b ? checkB : ''}
+                    ${btnB}
                 </div>
             </div>`;
         }
 
         function dibujarLlave() {
             const b = simBracketState;
-            const container = document.getElementById('sim-bracket-render');
-            let html = '';
+            const renderDiv = document.getElementById('sim-bracket-render');
+            
+            let colL1 = '', colL2 = '', colL3 = '', colL4 = '';
+            for(let i=0; i<8; i++) colL1 += renderMatchBox('R32', i, b.R32[i]);
+            for(let i=0; i<4; i++) colL2 += renderMatchBox('R16', i, b.R16[i]);
+            for(let i=0; i<2; i++) colL3 += renderMatchBox('QF', i, b.QF[i]);
+            colL4 += renderMatchBox('SF', 0, b.SF[0]);
 
-            if (faseActivaInterna === 'R32') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<16; i++) html += renderMatchCard('R32', i, b.R32[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'R16') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<8; i++) html += renderMatchCard('R16', i, b.R16[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'QF') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<4; i++) html += renderMatchCard('QF', i, b.QF[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'SF') {
-                html = `<div class="grid grid-cols-1 gap-3 w-full max-w-md mx-auto">`;
-                for(let i=0; i<2; i++) html += renderMatchCard('SF', i, b.SF[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'F') {
-                html = `<div class="w-full max-w-sm mx-auto flex flex-col gap-4 text-center pb-8">
-                    <div class="text-gold font-black bg-gold/10 border border-gold/30 rounded-full py-2 text-sm uppercase tracking-widest mt-2">Gran Final</div>
-                    ${renderMatchCard('F', 0, b.F[0])}
-                `;
-                if(b.F[0].winner) {
-                    const winName = b.F[0].winner;
-                    const cW = fifaCodes[winName.toLowerCase().trim()] || winName.substring(0,3).toUpperCase();
-                    html += `
-                    <div class="p-6 bg-green-500/10 border border-green-500/30 rounded-2xl text-center shadow-xl animate-bounce mt-4">
-                        <div class="text-4xl mb-2">👑🏆👑</div>
-                        <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Campeón del Mundo</div>
-                        <div class="text-4xl font-black text-green-500">${cW}</div>
-                        <div class="text-sm text-slate-400 font-bold mt-1">${winName}</div>
-                    </div>`;
-                }
-                html += `</div>`;
-            }
-            container.innerHTML = html;
+            let finalBox = `
+            <div class="flex flex-col justify-center items-center flex-1 px-0.5">
+                <div class="text-gold font-black mb-1 text-[7px] sm:text-[9px] uppercase tracking-widest bg-gold/10 px-1 py-0.5 rounded border border-gold/30">FINAL</div>
+                ${renderMatchBox('F', 0, b.F[0])}
+                ${b.F[0].winner ? `<div class="mt-2 text-center animate-bounce text-[8px] sm:text-xs font-black text-green-500">🏆<br>${fifaCodes[b.F[0].winner.toLowerCase().trim()] || b.F[0].winner.substring(0,3).toUpperCase()}</div>` : ''}
+            </div>`;
+
+            let colR4 = '', colR3 = '', colR2 = '', colR1 = '';
+            colR4 += renderMatchBox('SF', 1, b.SF[1]);
+            for(let i=2; i<4; i++) colR3 += renderMatchBox('QF', i, b.QF[i]);
+            for(let i=4; i<8; i++) colR2 += renderMatchBox('R16', i, b.R16[i]);
+            for(let i=8; i<16; i++) colR1 += renderMatchBox('R32', i, b.R32[i]);
+
+            renderDiv.innerHTML = `
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL1}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL2}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL3}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL4}</div>
+                
+                ${finalBox}
+
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR4}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR3}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR2}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR1}</div>
+            `;
         }
-
         // --- FIN LÓGICA DEL SIMULADOR ---
 
 
@@ -913,7 +823,9 @@
             const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; const prefix = isSpy ? 'spy-' : '';
             document.querySelectorAll(navSelector).forEach(b => { 
                 b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400`; 
-                if(b.innerText === grupo) { b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; } 
+                if(b.innerText === grupo) { 
+                    b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; 
+                } 
             });
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
         }
@@ -1101,6 +1013,61 @@
             });
         }
 
+        function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        function cambiarTab(n) { 
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
+            document.getElementById('tab-'+n).classList.add('active'); 
+            ['pronosticos','bonus','ranking','simulador'].forEach(t => {
+                const el = document.getElementById('btn-tab-'+t);
+                if(el) el.className = t===n ? "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all" : "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all";
+            });
+            mostrarPantalla('main-app-screen'); 
+        }
+
+        async function guardarUnPartido(matchId) {
+            const gA = document.getElementById(`goles_a_${matchId}`).value;
+            const gB = document.getElementById(`goles_b_${matchId}`).value;
+            
+            if (gA === "" || gB === "") {
+                alert("Tenés que completar los goles de ambos equipos antes de guardar.");
+                return;
+            }
+
+            const btn = document.getElementById(`btn-save-${matchId}`);
+            btn.innerText = "⏳";
+            btn.disabled = true;
+
+            const payload = { 
+                action: "save_predictions", 
+                user_email: currentUser.email, 
+                predictions: [{ match_id: matchId, pred_a: parseInt(gA), pred_b: parseInt(gB) }] 
+            };
+
+            try { 
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const result = await response.json();
+                
+                if (result.status === "error") {
+                    alert(result.message);
+                    btn.innerText = "Guardar";
+                    btn.disabled = false;
+                    return;
+                }
+                
+                btn.innerText = "✅";
+                btn.classList.replace('bg-green-600', 'bg-slate-500');
+                setTimeout(() => { 
+                    btn.innerText = "Guardar"; 
+                    btn.disabled = false; 
+                    btn.classList.replace('bg-slate-500', 'bg-green-600');
+                }, 2000);
+            } catch(e) { 
+                alert("Error al guardar."); 
+                btn.innerText = "Guardar";
+                btn.disabled = false;
+            }
+        }
+
         async function procesarAuth() {
             const email = document.getElementById('auth-email').value.trim(); const pass = document.getElementById('auth-password').value.trim(); const name = document.getElementById('auth-name').value.trim();
             if (!email || !pass) return alert("Faltan datos");
@@ -1131,12 +1098,14 @@
         setInterval(() => {
             if (!partidosGlobales || partidosGlobales.length === 0) return;
             const now = new Date().getTime();
+            
             partidosGlobales.forEach(p => {
                 const matchTime = new Date(p.kickoff_time).getTime();
                 if (now >= matchTime) {
                     const inputA = document.getElementById(`goles_a_${p.id}`);
                     const inputB = document.getElementById(`goles_b_${p.id}`);
                     const btn = document.getElementById(`btn-save-${p.id}`);
+                    
                     if (inputA && !inputA.disabled) {
                         inputA.disabled = true; inputA.classList.add('cursor-not-allowed', 'opacity-70');
                         inputB.disabled = true; inputB.classList.add('cursor-not-allowed', 'opacity-70');
