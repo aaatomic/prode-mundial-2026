@@ -25,10 +25,10 @@
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         
-        /* Estilos específicos para la llave del simulador */
-        .bracket-match { @apply bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm flex flex-col justify-center overflow-hidden w-28 sm:w-36 text-[10px] sm:text-xs; }
-        .bracket-team { @apply px-2 py-1.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-between font-medium text-slate-800 dark:text-slate-200; }
-        .bracket-team.winner { @apply font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20; }
+        /* Estilos ultra compactos para la llave del simulador */
+        .bracket-match { @apply w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded shadow-sm flex flex-col justify-center overflow-hidden; }
+        .bracket-team { @apply px-0.5 py-1 sm:px-1 sm:py-1.5 flex items-center justify-between font-medium text-slate-800 dark:text-slate-200 transition-colors; }
+        .bracket-team.winner { @apply bg-green-50 dark:bg-green-900/20; }
         .bracket-divider { @apply border-b border-slate-200 dark:border-slate-800 w-full; }
     </style>
 </head>
@@ -265,11 +265,12 @@
                     Compartir en WhatsApp
                 </button>
             </div>
-            
+
+            <!-- 🔥 PESTAÑA DE SIMULADOR DE LLAVES -->
             <div id="tab-simulador" class="tab-content">
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm mb-6">
                     <h3 class="text-green-600 dark:text-green-400 font-bold text-lg mb-2">Simulador de Eliminatorias</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-6">Elegí el 1ro, 2do y hasta un 3ro (si corresponde) de cada grupo para armar tu llave ideal. ¡Solo avanzan 8 terceros!</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-6">Elegí el 1ro, 2do y hasta un 3ro (si corresponde) de cada grupo para armar tu llave ideal. ¡Ojo, solo avanzan 8 terceros en total!</p>
                     
                     <div id="sim-groups-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
                         <div class="text-center text-slate-500 animate-pulse col-span-full">Cargando grupos...</div>
@@ -278,16 +279,17 @@
                     <button onclick="generarLlaveSimulador()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all shadow-sm">
                         Generar Llave de 16avos 🏆
                     </button>
-                    <div id="sim-error-msg" class="text-red-500 text-xs text-center font-bold mt-2 hidden"></div>
+                    <div id="sim-error-msg" class="text-red-600 dark:text-red-400 text-xs text-center font-bold mt-3 hidden"></div>
                 </div>
 
-                <div id="sim-bracket-container" class="hidden bg-slate-50 dark:bg-slate-950 p-2 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
-                    <h3 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4 tracking-widest uppercase">Camino a la Gloria</h3>
-                    <div class="flex justify-between min-w-[900px] gap-2 pb-4" id="sim-bracket-render">
-                        </div>
+                <div id="sim-bracket-container" class="hidden bg-slate-50 dark:bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full overflow-hidden">
+                    <h3 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-[10px] sm:text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
+                    
+                    <!-- Contenedor Ultra Compacto Flex (Se adapta a la pantalla) -->
+                    <div class="flex justify-between w-full gap-0.5 sm:gap-1 pb-2" id="sim-bracket-render"></div>
                 </div>
             </div>
-
+            
         </div>
 
         <div id="user-view-screen" class="app-screen">
@@ -307,7 +309,23 @@
         let currentUser = null;
         let authMode = 'login';
         
-        // Estado del Simulador
+        // Diccionario Global FIFA para todo el sistema
+        const fifaCodes = {
+            "méxico":"MEX", "sudáfrica":"RSA", "corea del sur":"KOR", "república checa":"CZE",
+            "canadá":"CAN", "bosnia y herzegovina":"BIH", "estados unidos":"USA", "paraguay":"PAR",
+            "qatar":"QAT", "suiza":"SUI", "brasil":"BRA", "marruecos":"MAR",
+            "haití":"HAI", "escocia":"SCO", "australia":"AUS", "turquía":"TUR",
+            "alemania":"GER", "curazao":"CUW", "países bajos":"NED", "japón":"JPN",
+            "costa de marfil":"CIV", "ecuador":"ECU", "suecia":"SWE", "túnez":"TUN",
+            "españa":"ESP", "cabo verde":"CPV", "bélgica":"BEL", "egipto":"EGY",
+            "arabia saudita":"KSA", "uruguay":"URU", "irán":"IRN", "nueva zelanda":"NZL",
+            "francia":"FRA", "senegal":"SEN", "irak":"IRQ", "noruega":"NOR",
+            "argentina":"ARG", "argelia":"ALG", "austria":"AUT", "jordania":"JOR",
+            "portugal":"POR", "rd de congo":"COD", "inglaterra":"ENG", "croacia":"CRO",
+            "ghana":"GHA", "panamá":"PAN", "uzbekistán":"UZB", "colombia":"COL"
+        };
+
+        // Estado Global del Simulador
         let simBracketState = {
             R32: Array(16).fill({a: null, b: null}),
             R16: Array(8).fill({a: null, b: null}),
@@ -460,12 +478,13 @@
 
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
                 
-                // 🔥 Iniciar Simulador
+                // INICIALIZAMOS EL SIMULADOR
                 inicializarSimuladorGrupos();
             } catch(e) { console.error(e); }
         }
 
-        // --- LÓGICA DEL SIMULADOR ---
+        // --- INICIO LÓGICA DEL SIMULADOR ---
+
         function inicializarSimuladorGrupos() {
             let grupos = {};
             partidosGlobales.forEach(p => {
@@ -480,15 +499,15 @@
                 let equipos = Array.from(grupos[gNombre]).sort();
                 let opts = `<option value="">Elegí...</option>` + equipos.map(e => `<option value="${e}">${e}</option>`).join('');
                 html += `
-                <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-                    <h4 class="font-bold text-center mb-2 text-slate-800 dark:text-slate-200 text-xs uppercase">${gNombre}</h4>
-                    <select id="sim-${gNombre}-1" class="w-full mb-1.5 p-1 text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                <div class="bg-slate-50 dark:bg-slate-950 p-2 sm:p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <h4 class="font-bold text-center mb-2 text-slate-800 dark:text-slate-200 text-[10px] sm:text-xs uppercase">${gNombre}</h4>
+                    <select id="sim-${gNombre}-1" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
                         <option value="">🥇 1ro</option>${opts}
                     </select>
-                    <select id="sim-${gNombre}-2" class="w-full mb-1.5 p-1 text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                    <select id="sim-${gNombre}-2" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
                         <option value="">🥈 2do</option>${opts}
                     </select>
-                    <select id="sim-${gNombre}-3" class="w-full p-1 text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
+                    <select id="sim-${gNombre}-3" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
                         <option value="">🥉 3ro (Opcional)</option>${opts}
                     </select>
                 </div>`;
@@ -496,17 +515,37 @@
             document.getElementById('sim-groups-container').innerHTML = html;
         }
 
+        // Filtro Anti-Trampas para que no elijan al mismo equipo 2 veces
+        function actualizarSelectsGrupo(grupo) {
+            const val1 = document.getElementById(`sim-${grupo}-1`).value;
+            const val2 = document.getElementById(`sim-${grupo}-2`).value;
+            const val3 = document.getElementById(`sim-${grupo}-3`).value;
+            
+            const selected = [val1, val2, val3].filter(v => v !== "");
+            
+            [1, 2, 3].forEach(pos => {
+                const select = document.getElementById(`sim-${grupo}-${pos}`);
+                const currentValue = select.value;
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    if (selected.includes(opt.value) && opt.value !== currentValue) {
+                        opt.disabled = true;
+                        opt.classList.add('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
+                    } else {
+                        opt.disabled = false;
+                        opt.classList.remove('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
+                    }
+                });
+            });
+        }
+
         function generarLlaveSimulador() {
             const errorMsg = document.getElementById('sim-error-msg');
             let primeros = [], segundos = [], terceros = [];
-            
-            // Recolectar selecciones
-            const selects = document.querySelectorAll('[id^="sim-Grupo"]');
             let duplicateError = false;
-            
-            // Agrupar por grupo para evitar repetidos
             let gruposMap = {};
-            selects.forEach(sel => {
+            
+            document.querySelectorAll('[id^="sim-Grupo"]').forEach(sel => {
                 if (sel.value) {
                     let parts = sel.id.split('-');
                     let grupo = parts[1]; let pos = parts[2];
@@ -521,34 +560,25 @@
             });
 
             if (duplicateError) {
-                errorMsg.innerText = "Error: Pusiste al mismo equipo 2 veces en el mismo grupo.";
+                errorMsg.innerText = "🚨 Error: Pusiste al mismo equipo 2 veces en el mismo grupo.";
                 errorMsg.classList.remove('hidden'); return;
             }
             if (primeros.length !== 12 || segundos.length !== 12) {
-                errorMsg.innerText = "Error: Faltan elegir primeros o segundos puestos.";
+                errorMsg.innerText = "🚨 Error: Faltan elegir los 1ros o 2dos puestos de algunos grupos.";
                 errorMsg.classList.remove('hidden'); return;
             }
             if (terceros.length !== 8) {
-                errorMsg.innerText = `Error: Tenés que elegir EXACTAMENTE 8 terceros (elegiste ${terceros.length}).`;
+                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a 8 mejores terceros (elegiste ${terceros.length}).`;
                 errorMsg.classList.remove('hidden'); return;
             }
 
             errorMsg.classList.add('hidden');
             
-            // Juntar a los 32 equipos para armar la llave
-            // Para simplificar, distribuimos en 32 slots cruzando 1ros con 3ros/2dos
             let equipos32 = [];
-            for(let i=0; i<8; i++) {
-                equipos32.push(primeros[i]); equipos32.push(terceros[i]); // 8 cruces 1ro vs 3ro
-            }
-            for(let i=8; i<12; i++) {
-                equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); // 4 cruces 1ro vs 2do
-            }
-            for(let i=4; i<12; i++) {
-                equipos32.push(segundos[i]); // Quedan 8 segundos que juegan entre sí (4 cruces 2do vs 2do)
-            }
+            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(terceros[i]); }
+            for(let i=8; i<12; i++) { equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); }
+            for(let i=4; i<12; i++) { equipos32.push(segundos[i]); }
 
-            // Llenar el Bracket Inicial (Round of 32)
             simBracketState = { R32: [], R16: Array(8).fill({a:null, b:null}), QF: Array(4).fill({a:null, b:null}), SF: Array(2).fill({a:null, b:null}), F: Array(1).fill({a:null, b:null}) };
             for (let i = 0; i < 16; i++) {
                 simBracketState.R32.push({ a: equipos32[i*2], b: equipos32[i*2+1], winner: null });
@@ -559,7 +589,7 @@
         }
 
         function avanzarEnLlave(rondaActual, matchIndex, equipoGanador) {
-            if(!equipoGanador) return;
+            if(!equipoGanador || equipoGanador === "---") return;
             simBracketState[rondaActual][matchIndex].winner = equipoGanador;
             
             let rondasSiguientes = ['R32', 'R16', 'QF', 'SF', 'F'];
@@ -570,17 +600,15 @@
                 let nextMatchIndex = Math.floor(matchIndex / 2);
                 let esLadoA = (matchIndex % 2 === 0);
                 
-                // Clonar objeto para mutar
                 let nextMatch = {...simBracketState[nextRonda][nextMatchIndex]};
                 if (esLadoA) nextMatch.a = equipoGanador;
                 else nextMatch.b = equipoGanador;
                 
-                // Si cambió el equipo, resetear ganadores en cascada
+                // Si cambiás de opinión y elegís al otro, se borra el camino viejo
                 if (simBracketState[nextRonda][nextMatchIndex][esLadoA?'a':'b'] !== equipoGanador) {
                      nextMatch.winner = null;
                      limpiarCascada(nextRonda, nextMatchIndex);
                 }
-                
                 simBracketState[nextRonda][nextMatchIndex] = nextMatch;
             }
             dibujarLlave();
@@ -598,22 +626,38 @@
             }
         }
 
+        // UI Ultra-Compacta de un Partido
         function renderMatchBox(ronda, index, match) {
             let winA = match.winner === match.a && match.a;
             let winB = match.winner === match.b && match.b;
             let fA = match.a ? getFlagUrl(match.a) : '';
             let fB = match.b ? getFlagUrl(match.b) : '';
             
+            let codeA = match.a ? (fifaCodes[match.a.toLowerCase().trim()] || match.a.substring(0,3).toUpperCase()) : '---';
+            let codeB = match.b ? (fifaCodes[match.b.toLowerCase().trim()] || match.b.substring(0,3).toUpperCase()) : '---';
+            
+            let btnA = match.a ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
+            let btnB = match.b ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
+
+            if (winA) { btnA = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnB = ''; }
+            if (winB) { btnB = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnA = ''; }
+            
             return `
             <div class="bracket-match">
-                <div onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="bracket-team ${winA ? 'winner' : ''}">
-                    <span class="truncate pr-2">${match.a || '---'}</span>
-                    ${fA ? `<img src="${fA}" class="w-3 h-3 rounded-full border border-slate-300 dark:border-slate-600">` : ''}
+                <div class="bracket-team ${winA ? 'winner' : ''}">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${fA ? `<img src="${fA}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
+                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeA}</span>
+                    </div>
+                    ${btnA}
                 </div>
                 <div class="bracket-divider"></div>
-                <div onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="bracket-team ${winB ? 'winner' : ''}">
-                    <span class="truncate pr-2">${match.b || '---'}</span>
-                    ${fB ? `<img src="${fB}" class="w-3 h-3 rounded-full border border-slate-300 dark:border-slate-600">` : ''}
+                <div class="bracket-team ${winB ? 'winner' : ''}">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${fB ? `<img src="${fB}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
+                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeB}</span>
+                    </div>
+                    ${btnB}
                 </div>
             </div>`;
         }
@@ -622,26 +666,19 @@
             const b = simBracketState;
             const renderDiv = document.getElementById('sim-bracket-render');
             
-            // LADO IZQUIERDO (Indices 0 a mitad)
             let colL1 = '', colL2 = '', colL3 = '', colL4 = '';
             for(let i=0; i<8; i++) colL1 += renderMatchBox('R32', i, b.R32[i]);
             for(let i=0; i<4; i++) colL2 += renderMatchBox('R16', i, b.R16[i]);
             for(let i=0; i<2; i++) colL3 += renderMatchBox('QF', i, b.QF[i]);
             colL4 += renderMatchBox('SF', 0, b.SF[0]);
 
-            // CENTRO (Final)
             let finalBox = `
-            <div class="flex flex-col justify-center items-center px-4">
-                <div class="text-gold font-black mb-2 text-sm uppercase tracking-widest bg-gold/10 px-3 py-1 rounded-full border border-gold/30">Gran Final</div>
-                <div class="bracket-match scale-110 shadow-gold/20 shadow-xl border-gold/50">
-                    <div onclick="avanzarEnLlave('F', 0, '${b.F[0].a}')" class="bracket-team ${b.F[0].winner===b.F[0].a && b.F[0].a ? 'winner text-lg py-3' : 'py-3'}"><span class="truncate">${b.F[0].a || '---'}</span></div>
-                    <div class="bracket-divider"></div>
-                    <div onclick="avanzarEnLlave('F', 0, '${b.F[0].b}')" class="bracket-team ${b.F[0].winner===b.F[0].b && b.F[0].b ? 'winner text-lg py-3' : 'py-3'}"><span class="truncate">${b.F[0].b || '---'}</span></div>
-                </div>
-                ${b.F[0].winner ? `<div class="mt-4 text-center animate-bounce text-2xl font-black text-green-500">🏆 ${b.F[0].winner} 🏆</div>` : ''}
+            <div class="flex flex-col justify-center items-center flex-1 px-0.5">
+                <div class="text-gold font-black mb-1 text-[7px] sm:text-[9px] uppercase tracking-widest bg-gold/10 px-1 py-0.5 rounded border border-gold/30">FINAL</div>
+                ${renderMatchBox('F', 0, b.F[0])}
+                ${b.F[0].winner ? `<div class="mt-2 text-center animate-bounce text-[8px] sm:text-xs font-black text-green-500">🏆<br>${fifaCodes[b.F[0].winner.toLowerCase().trim()] || b.F[0].winner.substring(0,3).toUpperCase()}</div>` : ''}
             </div>`;
 
-            // LADO DERECHO (Indices mitad al final)
             let colR4 = '', colR3 = '', colR2 = '', colR1 = '';
             colR4 += renderMatchBox('SF', 1, b.SF[1]);
             for(let i=2; i<4; i++) colR3 += renderMatchBox('QF', i, b.QF[i]);
@@ -649,20 +686,21 @@
             for(let i=8; i<16; i++) colR1 += renderMatchBox('R32', i, b.R32[i]);
 
             renderDiv.innerHTML = `
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL1}</div>
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL2}</div>
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL3}</div>
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colL4}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL1}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL2}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL3}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL4}</div>
                 
                 ${finalBox}
 
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR4}</div>
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR3}</div>
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR2}</div>
-                <div class="flex flex-col justify-around gap-2 h-[600px]">${colR1}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR4}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR3}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR2}</div>
+                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR1}</div>
             `;
         }
-        // --- FIN SIMULADOR ---
+        // --- FIN LÓGICA DEL SIMULADOR ---
+
 
         function renderizarOjoDelPueblo(allBonus) {
             const sumContainer = document.getElementById('bonus-summary-container'); const tbBody = document.getElementById('bonus-table-body');
@@ -850,21 +888,6 @@
                 try {
                     const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
                     const todosLosPartidos = res.matches.sort((a,b) => new Date(a.kickoff_time) - new Date(b.kickoff_time));
-                    
-                    const fifaCodes = {
-                        "méxico":"MEX", "sudáfrica":"RSA", "corea del sur":"KOR", "república checa":"CZE",
-                        "canadá":"CAN", "bosnia y herzegovina":"BIH", "estados unidos":"USA", "paraguay":"PAR",
-                        "qatar":"QAT", "suiza":"SUI", "brasil":"BRA", "marruecos":"MAR",
-                        "haití":"HAI", "escocia":"SCO", "australia":"AUS", "turquía":"TUR",
-                        "alemania":"GER", "curazao":"CUW", "países bajos":"NED", "japón":"JPN",
-                        "costa de marfil":"CIV", "ecuador":"ECU", "suecia":"SWE", "túnez":"TUN",
-                        "españa":"ESP", "cabo verde":"CPV", "bélgica":"BEL", "egipto":"EGY",
-                        "arabia saudita":"KSA", "uruguay":"URU", "irán":"IRN", "nueva zelanda":"NZL",
-                        "francia":"FRA", "senegal":"SEN", "irak":"IRQ", "noruega":"NOR",
-                        "argentina":"ARG", "argelia":"ALG", "austria":"AUT", "jordania":"JOR",
-                        "portugal":"POR", "rd de congo":"COD", "inglaterra":"ENG", "croacia":"CRO",
-                        "ghana":"GHA", "panamá":"PAN", "uzbekistán":"UZB", "colombia":"COL"
-                    };
 
                     let html = `
                     <div class="overflow-x-hidden mb-3">
