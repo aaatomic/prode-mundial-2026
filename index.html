@@ -25,12 +25,11 @@
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         
-        /* 🔥 Estilos mejorados para los cuadros de la llave */
         .sim-round-panel { display: none; }
         .sim-round-panel.active { display: grid; }
-        .bracket-card { @apply bg-slate-200 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2 shadow-lg flex flex-col gap-1.5 transition-all; }
-        .bracket-row { @apply flex items-center justify-center gap-3 sm:gap-4 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer; }
-        .bracket-row.selected-win { @apply border-green-500 bg-green-50 dark:bg-green-900/40; }
+        .bracket-card { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-md flex flex-col gap-2 transition-all; }
+        .bracket-row { @apply flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900 transition-all cursor-pointer; }
+        .bracket-row.selected-win { @apply border-green-500 bg-green-500/10 dark:bg-green-500/10; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-10 min-h-screen transition-colors duration-300">
@@ -273,10 +272,12 @@
                     <h3 class="text-green-600 dark:text-green-400 font-bold text-lg mb-2">Simulador de Eliminatorias</h3>
                     <p class="text-xs text-slate-600 dark:text-slate-400 mb-5">Toca los equipos de cada grupo para definir posiciones: <strong>1º clic (Oro)</strong>, <strong>2º clic (Plata)</strong>, <strong>3º clic (Bronce)</strong>.</p>
                     
+                    <!-- 1. Los 12 Grupos con Pills -->
                     <div id="sim-groups-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                         <div class="text-center text-slate-500 animate-pulse col-span-full">Cargando grupos...</div>
                     </div>
                     
+                    <!-- 2. Urna de mejores terceros -->
                     <div id="sim-thirds-section" class="hidden border-t border-slate-200 dark:border-slate-800 pt-4 mb-6">
                         <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-2">🗳️ Seleccionar los 8 Mejores Terceros (en orden del 1 al 8)</h4>
                         <p class="text-[11px] text-slate-500 mb-3">Tocá en orden desde el mejor tercero (1) hasta el octavo (8).</p>
@@ -289,9 +290,11 @@
                     <div id="sim-error-msg" class="text-red-600 dark:text-red-400 text-xs text-center font-bold mt-3 hidden"></div>
                 </div>
 
+                <!-- 3. Contenedor de las llaves sin scroll horizontal -->
                 <div id="sim-bracket-container" class="hidden bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 w-full shadow-sm">
                     <h3 class="text-center font-black text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
                     
+                    <!-- Pestañas internas para cambiar de fase sin desbordar la pantalla -->
                     <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg mb-4 text-[10px] sm:text-xs font-bold border border-slate-200 dark:border-slate-800">
                         <button onclick="cambiarFaseInterna('R32')" id="btn-fase-R32" class="flex-1 py-1.5 rounded text-white bg-slate-700">16avos</button>
                         <button onclick="cambiarFaseInterna('R16')" id="btn-fase-R16" class="flex-1 py-1.5 rounded text-slate-400">Octavos</button>
@@ -703,24 +706,29 @@
             let sHTMLA = safeA.replace(/"/g, '&quot;');
             let sHTMLB = safeB.replace(/"/g, '&quot;');
 
-            // Tick interactivo para la UI centrada
-            let checkA = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[9px] sm:text-[10px] text-slate-400">✓</span>`;
-            let checkB = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[9px] sm:text-[10px] text-slate-400">✓</span>`;
+            let checkA = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
+            let checkB = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
             
-            if(winA) checkA = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
-            if(winB) checkB = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
+            if(winA) checkA = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
+            if(winB) checkB = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
 
             return `
             <div class="bracket-card">
-                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLA}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winA ? 'selected-win' : 'hover:bg-slate-50 dark:hover:bg-slate-800/80'}">
-                    ${fA ? `<img src="${fA}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></div>'}
-                    <span class="font-black text-xs sm:text-sm text-center w-10 ${winA ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeA}</span>
-                    ${safeA ? checkA : '<div class="w-4 h-4 sm:w-5 sm:h-5"></div>'}
+                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLA}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winA ? 'selected-win' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${fA ? `<img src="${fA}" class="w-5 h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-5 h-5 shrink-0"></div>'}
+                        <span class="font-black text-sm truncate ${winA ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeA}</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px] font-medium hidden sm:inline-block">${safeA}</span>
+                    </div>
+                    ${safeA ? checkA : ''}
                 </div>
-                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLB}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winB ? 'selected-win' : 'hover:bg-slate-50 dark:hover:bg-slate-800/80'}">
-                    ${fB ? `<img src="${fB}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></div>'}
-                    <span class="font-black text-xs sm:text-sm text-center w-10 ${winB ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeB}</span>
-                    ${safeB ? checkB : '<div class="w-4 h-4 sm:w-5 sm:h-5"></div>'}
+                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLB}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winB ? 'selected-win' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${fB ? `<img src="${fB}" class="w-5 h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-5 h-5 shrink-0"></div>'}
+                        <span class="font-black text-sm truncate ${winB ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeB}</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px] font-medium hidden sm:inline-block">${safeB}</span>
+                    </div>
+                    ${safeB ? checkB : ''}
                 </div>
             </div>`;
         }
@@ -1101,6 +1109,61 @@
                     </div>`;
                 }
             });
+        }
+
+        function getFlagUrl(n) { const strName = String(n || ""); const t = equiposGlobales.find(e => e.name === strName); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        function cambiarTab(n) { 
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
+            document.getElementById('tab-'+n).classList.add('active'); 
+            ['pronosticos','bonus','ranking','simulador'].forEach(t => {
+                const el = document.getElementById('btn-tab-'+t);
+                if(el) el.className = t===n ? "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all" : "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all";
+            });
+            mostrarPantalla('main-app-screen'); 
+        }
+
+        async function guardarUnPartido(matchId) {
+            const gA = document.getElementById(`goles_a_${matchId}`).value;
+            const gB = document.getElementById(`goles_b_${matchId}`).value;
+            
+            if (gA === "" || gB === "") {
+                alert("Tenés que completar los goles de ambos equipos antes de guardar.");
+                return;
+            }
+
+            const btn = document.getElementById(`btn-save-${matchId}`);
+            btn.innerText = "⏳";
+            btn.disabled = true;
+
+            const payload = { 
+                action: "save_predictions", 
+                user_email: currentUser.email, 
+                predictions: [{ match_id: matchId, pred_a: parseInt(gA), pred_b: parseInt(gB) }] 
+            };
+
+            try { 
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const result = await response.json();
+                
+                if (result.status === "error") {
+                    alert(result.message);
+                    btn.innerText = "Guardar";
+                    btn.disabled = false;
+                    return;
+                }
+                
+                btn.innerText = "✅";
+                btn.classList.replace('bg-green-600', 'bg-slate-500');
+                setTimeout(() => { 
+                    btn.innerText = "Guardar"; 
+                    btn.disabled = false; 
+                    btn.classList.replace('bg-slate-500', 'bg-green-600');
+                }, 2000);
+            } catch(e) { 
+                alert("Error al guardar."); 
+                btn.innerText = "Guardar";
+                btn.disabled = false;
+            }
         }
 
         async function procesarAuth() {
