@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,11 +25,11 @@
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         
-        /* Estilos ultra compactos para la llave del simulador */
-        .bracket-match { @apply w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded shadow-sm flex flex-col justify-center overflow-hidden; }
-        .bracket-team { @apply px-0.5 py-1 sm:px-1 sm:py-1.5 flex items-center justify-between font-medium text-slate-800 dark:text-slate-200 transition-colors; }
-        .bracket-team.winner { @apply bg-green-50 dark:bg-green-900/20; }
-        .bracket-divider { @apply border-b border-slate-200 dark:border-slate-800 w-full; }
+        .sim-round-panel { display: none; }
+        .sim-round-panel.active { display: grid; }
+        .bracket-card { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-md flex flex-col gap-2 transition-all; }
+        .bracket-row { @apply flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900 transition-all cursor-pointer; }
+        .bracket-row.selected-win { @apply border-green-500 bg-green-500/10 dark:bg-green-500/10; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-10 min-h-screen transition-colors duration-300">
@@ -265,28 +265,47 @@
                     Compartir en WhatsApp
                 </button>
             </div>
-
-            <!-- 🔥 PESTAÑA DE SIMULADOR DE LLAVES -->
+            
+            <!-- 🔥 PESTAÑA DEL SIMULADOR DE LLAVES -->
             <div id="tab-simulador" class="tab-content">
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm mb-6">
                     <h3 class="text-green-600 dark:text-green-400 font-bold text-lg mb-2">Simulador de Eliminatorias</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-6">Elegí el 1ro, 2do y hasta un 3ro (si corresponde) de cada grupo para armar tu llave ideal. ¡Ojo, solo avanzan 8 terceros en total!</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-5">Toca los equipos de cada grupo para definir posiciones: <strong>1º clic (Oro)</strong>, <strong>2º clic (Plata)</strong>, <strong>3º clic (Bronce)</strong>.</p>
                     
-                    <div id="sim-groups-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+                    <!-- 1. Los 12 Grupos con Pills -->
+                    <div id="sim-groups-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                         <div class="text-center text-slate-500 animate-pulse col-span-full">Cargando grupos...</div>
                     </div>
                     
+                    <!-- 2. Urna de mejores terceros -->
+                    <div id="sim-thirds-section" class="hidden border-t border-slate-200 dark:border-slate-800 pt-4 mb-6">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-2">🗳️ Seleccionar los 8 Mejores Terceros (en orden del 1 al 8)</h4>
+                        <p class="text-[11px] text-slate-500 mb-3">Tocá en orden desde el mejor tercero (1) hasta el octavo (8).</p>
+                        <div id="sim-thirds-container" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    
                     <button onclick="generarLlaveSimulador()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all shadow-sm">
-                        Generar Llave de 16avos 🏆
+                        Generar Fase Final 🏆
                     </button>
                     <div id="sim-error-msg" class="text-red-600 dark:text-red-400 text-xs text-center font-bold mt-3 hidden"></div>
                 </div>
 
-                <div id="sim-bracket-container" class="hidden bg-slate-50 dark:bg-slate-950 p-1 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full overflow-hidden">
-                    <h3 class="text-center font-bold text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-[10px] sm:text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
+                <!-- 3. Contenedor de las llaves sin scroll horizontal -->
+                <div id="sim-bracket-container" class="hidden bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 w-full shadow-sm">
+                    <h3 class="text-center font-black text-slate-800 dark:text-slate-200 mb-4 tracking-widest text-xs uppercase">FASE ELIMINACION DIRECTA</h3>
                     
-                    <!-- Contenedor Ultra Compacto Flex (Se adapta a la pantalla) -->
-                    <div class="flex justify-between w-full gap-0.5 sm:gap-1 pb-2" id="sim-bracket-render"></div>
+                    <!-- Pestañas internas para cambiar de fase sin desbordar la pantalla -->
+                    <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg mb-4 text-[10px] sm:text-xs font-bold border border-slate-200 dark:border-slate-800">
+                        <button onclick="cambiarFaseInterna('R32')" id="btn-fase-R32" class="flex-1 py-1.5 rounded text-white bg-slate-700">16avos</button>
+                        <button onclick="cambiarFaseInterna('R16')" id="btn-fase-R16" class="flex-1 py-1.5 rounded text-slate-400">Octavos</button>
+                        <button onclick="cambiarFaseInterna('QF')" id="btn-fase-QF" class="flex-1 py-1.5 rounded text-slate-400">Cuartos</button>
+                        <button onclick="cambiarFaseInterna('SF')" id="btn-fase-SF" class="flex-1 py-1.5 rounded text-slate-400">Semis</button>
+                        <button onclick="cambiarFaseInterna('F')" id="btn-fase-F" class="flex-1 py-1.5 rounded text-slate-400">FINAL</button>
+                    </div>
+
+                    <div id="sim-bracket-render" class="w-full">
+                        <!-- Los paneles de cada fase se renderizan acá -->
+                    </div>
                 </div>
             </div>
             
@@ -309,7 +328,18 @@
         let currentUser = null;
         let authMode = 'login';
         
-        // Diccionario Global FIFA para todo el sistema
+        let simGruposData = {}; 
+        let simMejoresTerceros = []; 
+        let faseActivaInterna = 'R32';
+
+        let simBracketState = {
+            R32: Array(16).fill({a: null, b: null, winner: null}),
+            R16: Array(8).fill({a: null, b: null, winner: null}),
+            QF: Array(4).fill({a: null, b: null, winner: null}),
+            SF: Array(2).fill({a: null, b: null, winner: null}),
+            F: Array(1).fill({a: null, b: null, winner: null})
+        };
+
         const fifaCodes = {
             "méxico":"MEX", "sudáfrica":"RSA", "corea del sur":"KOR", "república checa":"CZE",
             "canadá":"CAN", "bosnia y herzegovina":"BIH", "estados unidos":"USA", "paraguay":"PAR",
@@ -325,26 +355,11 @@
             "ghana":"GHA", "panamá":"PAN", "uzbekistán":"UZB", "colombia":"COL"
         };
 
-        // Estado Global del Simulador
-        let simBracketState = {
-            R32: Array(16).fill({a: null, b: null}),
-            R16: Array(8).fill({a: null, b: null}),
-            QF: Array(4).fill({a: null, b: null}),
-            SF: Array(2).fill({a: null, b: null}),
-            F: Array(1).fill({a: null, b: null})
-        };
-
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.theme = 'light';
-            } else {
-                html.classList.add('dark');
-                localStorage.theme = 'dark';
-            }
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
+            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
-
         function togglePassword() { const input = document.getElementById('auth-password'); input.type = input.type === 'password' ? 'text' : 'password'; }
         function cerrarSesion() { localStorage.removeItem('prode_user'); currentUser = null; checkSession(); }
         function toggleReglas() { document.getElementById('modal-reglas').classList.toggle('active'); }
@@ -356,50 +371,33 @@
                 container.classList.remove('hidden'); container.classList.add('flex'); arrow.innerText = '▲';
                 const msgBox = document.getElementById('chat-messages');
                 msgBox.scrollTop = msgBox.scrollHeight;
-            } else {
-                container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼';
-            }
+            } else { container.classList.add('hidden'); container.classList.remove('flex'); arrow.innerText = '▼'; }
         }
 
         function dibujarChat(mensajes) {
             const box = document.getElementById('chat-messages');
-            if (!mensajes || mensajes.length === 0) {
-                box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>';
-                return;
-            }
+            if (!mensajes || mensajes.length === 0) { box.innerHTML = '<div class="text-center text-slate-500 italic text-xs mt-4">No hay mensajes todavia.</div>'; return; }
             box.innerHTML = '';
             mensajes.forEach(m => {
                 const esMio = (m.name === currentUser.name);
                 const align = esMio ? 'items-end' : 'items-start';
                 const bg = esMio ? 'bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100' : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200';
-                
-                box.innerHTML += `
-                    <div class="flex flex-col ${align} w-full">
-                        <span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${m.name}</span>
-                        <div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div>
-                    </div>`;
+                box.innerHTML += `<div class="flex flex-col ${align} w-full"><span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${m.name}</span><div class="${bg} px-3 py-2 rounded-xl max-w-[85%] break-words shadow-sm">${m.msg}</div></div>`;
             });
             box.scrollTop = box.scrollHeight;
         }
 
         async function enviarChat() {
             const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if(!msg) return;
-
-            const btn = document.getElementById('btn-enviar-chat');
-            btn.disabled = true; btn.innerText = "⏳";
-            
+            const msg = input.value.trim(); if(!msg) return;
+            const btn = document.getElementById('btn-enviar-chat'); btn.disabled = true; btn.innerText = "⏳";
             const box = document.getElementById('chat-messages');
             box.innerHTML += `<div class="flex flex-col items-end w-full opacity-50"><span class="text-[10px] text-slate-500 dark:text-slate-500 mb-0.5 px-1">${currentUser.name}</span><div class="bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-800/50 text-green-800 dark:text-green-100 px-3 py-2 rounded-xl max-w-[85%] break-words">${msg}</div></div>`;
-            box.scrollTop = box.scrollHeight;
-            input.value = "";
-
+            box.scrollTop = box.scrollHeight; input.value = "";
             try {
                 await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "send_chat", name: currentUser.name, message: msg }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
                 cargarData(); 
             } catch(e) { alert("Error al enviar"); }
-            
             btn.disabled = false; btn.innerText = "Enviar";
         }
 
@@ -416,8 +414,7 @@
                 if(currentUser.is_approved) { 
                     mostrarPantalla('main-app-screen'); 
                     document.getElementById('user-display-name').innerText = currentUser.name;
-                    actualizarCartelPago(currentUser.has_paid);
-                    cargarData(); 
+                    actualizarCartelPago(currentUser.has_paid); cargarData(); 
                 } else { mostrarPantalla('pending-screen'); }
             } else { mostrarPantalla('auth-screen'); }
         }
@@ -443,7 +440,6 @@
                 }
 
                 if(res.chatMessages) dibujarChat(res.chatMessages); 
-                
                 currentUser.has_paid = res.userPaid;
                 localStorage.setItem('prode_user', JSON.stringify(currentUser));
                 actualizarCartelPago(res.userPaid);
@@ -451,8 +447,7 @@
                 let options = '<option value="">Elegí...</option>';
                 equiposGlobales.forEach(e => options += `<option value="${e.name}">${e.name}</option>`);
                 ['bonus-campeon','bonus-subcampeon','bonus-decepcion','bonus-surprise_team'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if(el) el.innerHTML = options;
+                    const el = document.getElementById(id); if(el) el.innerHTML = options;
                 });
                 
                 if(res.userBonus) {
@@ -468,123 +463,186 @@
                     document.getElementById('bonus-bomb').value = res.userBonus.bomb || "";
                 }
 
-                const lockDateBonus = new Date("2026-06-11T18:59:00Z").getTime();
-                if (new Date().getTime() >= lockDateBonus) {
-                    document.querySelectorAll('.bonus-input').forEach(el => {
-                        el.disabled = true;
-                        el.classList.add('opacity-50', 'cursor-not-allowed');
-                    });
-                }
-
                 renderizarOjoDelPueblo(res.allBonus); renderizarContenido(res, 'groups-nav', 'matches-container', false); dibujarRanking(res.ranking);
                 
-                // INICIALIZAMOS EL SIMULADOR
-                inicializarSimuladorGrupos();
+                inicializarSimuladorEstructura();
             } catch(e) { console.error(e); }
         }
 
-        // --- INICIO LÓGICA DEL SIMULADOR ---
+        // --- 🕹️ NÚCLEO AVANZADO DEL SIMULADOR ---
 
-        function inicializarSimuladorGrupos() {
-            let grupos = {};
+        function inicializarSimuladorEstructura() {
+            if (Object.keys(simGruposData).length > 0) return; 
+
+            let gruposTemp = {};
             partidosGlobales.forEach(p => {
-                let gr = p.group || "Sin Grupo";
-                if (!grupos[gr]) grupos[gr] = new Set();
-                if (p.team_a) grupos[gr].add(p.team_a);
-                if (p.team_b) grupos[gr].add(p.team_b);
+                let gr = p.group;
+                if (!gr) return; 
+                let grStr = String(gr);
+                if (grStr.toLowerCase().includes('octavo') || grStr.toLowerCase().includes('cuarto') || grStr.toLowerCase().includes('semi') || grStr.toLowerCase().includes('final')) return;
+                
+                if (!gruposTemp[grStr]) gruposTemp[grStr] = new Set();
+                if (p.team_a) gruposTemp[grStr].add(p.team_a);
+                if (p.team_b) gruposTemp[grStr].add(p.team_b);
             });
             
+            Object.keys(gruposTemp).sort().forEach(gNombre => {
+                if(gruposTemp[gNombre].size >= 3 && gruposTemp[gNombre].size <= 4) {
+                    simGruposData[gNombre] = {
+                        teams: Array.from(gruposTemp[gNombre]).sort(),
+                        slots: [null, null, null] 
+                    };
+                }
+            });
+            dibujarPillsGrupos();
+        }
+
+        function dibujarPillsGrupos() {
             let html = '';
-            Object.keys(grupos).sort().forEach(gNombre => {
-                let equipos = Array.from(grupos[gNombre]).sort();
-                let opts = `<option value="">Elegí...</option>` + equipos.map(e => `<option value="${e}">${e}</option>`).join('');
+            Object.keys(simGruposData).forEach(gNombre => {
+                const gObj = simGruposData[gNombre];
+                let pillsHtml = '';
+                
+                gObj.teams.forEach(tName => {
+                    const idxSlot = gObj.slots.indexOf(tName);
+                    let badgeStyle = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800';
+                    let labelPos = '';
+                    
+                    if(idxSlot === 0) { badgeStyle = 'bg-amber-500 border border-amber-600 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(1º)</span>'; }
+                    else if(idxSlot === 1) { badgeStyle = 'bg-slate-400 border border-slate-500 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(2º)</span>'; }
+                    else if(idxSlot === 2) { badgeStyle = 'bg-amber-700 border border-amber-800 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(3º)</span>'; }
+                    else if(gObj.slots.filter(s => s !== null).length === 3) {
+                        badgeStyle = 'bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-900/60 opacity-40 cursor-not-allowed';
+                    }
+
+                    pillsHtml += `
+                    <button data-grupo="${gNombre.replace(/"/g, '&quot;')}" data-team="${tName.replace(/"/g, '&quot;')}" onclick="clickTeamPill(this)" class="px-2 py-1.5 text-[10px] rounded transition-all flex items-center justify-between truncate shadow-sm ${badgeStyle}">
+                        <span class="truncate">${tName}</span>${labelPos}
+                    </button>`;
+                });
+
                 html += `
-                <div class="bg-slate-50 dark:bg-slate-950 p-2 sm:p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-                    <h4 class="font-bold text-center mb-2 text-slate-800 dark:text-slate-200 text-[10px] sm:text-xs uppercase">${gNombre}</h4>
-                    <select id="sim-${gNombre}-1" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
-                        <option value="">🥇 1ro</option>${opts}
-                    </select>
-                    <select id="sim-${gNombre}-2" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full mb-1.5 p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
-                        <option value="">🥈 2do</option>${opts}
-                    </select>
-                    <select id="sim-${gNombre}-3" onchange="actualizarSelectsGrupo('${gNombre}')" class="w-full p-1 text-[9px] sm:text-[10px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded outline-none focus:border-green-500 text-slate-900 dark:text-white">
-                        <option value="">🥉 3ro (Opcional)</option>${opts}
-                    </select>
+                <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="font-black text-center mb-3 text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">${gNombre}</h4>
+                    <div class="grid grid-cols-1 gap-2">${pillsHtml}</div>
                 </div>`;
             });
             document.getElementById('sim-groups-container').innerHTML = html;
+            actualizarSeccionTerceros();
         }
 
-        // Filtro Anti-Trampas para que no elijan al mismo equipo 2 veces
-        function actualizarSelectsGrupo(grupo) {
-            const val1 = document.getElementById(`sim-${grupo}-1`).value;
-            const val2 = document.getElementById(`sim-${grupo}-2`).value;
-            const val3 = document.getElementById(`sim-${grupo}-3`).value;
+        function clickTeamPill(el) {
+            const grupo = el.getAttribute('data-grupo');
+            const team = el.getAttribute('data-team');
+            const gObj = simGruposData[grupo];
+            const idxSlot = gObj.slots.indexOf(team);
+
+            if (idxSlot > -1) {
+                gObj.slots[idxSlot] = null;
+                if(idxSlot === 2) simMejoresTerceros = simMejoresTerceros.filter(t => t !== team);
+            } else {
+                const freeSlot = gObj.slots.indexOf(null);
+                if (freeSlot > -1) {
+                    gObj.slots[freeSlot] = team;
+                }
+            }
+            dibujarPillsGrupos();
+        }
+
+        function actualizarSeccionTerceros() {
+            const containerSec = document.getElementById('sim-thirds-section');
+            const containerBox = document.getElementById('sim-thirds-container');
             
-            const selected = [val1, val2, val3].filter(v => v !== "");
-            
-            [1, 2, 3].forEach(pos => {
-                const select = document.getElementById(`sim-${grupo}-${pos}`);
-                const currentValue = select.value;
-                Array.from(select.options).forEach(opt => {
-                    if (opt.value === "") return;
-                    if (selected.includes(opt.value) && opt.value !== currentValue) {
-                        opt.disabled = true;
-                        opt.classList.add('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
-                    } else {
-                        opt.disabled = false;
-                        opt.classList.remove('opacity-50', 'bg-slate-200', 'dark:bg-slate-800');
-                    }
-                });
+            let candidatosTerceros = [];
+            Object.keys(simGruposData).forEach(g => {
+                if(simGruposData[g].slots[2]) candidatosTerceros.push(simGruposData[g].slots[2]);
             });
+
+            if(candidatosTerceros.length === 0) { containerSec.classList.add('hidden'); return; }
+            containerSec.classList.remove('hidden');
+
+            simMejoresTerceros = simMejoresTerceros.filter(t => candidatosTerceros.includes(t));
+
+            let html = '';
+            candidatosTerceros.sort().forEach(tName => {
+                const rankIdx = simMejoresTerceros.indexOf(tName);
+                let style = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800';
+                let indicator = '';
+
+                if (rankIdx > -1) {
+                    style = 'bg-green-500 border border-green-600 text-white font-bold';
+                    indicator = `<span class="w-4 h-4 bg-white text-green-600 rounded-full inline-flex items-center justify-center text-[9px] font-black shadow-sm">${rankIdx + 1}</span>`;
+                }
+
+                html += `
+                <button data-team="${tName.replace(/"/g, '&quot;')}" onclick="clickTerceroUrna(this)" class="px-3 py-2 text-xs rounded-lg transition-all flex items-center gap-2 shadow-sm ${style}">
+                    <span>${tName}</span>${indicator}
+                </button>`;
+            });
+            containerBox.innerHTML = html;
+        }
+
+        function clickTerceroUrna(el) {
+            const team = el.getAttribute('data-team');
+            const idx = simMejoresTerceros.indexOf(team);
+            if (idx > -1) {
+                simMejoresTerceros.splice(idx, 1);
+            } else {
+                if (simMejoresTerceros.length < 8) simMejoresTerceros.push(team);
+            }
+            actualizarSeccionTerceros();
         }
 
         function generarLlaveSimulador() {
             const errorMsg = document.getElementById('sim-error-msg');
-            let primeros = [], segundos = [], terceros = [];
-            let duplicateError = false;
-            let gruposMap = {};
-            
-            document.querySelectorAll('[id^="sim-Grupo"]').forEach(sel => {
-                if (sel.value) {
-                    let parts = sel.id.split('-');
-                    let grupo = parts[1]; let pos = parts[2];
-                    if(!gruposMap[grupo]) gruposMap[grupo] = new Set();
-                    if(gruposMap[grupo].has(sel.value)) duplicateError = true;
-                    gruposMap[grupo].add(sel.value);
-                    
-                    if (pos === "1") primeros.push(sel.value);
-                    if (pos === "2") segundos.push(sel.value);
-                    if (pos === "3") terceros.push(sel.value);
-                }
+            let primeros = [], segundos = [];
+            let errorFalta = false;
+
+            Object.keys(simGruposData).forEach(g => {
+                const s = simGruposData[g].slots;
+                if(!s[0] || !s[1]) errorFalta = true;
+                if(s[0]) primeros.push(s[0]);
+                if(s[1]) segundos.push(s[1]);
             });
 
-            if (duplicateError) {
-                errorMsg.innerText = "🚨 Error: Pusiste al mismo equipo 2 veces en el mismo grupo.";
+            if (errorFalta) {
+                errorMsg.innerText = "🚨 Error: Tenés que elegir el 1º y 2º puesto de TODOS los grupos antes de continuar.";
                 errorMsg.classList.remove('hidden'); return;
             }
-            if (primeros.length !== 12 || segundos.length !== 12) {
-                errorMsg.innerText = "🚨 Error: Faltan elegir los 1ros o 2dos puestos de algunos grupos.";
-                errorMsg.classList.remove('hidden'); return;
-            }
-            if (terceros.length !== 8) {
-                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a 8 mejores terceros (elegiste ${terceros.length}).`;
+            if (simMejoresTerceros.length !== 8) {
+                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a los 8 mejores terceros en la urna inferior (elegiste ${simMejoresTerceros.length}).`;
                 errorMsg.classList.remove('hidden'); return;
             }
 
             errorMsg.classList.add('hidden');
             
             let equipos32 = [];
-            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(terceros[i]); }
+            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(simMejoresTerceros[7-i]); }
             for(let i=8; i<12; i++) { equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); }
-            for(let i=4; i<12; i++) { equipos32.push(segundos[i]); }
+            for(let i=4; i<8; i++) { equipos32.push(segundos[i]); equipos32.push(segundos[i+4]); }
 
-            simBracketState = { R32: [], R16: Array(8).fill({a:null, b:null}), QF: Array(4).fill({a:null, b:null}), SF: Array(2).fill({a:null, b:null}), F: Array(1).fill({a:null, b:null}) };
+            simBracketState = { 
+                R32: [], 
+                R16: Array(8).fill({a:null, b:null, winner:null}), 
+                QF: Array(4).fill({a:null, b:null, winner:null}), 
+                SF: Array(2).fill({a:null, b:null, winner:null}), 
+                F: Array(1).fill({a:null, b:null, winner:null}) 
+            };
             for (let i = 0; i < 16; i++) {
                 simBracketState.R32.push({ a: equipos32[i*2], b: equipos32[i*2+1], winner: null });
             }
             
             document.getElementById('sim-bracket-container').classList.remove('hidden');
+            cambiarFaseInterna('R32'); 
+        }
+
+        function cambiarFaseInterna(faseId) {
+            faseActivaInterna = faseId;
+            document.querySelectorAll('[id^="btn-fase-"]').forEach(btn => {
+                btn.className = "flex-1 py-1.5 rounded text-slate-500 dark:text-slate-400 transition-all font-semibold hover:bg-slate-200 dark:hover:bg-slate-800";
+            });
+            const activeBtn = document.getElementById(`btn-fase-${faseId}`);
+            if(activeBtn) activeBtn.className = "flex-1 py-1.5 rounded text-white bg-green-500 shadow-sm font-bold transition-all";
             dibujarLlave();
         }
 
@@ -604,7 +662,6 @@
                 if (esLadoA) nextMatch.a = equipoGanador;
                 else nextMatch.b = equipoGanador;
                 
-                // Si cambiás de opinión y elegís al otro, se borra el camino viejo
                 if (simBracketState[nextRonda][nextMatchIndex][esLadoA?'a':'b'] !== equipoGanador) {
                      nextMatch.winner = null;
                      limpiarCascada(nextRonda, nextMatchIndex);
@@ -612,6 +669,13 @@
                 simBracketState[nextRonda][nextMatchIndex] = nextMatch;
             }
             dibujarLlave();
+        }
+
+        function avanzarEnLlaveBtn(el) {
+            const ronda = el.getAttribute('data-ronda');
+            const index = parseInt(el.getAttribute('data-index'));
+            const team = el.getAttribute('data-team');
+            avanzarEnLlave(ronda, index, team);
         }
 
         function limpiarCascada(rondaDesde, matchIndex) {
@@ -626,81 +690,96 @@
             }
         }
 
-        // UI Ultra-Compacta de un Partido
-        function renderMatchBox(ronda, index, match) {
+        function renderMatchCard(ronda, index, match) {
             let winA = match.winner === match.a && match.a;
             let winB = match.winner === match.b && match.b;
-            let fA = match.a ? getFlagUrl(match.a) : '';
-            let fB = match.b ? getFlagUrl(match.b) : '';
             
-            let codeA = match.a ? (fifaCodes[match.a.toLowerCase().trim()] || match.a.substring(0,3).toUpperCase()) : '---';
-            let codeB = match.b ? (fifaCodes[match.b.toLowerCase().trim()] || match.b.substring(0,3).toUpperCase()) : '---';
+            let safeA = String(match.a || "");
+            let safeB = String(match.b || "");
             
-            let btnA = match.a ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.a}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
-            let btnB = match.b ? `<button onclick="avanzarEnLlave('${ronda}', ${index}, '${match.b}')" class="shrink-0 text-[8px] bg-slate-200 dark:bg-slate-700 hover:bg-green-500 hover:text-white rounded-full w-4 h-4 flex items-center justify-center transition-colors">✓</button>` : '';
+            let fA = safeA ? getFlagUrl(safeA) : '';
+            let fB = safeB ? getFlagUrl(safeB) : '';
+            
+            let codeA = safeA ? (fifaCodes[safeA.toLowerCase().trim()] || safeA.substring(0,3).toUpperCase()) : '---';
+            let codeB = safeB ? (fifaCodes[safeB.toLowerCase().trim()] || safeB.substring(0,3).toUpperCase()) : '---';
+            
+            let sHTMLA = safeA.replace(/"/g, '&quot;');
+            let sHTMLB = safeB.replace(/"/g, '&quot;');
 
-            if (winA) { btnA = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnB = ''; }
-            if (winB) { btnB = `<span class="shrink-0 text-[10px] text-green-600 dark:text-green-400 font-black w-4 h-4 flex items-center justify-center">✓</span>`; btnA = ''; }
+            let checkA = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
+            let checkB = `<span class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[10px] text-slate-400">✓</span>`;
             
+            if(winA) checkA = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
+            if(winB) checkB = `<span class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
+
             return `
-            <div class="bracket-match">
-                <div class="bracket-team ${winA ? 'winner' : ''}">
-                    <div class="flex items-center gap-1 overflow-hidden">
-                        ${fA ? `<img src="${fA}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
-                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeA}</span>
+            <div class="bracket-card">
+                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLA}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winA ? 'selected-win' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${fA ? `<img src="${fA}" class="w-5 h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-5 h-5 shrink-0"></div>'}
+                        <span class="font-black text-sm truncate ${winA ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeA}</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px] font-medium hidden sm:inline-block">${safeA}</span>
                     </div>
-                    ${btnA}
+                    ${safeA ? checkA : ''}
                 </div>
-                <div class="bracket-divider"></div>
-                <div class="bracket-team ${winB ? 'winner' : ''}">
-                    <div class="flex items-center gap-1 overflow-hidden">
-                        ${fB ? `<img src="${fB}" class="w-3 h-3 sm:w-4 sm:h-4 shrink-0 rounded-full border border-slate-300 dark:border-slate-600">` : '<div class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"></div>'}
-                        <span class="text-[7px] sm:text-[9px] font-bold truncate">${codeB}</span>
+                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLB}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winB ? 'selected-win' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        ${fB ? `<img src="${fB}" class="w-5 h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-5 h-5 shrink-0"></div>'}
+                        <span class="font-black text-sm truncate ${winB ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeB}</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px] font-medium hidden sm:inline-block">${safeB}</span>
                     </div>
-                    ${btnB}
+                    ${safeB ? checkB : ''}
                 </div>
             </div>`;
         }
 
         function dibujarLlave() {
             const b = simBracketState;
-            const renderDiv = document.getElementById('sim-bracket-render');
-            
-            let colL1 = '', colL2 = '', colL3 = '', colL4 = '';
-            for(let i=0; i<8; i++) colL1 += renderMatchBox('R32', i, b.R32[i]);
-            for(let i=0; i<4; i++) colL2 += renderMatchBox('R16', i, b.R16[i]);
-            for(let i=0; i<2; i++) colL3 += renderMatchBox('QF', i, b.QF[i]);
-            colL4 += renderMatchBox('SF', 0, b.SF[0]);
+            const container = document.getElementById('sim-bracket-render');
+            let html = '';
 
-            let finalBox = `
-            <div class="flex flex-col justify-center items-center flex-1 px-0.5">
-                <div class="text-gold font-black mb-1 text-[7px] sm:text-[9px] uppercase tracking-widest bg-gold/10 px-1 py-0.5 rounded border border-gold/30">FINAL</div>
-                ${renderMatchBox('F', 0, b.F[0])}
-                ${b.F[0].winner ? `<div class="mt-2 text-center animate-bounce text-[8px] sm:text-xs font-black text-green-500">🏆<br>${fifaCodes[b.F[0].winner.toLowerCase().trim()] || b.F[0].winner.substring(0,3).toUpperCase()}</div>` : ''}
-            </div>`;
-
-            let colR4 = '', colR3 = '', colR2 = '', colR1 = '';
-            colR4 += renderMatchBox('SF', 1, b.SF[1]);
-            for(let i=2; i<4; i++) colR3 += renderMatchBox('QF', i, b.QF[i]);
-            for(let i=4; i<8; i++) colR2 += renderMatchBox('R16', i, b.R16[i]);
-            for(let i=8; i<16; i++) colR1 += renderMatchBox('R32', i, b.R32[i]);
-
-            renderDiv.innerHTML = `
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL1}</div>
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL2}</div>
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL3}</div>
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colL4}</div>
-                
-                ${finalBox}
-
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR4}</div>
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR3}</div>
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR2}</div>
-                <div class="flex flex-col justify-around gap-1 flex-1 h-[350px] sm:h-[450px]">${colR1}</div>
-            `;
+            if (faseActivaInterna === 'R32') {
+                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
+                for(let i=0; i<16; i++) html += renderMatchCard('R32', i, b.R32[i]);
+                html += `</div>`;
+            } 
+            else if (faseActivaInterna === 'R16') {
+                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
+                for(let i=0; i<8; i++) html += renderMatchCard('R16', i, b.R16[i]);
+                html += `</div>`;
+            } 
+            else if (faseActivaInterna === 'QF') {
+                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
+                for(let i=0; i<4; i++) html += renderMatchCard('QF', i, b.QF[i]);
+                html += `</div>`;
+            } 
+            else if (faseActivaInterna === 'SF') {
+                html = `<div class="grid grid-cols-1 gap-3 w-full max-w-md mx-auto">`;
+                for(let i=0; i<2; i++) html += renderMatchCard('SF', i, b.SF[i]);
+                html += `</div>`;
+            } 
+            else if (faseActivaInterna === 'F') {
+                html = `<div class="w-full max-w-sm mx-auto flex flex-col gap-4 text-center pb-8">
+                    <div class="text-gold font-black bg-gold/10 border border-gold/30 rounded-full py-2 text-sm uppercase tracking-widest mt-2">Gran Final</div>
+                    ${renderMatchCard('F', 0, b.F[0])}
+                `;
+                if(b.F[0].winner) {
+                    const winName = String(b.F[0].winner);
+                    const cW = fifaCodes[winName.toLowerCase().trim()] || winName.substring(0,3).toUpperCase();
+                    html += `
+                    <div class="p-6 bg-green-500/10 border border-green-500/30 rounded-2xl text-center shadow-xl animate-bounce mt-4">
+                        <div class="text-4xl mb-2">👑🏆👑</div>
+                        <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Campeón del Mundo</div>
+                        <div class="text-4xl font-black text-green-500">${cW}</div>
+                        <div class="text-sm text-slate-400 font-bold mt-1">${winName}</div>
+                    </div>`;
+                }
+                html += `</div>`;
+            }
+            container.innerHTML = html;
         }
-        // --- FIN LÓGICA DEL SIMULADOR ---
 
+        // --- FIN NÚCLEO DEL SIMULADOR ---
 
         function renderizarOjoDelPueblo(allBonus) {
             const sumContainer = document.getElementById('bonus-summary-container'); const tbBody = document.getElementById('bonus-table-body');
@@ -709,13 +788,13 @@
                 const counts = {};
                 allBonus.forEach(b => { 
                     if(b[field]) { 
-                        let valor = ['top_scorer', 'best_player', 'best_gk', 'revelation'].includes(field) ? b[field].trim().toUpperCase() : b[field]; 
+                        let valor = ['top_scorer', 'best_player', 'best_gk', 'revelation'].includes(field) ? String(b[field]).trim().toUpperCase() : b[field]; 
                         counts[valor] = (counts[valor] || 0) + 1; 
                     } 
                 });
                 const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
                 if(sorted.length === 0) return '<span class="text-slate-500 dark:text-slate-600">Sin votos</span>'; 
-                return sorted.map(e => `<span class="text-slate-800 dark:text-white capitalize">${e[0].toLowerCase()}</span> <span class="text-slate-600 dark:text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-400 dark:text-slate-600 mx-1">•</span> ');
+                return sorted.map(e => `<span class="text-slate-800 dark:text-white capitalize">${String(e[0]).toLowerCase()}</span> <span class="text-slate-600 dark:text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-400 dark:text-slate-600 mx-1">•</span> ');
             };
             
             sumContainer.innerHTML = `
@@ -770,18 +849,24 @@
             const isGlobalPaused = data.isGlobalPaused || false; 
 
             grupos.forEach((grupo, idx) => {
-                const cleanId = grupo.replace(/\s/g, ''); const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
+                const grpStr = String(grupo || "Mundial");
+                const cleanId = grpStr.replace(/\s/g, ''); 
+                const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
                 const tabStyle = idx === 0 ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400';
-                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grupo}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grupo}</button>`;
-                const partidosGrupo = partidos.filter(p => p.group === grupo); let ptsGrupo = 0;
+                
+                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grpStr.replace(/'/g, "\\'")}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grpStr}</button>`;
+                
+                const partidosGrupo = partidos.filter(p => p.group === grupo); 
+                let ptsGrupo = 0;
                 partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
+                
                 let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
                     <div class="bg-slate-100 dark:bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-300 dark:border-slate-800 shadow-inner"><span class="text-xs text-slate-600 dark:text-slate-400">Puntos en este grupo:</span><span class="text-green-600 dark:text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
                 
                 partidosGrupo.forEach(p => {
                     const pred = userPreds.find(up => up.match_id === p.id); 
-                    const sCode = (p.status || '').toUpperCase(); 
+                    const sCode = String(p.status || '').toUpperCase(); 
                     let sColor = 'bg-slate-400 dark:bg-slate-500', sText = 'PENDIENTE';
                     if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; } 
                     else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-500 dark:bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
@@ -792,14 +877,18 @@
                         else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-transparent px-2 py-0.5 rounded-full">+1 pt</span>';
                     }
 
-                    const matchTime = new Date(p.kickoff_time).getTime();
-                    const isMatchLocked = now >= matchTime;
+                    let d = new Date(p.kickoff_time);
+                    let timeStr = isNaN(d.getTime()) ? 'A definir' : d.toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) + ' hs';
+                    
+                    const matchTime = d.getTime();
+                    const isMatchLocked = !isNaN(matchTime) && now >= matchTime;
                     const disableInputs = isReadOnly || isMatchLocked || isGlobalPaused; 
                     
-                    let timeStr = new Date(p.kickoff_time).toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) + ' hs';
                     if(isMatchLocked) timeStr += ' <span class="text-red-500 dark:text-red-400 ml-1">🔒</span>'; 
                     
-                    const fA = getFlagUrl(p.team_a), fB = getFlagUrl(p.team_b);
+                    let tA = String(p.team_a || '');
+                    let tB = String(p.team_b || '');
+                    const fA = getFlagUrl(tA), fB = getFlagUrl(tB);
                     const boxStyle = (isMatchLocked || isGlobalPaused) ? 'opacity-70 grayscale-[30%]' : '';
 
                     let actionArea = '';
@@ -813,21 +902,25 @@
                         }
                     }
 
-                    html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}"><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400">${sText}</span></div><div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div></div><div class="flex justify-between items-center gap-1"><div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100">${p.team_a} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"></div><div class="flex gap-1 items-center shrink-0"><input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}"><span class="text-slate-400 dark:text-slate-600">-</span><input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}"></div><div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"> ${p.team_b}</div></div><div class="border-t border-slate-200 dark:border-slate-800/50 pt-2 mt-2 flex justify-between items-center"><button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="text-[9px] text-slate-500 uppercase tracking-tighter hover:text-slate-800 dark:hover:text-white transition-colors">Resultado Real ▼</button>${actionArea}</div><div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-2 text-center font-mono text-lg font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-950/50 rounded py-1 border border-slate-200 dark:border-slate-800/50">${(p.score_a !== "" && p.score_a !== undefined) ? p.score_a : '-'} - ${(p.score_b !== "" && p.score_b !== undefined) ? p.score_b : '-'}</div></div>`;
+                    html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}"><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400">${sText}</span></div><div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div></div><div class="flex justify-between items-center gap-1"><div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100">${tA} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"></div><div class="flex gap-1 items-center shrink-0"><input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}"><span class="text-slate-400 dark:text-slate-600">-</span><input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}"></div><div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"> ${tB}</div></div><div class="border-t border-slate-200 dark:border-slate-800/50 pt-2 mt-2 flex justify-between items-center"><button onclick="document.getElementById('${isReadOnly?'spy-':''}real_score_${p.id}').classList.toggle('hidden')" class="text-[9px] text-slate-500 uppercase tracking-tighter hover:text-slate-800 dark:hover:text-white transition-colors">Resultado Real ▼</button>${actionArea}</div><div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="hidden mt-2 text-center font-mono text-lg font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-950/50 rounded py-1 border border-slate-200 dark:border-slate-800/50">${(p.score_a !== "" && p.score_a !== undefined) ? p.score_a : '-'} - ${(p.score_b !== "" && p.score_b !== undefined) ? p.score_b : '-'}</div></div>`;
                 });
                 container.innerHTML += html + '</div>';
             });
         }
 
         function cambiarGrupoManual(grupo, isSpy) {
-            const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; const prefix = isSpy ? 'spy-' : '';
+            const grpStr = String(grupo);
+            const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; 
+            const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; 
+            const prefix = isSpy ? 'spy-' : '';
+            
             document.querySelectorAll(navSelector).forEach(b => { 
                 b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400`; 
-                if(b.innerText === grupo) { 
-                    b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; 
-                } 
+                if(b.innerText === grpStr) { b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; } 
             });
-            document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); document.getElementById('group-' + prefix + grupo.replace(/\s/g, '')).classList.add('active');
+            document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); 
+            const targetEl = document.getElementById('group-' + prefix + grpStr.replace(/\s/g, ''));
+            if(targetEl) targetEl.classList.add('active');
         }
 
         function calcularTabla(partidos, tipo, predicciones) {
@@ -835,7 +928,7 @@
             partidos.forEach(p => {
                 let gA = null, gB = null;
                 if(tipo === 'real') { 
-                    if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes((p.status||'').toUpperCase())) { 
+                    if (['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(String(p.status||'').toUpperCase())) { 
                         gA = (p.score_a !== "" && p.score_a !== undefined) ? parseInt(p.score_a) : parseInt(p.goles_a); 
                         gB = (p.score_b !== "" && p.score_b !== undefined) ? parseInt(p.score_b) : parseInt(p.goles_b); 
                     } 
@@ -906,15 +999,20 @@
                     
                     todosLosPartidos.forEach(m => {
                         const pred = res.userPredictions.find(up => up.match_id === m.id);
-                        const sCode = (m.status || '').toUpperCase();
+                        const sCode = String(m.status || '').toUpperCase();
                         const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
                         
                         const d = new Date(m.kickoff_time);
-                        const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                        const fechaStr = `<span class="whitespace-nowrap text-slate-700 dark:text-slate-500">${d.getDate()}/${d.getMonth()+1} <span class="text-slate-500 dark:text-slate-600 ml-0.5">${hora}</span></span>`;
+                        let fechaStr = '<span class="text-slate-400">A definir</span>';
+                        if (!isNaN(d.getTime())) {
+                            const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                            fechaStr = `<span class="whitespace-nowrap text-slate-700 dark:text-slate-500">${d.getDate()}/${d.getMonth()+1} <span class="text-slate-500 dark:text-slate-600 ml-0.5">${hora}</span></span>`;
+                        }
                         
-                        const cA = fifaCodes[m.team_a.toLowerCase().trim()] || m.team_a.substring(0,3).toUpperCase();
-                        const cB = fifaCodes[m.team_b.toLowerCase().trim()] || m.team_b.substring(0,3).toUpperCase();
+                        let tA = String(m.team_a || '');
+                        let tB = String(m.team_b || '');
+                        const cA = tA ? (fifaCodes[tA.toLowerCase().trim()] || tA.substring(0,3).toUpperCase()) : '---';
+                        const cB = tB ? (fifaCodes[tB.toLowerCase().trim()] || tB.substring(0,3).toUpperCase()) : '---';
                         const partidoStr = `<span class="font-bold text-slate-800 dark:text-slate-300">${cA}</span> <span class="text-slate-400 dark:text-slate-600 text-[8px] mx-0.5">-</span> <span class="font-bold text-slate-800 dark:text-slate-300">${cB}</span>`;
                         
                         let resFinalStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
@@ -1013,7 +1111,7 @@
             });
         }
 
-        function getFlagUrl(n) { const t = equiposGlobales.find(e => e.name === n); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
+        function getFlagUrl(n) { const strName = String(n || ""); const t = equiposGlobales.find(e => e.name === strName); return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; }
         function cambiarTab(n) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.getElementById('tab-'+n).classList.add('active'); 
@@ -1098,14 +1196,15 @@
         setInterval(() => {
             if (!partidosGlobales || partidosGlobales.length === 0) return;
             const now = new Date().getTime();
-            
             partidosGlobales.forEach(p => {
-                const matchTime = new Date(p.kickoff_time).getTime();
+                let d = new Date(p.kickoff_time);
+                if (isNaN(d.getTime())) return;
+                const matchTime = d.getTime();
+                
                 if (now >= matchTime) {
                     const inputA = document.getElementById(`goles_a_${p.id}`);
                     const inputB = document.getElementById(`goles_b_${p.id}`);
                     const btn = document.getElementById(`btn-save-${p.id}`);
-                    
                     if (inputA && !inputA.disabled) {
                         inputA.disabled = true; inputA.classList.add('cursor-not-allowed', 'opacity-70');
                         inputB.disabled = true; inputB.classList.add('cursor-not-allowed', 'opacity-70');
