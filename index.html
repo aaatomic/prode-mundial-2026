@@ -64,6 +64,9 @@
                         <li><span class="text-yellow-600 dark:text-yellow-500 font-bold">25 puntos:</span> Hay bombinigusini? 💣</li>
                     </ul>
                 </section>
+                <section class="bg-slate-100 dark:bg-slate-950 p-3 rounded-lg border border-slate-300 dark:border-slate-800 text-xs text-yellow-600 dark:text-yellow-500">
+                    <p>⚠️ <strong>Atención:</strong> Podés cambiar tu pronóstico hasta el momento exacto en que arranca cada partido. Luego de eso, se bloquea. <br><br><strong>Los Bonus ya están definitivamente cerrados.</strong></p>
+                </section>
             </div>
             <button onclick="toggleReglas()" class="w-full mt-6 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 py-3 rounded-xl font-bold transition-all text-slate-800 dark:text-white">Entendido</button>
         </div>
@@ -439,10 +442,11 @@
             }
         }
 
-        // 🔥 CARGADOR CENTRAL PROTEGIDO
+        // 🔥 FUNCION CENTRAL DE DATOS (CON TRY CATCH GLOBAL QUE NO ROMPE EL SCOPE)
         async function cargarData() {
+            let res;
             try {
-                const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
+                res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
                 
                 partidosGlobales = (res.matches || []).filter(m => m != null); 
                 equiposGlobales = (res.teams || []).filter(e => e != null);
@@ -483,10 +487,11 @@
                 }
 
             } catch(e) { 
-                console.error("Error al obtener datos:", e); 
+                console.error("Error crítico al obtener datos desde la API:", e); 
                 return;
             }
 
+            // Los llamados al renderizado van AFUERA del bloque try, pero AHORA SI conocen la variable "res"
             try { renderizarOjoDelPueblo((res.allBonus || []).filter(b => b != null)); } catch(e) { console.error("Error Bonus", e); }
             try { renderizarContenido(res, 'groups-nav', 'matches-container', false); } catch(e) { console.error("Error Partidos", e); }
             try { dibujarRanking((res.ranking || []).filter(r => r != null)); } catch(e) { console.error("Error Ranking", e); }
@@ -841,7 +846,6 @@
             `;
             
             let trHtml = '';
-            // Se le sacaron los candaditos a esta tabla
             allBonus.sort((a, b) => (a.name||'').localeCompare(b.name||'')).forEach(b => {
                 const isMe = b.email === currentUser.email;
                 let badge = isMe ? `<span class="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 px-1 text-[8px] ml-1">Vos</span>` : '';
@@ -924,12 +928,10 @@
                             } else if (isMatchLocked) {
                                 actionArea = `<span class="text-[9px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800/30 px-2 py-1 rounded">CERRADO</span>`;
                             } else {
-                                // 🔥 FIX CLAVE: LAS COMILLAS EN EL ID PARA QUE NO FALLE EL GUARDADO
                                 actionArea = `<button id="btn-save-${p.id}" onclick="guardarUnPartido('${p.id}')" class="bg-green-600 hover:bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-sm transition-colors">Guardar</button>`;
                             }
                         }
 
-                        // 🔥 Resultado Real SIEMPRE VISIBLE
                         html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}">
                             <div class="flex justify-between items-center mb-3">
                                 <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400">${sText}</span></div>
@@ -1167,50 +1169,6 @@
                     </div>`;
                 }
             });
-        }
-
-        async function guardarUnPartido(matchId) {
-            const gA = document.getElementById(`goles_a_${matchId}`).value;
-            const gB = document.getElementById(`goles_b_${matchId}`).value;
-            
-            if (gA === "" || gB === "") {
-                alert("Tenés que completar los goles de ambos equipos antes de guardar.");
-                return;
-            }
-
-            const btn = document.getElementById(`btn-save-${matchId}`);
-            btn.innerText = "⏳";
-            btn.disabled = true;
-
-            const payload = { 
-                action: "save_predictions", 
-                user_email: currentUser.email, 
-                predictions: [{ match_id: matchId, pred_a: parseInt(gA), pred_b: parseInt(gB) }] 
-            };
-
-            try { 
-                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
-                const result = await response.json();
-                
-                if (result.status === "error") {
-                    alert(result.message);
-                    btn.innerText = "Guardar";
-                    btn.disabled = false;
-                    return;
-                }
-                
-                btn.innerText = "✅";
-                btn.classList.replace('bg-green-600', 'bg-slate-500');
-                setTimeout(() => { 
-                    btn.innerText = "Guardar"; 
-                    btn.disabled = false; 
-                    btn.classList.replace('bg-slate-500', 'bg-green-600');
-                }, 2000);
-            } catch(e) { 
-                alert("Error al guardar."); 
-                btn.innerText = "Guardar";
-                btn.disabled = false;
-            }
         }
 
         async function procesarAuth() {
