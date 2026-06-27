@@ -163,7 +163,10 @@
                     <span class="text-[9px] font-extrabold bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-md">ESPN ↗</span>
                 </a>
 
-                <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+                <div id="groups-nav" class="grid grid-cols-4 sm:grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+                <div id="knockouts-divider" class="hidden my-3"><div class="h-px bg-slate-200 dark:bg-slate-800 w-full mb-2"></div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-2">Fase Final</div></div>
+                <div id="knockouts-nav" class="grid grid-cols-3 sm:grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+                
                 <div id="matches-container"></div>
             </div>
             
@@ -180,7 +183,6 @@
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">País Decepción (10 pts)</label><select id="bonus-decepcion" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white appearance-none opacity-50 cursor-not-allowed"></select></div>
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">País Revelación (10 pts)</label><select id="bonus-surprise_team" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white appearance-none opacity-50 cursor-not-allowed"></select></div>
                     </div>
-
                     <div class="bg-slate-50 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-800/50 p-4 mb-5 space-y-4">
                         <h4 class="text-slate-800 dark:text-slate-300 font-semibold mb-2 flex items-center gap-2">🏃‍♂️ Jugadores</h4>
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Goleador del Torneo (10 pts)</label><input type="text" id="bonus-goleador" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white opacity-50 cursor-not-allowed" placeholder="Ej: Messi"></div>
@@ -188,7 +190,6 @@
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Mejor Arquero (10 pts)</label><input type="text" id="bonus-best_gk" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white opacity-50 cursor-not-allowed" placeholder="Ej: Dibu Martínez"></div>
                         <div><label class="block text-sm text-slate-600 dark:text-slate-400 mb-1">Jugador Revelación (10 pts)</label><input type="text" id="bonus-revelation" disabled class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-3 outline-none focus:border-green-500 text-slate-900 dark:text-white opacity-50 cursor-not-allowed" placeholder="Ej: Lamine Yamal"></div>
                     </div>
-
                     <div class="bg-slate-50 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-800/50 p-4 space-y-4">
                         <h4 class="text-slate-800 dark:text-slate-300 font-semibold mb-2 flex items-center gap-2">✨ Extras</h4>
                         <div>
@@ -212,9 +213,7 @@
 
                 <div class="space-y-4">
                     <h3 class="text-xl font-bold text-center text-slate-800 dark:text-slate-300">👀 Esto pusieron todos...</h3>
-                    
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex flex-col gap-4" id="bonus-summary-container">Cargando estadísticas...</div>
-                    
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto no-scrollbar shadow-sm">
                         <table class="w-full text-left text-xs whitespace-nowrap">
                             <thead class="bg-slate-100 dark:bg-slate-950/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] tracking-wider">
@@ -255,7 +254,6 @@
                         </table>
                     </div>
                 </div>
-                
                 <button onclick="compartirRankingWhatsApp()" id="btn-share-wa" class="w-full mt-6 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(37,211,102,0.3)] flex justify-center items-center gap-2">
                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     Compartir en WhatsApp
@@ -306,7 +304,10 @@
                 <button onclick="mostrarPantalla('main-app-screen')" class="bg-slate-200 dark:bg-slate-800 p-2 rounded-lg text-slate-700 dark:text-slate-400">⬅️ Volver</button>
                 <div><h2 class="text-xl font-bold text-slate-800 dark:text-white">Viendo a: <span id="spy-user-name" class="text-green-600 dark:text-green-400">...</span></h2><p class="text-xs text-slate-500 dark:text-slate-500">Total: <span id="spy-user-points">0</span> pts</p></div>
             </div>
-            <div id="spy-groups-nav" class="grid grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+            <div id="spy-groups-nav" class="grid grid-cols-4 sm:grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+            <div id="spy-knockouts-divider" class="hidden my-3"><div class="h-px bg-slate-200 dark:bg-slate-800 w-full mb-2"></div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-2">Fase Final</div></div>
+            <div id="spy-knockouts-nav" class="grid grid-cols-3 sm:grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+            
             <div id="spy-matches-container"></div>
         </div>
     </div>
@@ -438,7 +439,56 @@
             }
         }
 
-        // 🔥 FUNCION CENTRAL DE DATOS (CON TRY CATCH GLOBAL QUE NO ROMPE EL SCOPE)
+        // 🔥 FUNCION DE UTILIDAD PARA DETECTAR FASES ELIMINATORIAS
+        function esKnockout(group) {
+            if (!group) return false;
+            const g = String(group).toLowerCase();
+            return g.includes('16') || g.includes('8vo') || g.includes('octavo') || g.includes('4to') || g.includes('cuarto') || g.includes('semi') || g.includes('final') || g.includes('tercer') || g.includes('3er');
+        }
+
+        async function guardarUnPartido(matchId) {
+            const gA = document.getElementById(`goles_a_${matchId}`).value;
+            const gB = document.getElementById(`goles_b_${matchId}`).value;
+            
+            if (gA === "" || gB === "") {
+                alert("Tenés que completar los goles de ambos equipos antes de guardar.");
+                return;
+            }
+
+            const btn = document.getElementById(`btn-save-${matchId}`);
+            if(btn) { btn.innerText = "⏳"; btn.disabled = true; }
+
+            const payload = { 
+                action: "save_predictions", 
+                user_email: currentUser.email, 
+                predictions: [{ match_id: matchId, pred_a: parseInt(gA), pred_b: parseInt(gB) }] 
+            };
+
+            try { 
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const result = await response.json();
+                
+                if (result.status === "error") {
+                    alert(result.message);
+                    if(btn) { btn.innerText = "Guardar"; btn.disabled = false; }
+                    return;
+                }
+                
+                if(btn) {
+                    btn.innerText = "✅";
+                    btn.classList.replace('bg-green-600', 'bg-slate-500');
+                    setTimeout(() => { 
+                        btn.innerText = "Guardar"; 
+                        btn.disabled = false; 
+                        btn.classList.replace('bg-slate-500', 'bg-green-600');
+                    }, 2000);
+                }
+            } catch(e) { 
+                alert("Error al guardar."); 
+                if(btn) { btn.innerText = "Guardar"; btn.disabled = false; }
+            }
+        }
+
         async function cargarData() {
             let res;
             try {
@@ -487,7 +537,6 @@
                 return;
             }
 
-            // Los llamados al renderizado van AFUERA del bloque try, pero AHORA SI conocen la variable "res"
             try { renderizarOjoDelPueblo((res.allBonus || []).filter(b => b != null)); } catch(e) { console.error("Error Bonus", e); }
             try { renderizarContenido(res, 'groups-nav', 'matches-container', false); } catch(e) { console.error("Error Partidos", e); }
             try { dibujarRanking((res.ranking || []).filter(r => r != null)); } catch(e) { console.error("Error Ranking", e); }
@@ -503,9 +552,9 @@
             partidosGlobales.forEach(p => {
                 let gr = p.group;
                 if (!gr) return; 
-                let grStr = String(gr);
-                if (grStr.toLowerCase().includes('octavo') || grStr.toLowerCase().includes('cuarto') || grStr.toLowerCase().includes('semi') || grStr.toLowerCase().includes('final')) return;
+                if (esKnockout(gr)) return;
                 
+                let grStr = String(gr);
                 if (!gruposTemp[grStr]) gruposTemp[grStr] = new Set();
                 if (p.team_a) gruposTemp[grStr].add(p.team_a);
                 if (p.team_b) gruposTemp[grStr].add(p.team_b);
@@ -864,31 +913,83 @@
         }
 
         function renderizarContenido(data, navId, containerId, isReadOnly) {
-            const partidos = (data.matches || []).filter(p => p !== null && p !== undefined); 
+            const partidosAll = (data.matches || []).filter(p => p !== null && p !== undefined); 
             const userPreds = (data.userPredictions || []).filter(up => up !== null); 
             const container = document.getElementById(containerId); const nav = document.getElementById(navId); 
-            const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort();
-            nav.innerHTML = ''; container.innerHTML = '';
+            if(!container || !nav) return;
+
+            const todosLosGrupos = [...new Set(partidosAll.map(p => p.group || "Mundial"))];
             
+            const gruposFase = todosLosGrupos.filter(g => !esKnockout(g)).sort();
+            
+            const getKnockoutWeight = (g) => {
+                const gl = String(g).toLowerCase();
+                if (gl.includes('16')) return 1;
+                if (gl.includes('8') || gl.includes('oct')) return 2;
+                if (gl.includes('4') || gl.includes('cua')) return 3;
+                if (gl.includes('semi')) return 4;
+                if (gl.includes('tercer') || gl.includes('3er')) return 5;
+                if (gl.includes('final')) return 6;
+                return 99;
+            };
+            const gruposKnockout = todosLosGrupos.filter(g => esKnockout(g)).sort((a,b) => getKnockoutWeight(a) - getKnockoutWeight(b));
+
+            let navHtml = '';
+            
+            if (gruposFase.length > 0) {
+                navHtml += `<div class="grid grid-cols-4 sm:grid-cols-6 gap-1 mb-4">`;
+                gruposFase.forEach((grupo, idx) => {
+                    const grpStr = String(grupo);
+                    const isActive = (idx === 0);
+                    const tabStyle = isActive ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400';
+                    navHtml += `<button onclick="cambiarGrupoManual('${grpStr.replace(/'/g, "\\'")}', ${isReadOnly}, '${containerId}', 'btn-class-${containerId}')" class="btn-class-${containerId} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grpStr}</button>`;
+                });
+                navHtml += `</div>`;
+            }
+
+            if (gruposKnockout.length > 0) {
+                if(gruposFase.length > 0) {
+                    navHtml += `<div class="my-3"><div class="h-px bg-slate-200 dark:bg-slate-800 w-full mb-2"></div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-2">Fase Final</div></div>`;
+                }
+                navHtml += `<div class="grid grid-cols-3 sm:grid-cols-6 gap-1 mb-4">`;
+                gruposKnockout.forEach((grupo, idx) => {
+                    const grpStr = String(grupo);
+                    const isActive = (gruposFase.length === 0 && idx === 0);
+                    const tabStyle = isActive ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400';
+                    navHtml += `<button onclick="cambiarGrupoManual('${grpStr.replace(/'/g, "\\'")}', ${isReadOnly}, '${containerId}', 'btn-class-${containerId}')" class="btn-class-${containerId} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grpStr}</button>`;
+                });
+                navHtml += `</div>`;
+            }
+            
+            nav.innerHTML = navHtml;
+
+            let containerHtml = '';
+            const allGruposRender = [...gruposFase, ...gruposKnockout];
             const now = new Date().getTime(); 
             const isGlobalPaused = data.isGlobalPaused || false; 
 
-            grupos.forEach((grupo, idx) => {
+            allGruposRender.forEach((grupo, idx) => {
                 try {
-                    const grpStr = String(grupo || "Mundial");
+                    const grpStr = String(grupo);
                     const cleanId = grpStr.replace(/\s/g, ''); 
-                    const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
-                    const tabStyle = idx === 0 ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400';
+                    const prefix = isReadOnly ? 'spy-' : (containerId === 'elim-matches-container' ? 'elim-' : '');
+                    const fullId = prefix + cleanId;
                     
-                    nav.innerHTML += `<button onclick="cambiarGrupoManual('${grpStr.replace(/'/g, "\\'")}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grpStr}</button>`;
-                    
-                    const partidosGrupo = partidos.filter(p => p.group === grupo); 
+                    const partidosGrupo = partidosAll.filter(p => p.group === grupo); 
                     let ptsGrupo = 0;
                     partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
                     
-                    let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
-                        <div class="bg-slate-100 dark:bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-300 dark:border-slate-800 shadow-inner"><span class="text-xs text-slate-600 dark:text-slate-400">Puntos en este grupo:</span><span class="text-green-600 dark:text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
+                    const isActiveClass = (idx === 0) ? 'active' : '';
+
+                    containerHtml += `<div id="group-${fullId}" class="group-content ${isActiveClass} space-y-4">`;
+                    
+                    if(partidosGrupo.length > 0) {
+                        containerHtml += `<div class="bg-slate-100 dark:bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-300 dark:border-slate-800 shadow-inner"><span class="text-xs text-slate-600 dark:text-slate-400">Puntos en esta fase:</span><span class="text-green-600 dark:text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>`;
+                    }
+                    
+                    if (!esKnockout(grupo)) {
+                        containerHtml += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
+                    }
                     
                     partidosGrupo.forEach(p => {
                         const pred = userPreds.find(up => up.match_id === p.id); 
@@ -928,7 +1029,7 @@
                             }
                         }
 
-                        html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}">
+                        containerHtml += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}">
                             <div class="flex justify-between items-center mb-3">
                                 <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400">${sText}</span></div>
                                 <div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div>
@@ -948,24 +1049,28 @@
                             <div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="mt-2 text-center font-mono text-lg font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-950/50 rounded py-1 border border-slate-200 dark:border-slate-800/50">${(p.score_a !== "" && p.score_a !== undefined) ? p.score_a : '-'} - ${(p.score_b !== "" && p.score_b !== undefined) ? p.score_b : '-'}</div>
                         </div>`;
                     });
-                    container.innerHTML += html + '</div>';
+                    containerHtml += `</div>`;
                 } catch(err) {
                     console.error("Error renderizando el grupo " + grupo, err);
                 }
             });
+            container.innerHTML = containerHtml;
         }
 
-        function cambiarGrupoManual(grupo, isSpy) {
+        function cambiarGrupoManual(grupo, isSpy, containerId, btnClass) {
             const grpStr = String(grupo);
-            const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; 
-            const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; 
-            const prefix = isSpy ? 'spy-' : '';
+            const containerSelector = containerId ? '#' + containerId : (isSpy ? '#spy-matches-container' : '#matches-container');
+            const navSelector = btnClass ? '.' + btnClass : (isSpy ? '.btn-group-true' : '.btn-group-false');
             
             document.querySelectorAll(navSelector).forEach(b => { 
-                b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400`; 
-                if(b.innerText === grpStr) { b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; } 
+                b.className = b.className.replace(/bg-green-500 text-white/g, 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400');
+                if(b.innerText === grpStr) { 
+                    b.className = b.className.replace(/bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400/g, 'bg-green-500 text-white'); 
+                } 
             });
+            
             document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); 
+            const prefix = isSpy ? 'spy-' : (containerId === 'elim-matches-container' ? 'elim-' : '');
             const targetEl = document.getElementById('group-' + prefix + grpStr.replace(/\s/g, ''));
             if(targetEl) targetEl.classList.add('active');
         }
@@ -1110,13 +1215,6 @@
             }
         }
         
-        async function verPerfilOtro(email, nombre, puntos) {
-            document.getElementById('spy-user-name').innerText = nombre; document.getElementById('spy-user-points').innerText = puntos;
-            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse text-slate-500">Cargando...</div>'; 
-            mostrarPantalla('user-view-screen');
-            try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
-        }
-
         function dibujarRanking(ranking) {
             const tbody = document.getElementById('ranking-body'); 
             const podium = document.getElementById('podium-container'); 
