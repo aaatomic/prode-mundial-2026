@@ -25,6 +25,7 @@
         .marquee span { display: inline-block; padding-left: 100%; animation: scroll-marquee 20s linear infinite; }
         @keyframes scroll-marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
         
+        /* 🔥 Estilos mejorados para los cuadros de la llave */
         .sim-round-panel { display: none; }
         .sim-round-panel.active { display: grid; }
         .bracket-card { @apply bg-slate-200 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2 shadow-lg flex flex-col gap-1.5 transition-all; }
@@ -146,6 +147,7 @@
             
             <div class="flex bg-white dark:bg-slate-900 p-1 rounded-xl mb-6 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
                 <button onclick="cambiarTab('pronosticos')" id="btn-tab-pronosticos" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all">⚽ Partidos</button>
+                <button onclick="cambiarTab('eliminacion')" id="btn-tab-eliminacion" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🏆 Eliminación</button>
                 <button onclick="cambiarTab('bonus')" id="btn-tab-bonus" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🌟 Bonus</button>
                 <button onclick="cambiarTab('ranking')" id="btn-tab-ranking" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🏅 Ranking</button>
                 <button onclick="cambiarTab('simulador')" id="btn-tab-simulador" class="flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">🕹️ Simulador</button>
@@ -162,9 +164,13 @@
                     </div>
                     <span class="text-[9px] font-extrabold bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-md">ESPN ↗</span>
                 </a>
-
                 <div id="groups-nav" class="grid grid-cols-6 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
                 <div id="matches-container"></div>
+            </div>
+
+            <div id="tab-eliminacion" class="tab-content space-y-4">
+                <div id="elim-nav" class="grid grid-cols-5 gap-1 mb-4 overflow-x-auto no-scrollbar"></div>
+                <div id="elim-matches-container"></div>
             </div>
             
             <div id="tab-bonus" class="tab-content">
@@ -233,7 +239,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div id="tab-ranking" class="tab-content">
                 <div id="ranking-capture-area" class="bg-slate-50 dark:bg-slate-950 p-2 rounded-xl transition-colors">
                     <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 mb-6"></div>
@@ -251,6 +257,7 @@
                         </table>
                     </div>
                 </div>
+                
                 <button onclick="compartirRankingWhatsApp()" id="btn-share-wa" class="w-full mt-6 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(37,211,102,0.3)] flex justify-center items-center gap-2">
                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     Compartir en WhatsApp
@@ -314,7 +321,7 @@
         let authMode = 'login';
         
         let simGruposData = {}; 
-        let simMejoresTerceros = []; 
+        let simMejores Terceros = []; 
         let faseActivaInterna = 'R32';
 
         let simBracketState = {
@@ -401,18 +408,12 @@
                     document.getElementById('user-display-name').innerText = currentUser.name;
                     actualizarCartelPago(currentUser.has_paid); cargarData(); 
                 } else { mostrarPantalla('pending-screen'); }
-            } else { mostrarPantalla('auth-screen'); }
+            } else { mostrarPantacle('auth-screen'); }
         }
 
         function mostrarPantalla(id) {
             document.querySelectorAll('.app-screen').forEach(el => el.style.display = 'none');
             document.getElementById(id).style.display = 'block';
-        }
-
-        function getFlagUrl(n) { 
-            const strName = String(n || ""); 
-            const t = equiposGlobales.find(e => e && e.name === strName); 
-            return t && t.code ? `https://flagcdn.com/w40/${t.code}.png` : ''; 
         }
 
         function cambiarTab(n) { 
@@ -421,7 +422,7 @@
                 const targetTab = document.getElementById('tab-'+n);
                 if (targetTab) targetTab.classList.add('active'); 
                 
-                ['pronosticos','bonus','ranking','simulador'].forEach(t => {
+                ['pronosticos','eliminacion','bonus','ranking','simulador'].forEach(t => {
                     const el = document.getElementById('btn-tab-'+t);
                     if(el) {
                         el.className = t===n ? "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white shadow transition-all" : "flex-1 min-w-[80px] py-2 text-xs font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all";
@@ -433,7 +434,139 @@
             }
         }
 
-        // 🔥 FUNCION PARA GUARDAR PARTIDOS REPARADA
+        // 🔥 FILTRO DETECTOR DE RONDAS ELIMINATORIAS (A PRUEBA DE BALAS)
+        function esKnockout(group) {
+            if (!group) return false;
+            const g = String(group).toLowerCase();
+            return g.includes('16avo') || g.includes('16s') || g.includes('8vo') || g.includes('octavo') || g.includes('4to') || g.includes('cuarto') || g.includes('semi') || g.includes('final') || g.includes('eliminac') || g.includes('tercer');
+        }
+
+        function cambiarGrupoManual(grupo, isSpy, containerId, btnClass) {
+            const grpStr = String(grupo);
+            const containerSelector = containerId ? '#' + containerId : (isSpy ? '#spy-matches-container' : '#matches-container');
+            const navSelector = btnClass ? '.' + btnClass : (isSpy ? '.btn-group-true' : '.btn-group-false');
+            
+            document.querySelectorAll(navSelector).forEach(b => { 
+                b.className = b.className.replace(/bg-green-500 text-white/g, 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400');
+                if(b.innerText === grpStr) { 
+                    b.className = b.className.replace(/bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400/g, 'bg-green-500 text-white'); 
+                } 
+            });
+            
+            document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); 
+            const prefix = isSpy ? 'spy-' : (containerId === 'elim-matches-container' ? 'elim-' : '');
+            const targetEl = document.getElementById('group-' + prefix + grpStr.replace(/\s/g, ''));
+            if(targetEl) targetEl.classList.add('active');
+        }
+
+        // 🔥 RENDERIZADOR COMPACTO MULTI-PROÓSITO REUTILIZABLE
+        function renderizarContenido(data, navId, containerId, isReadOnly, filterType) {
+            const partidosAll = (data.matches || []).filter(p => p !== null && p !== undefined); 
+            const userPreds = (data.userPredictions || []).filter(up => up !== null); 
+            const container = document.getElementById(containerId); const nav = document.getElementById(navId); 
+            if(!container || !nav) return;
+
+            let partidos = partidosAll;
+            if (filterType === 'group') {
+                partidos = partidosAll.filter(p => !esKnockout(p.group));
+            } else if (filterType === 'knockout') {
+                partidos = partidosAll.filter(p => esKnockout(p.group));
+            }
+
+            // Ordenamiento cronológico para las rondas eliminatorias
+            const ordenGrupos = ['16avos', '16avo', '8vos', 'octavos', 'octavo', '4tos', 'cuartos', 'cuarto', 'semis', 'semifinal', 'semifinales', 'final', 'gran final', '3er puesto', 'tercer puesto'];
+            const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort((a, b) => {
+                const idxA = ordenGrupos.findIndex(g => String(a).toLowerCase().includes(g));
+                const idxB = ordenGrupos.findIndex(g => String(b).toLowerCase().includes(g));
+                if (idxA > -1 && idxB > -1) return idxA - idxB;
+                if (idxA > -1) return 1;
+                if (idxB > -1) return -1;
+                return String(a).localeCompare(String(b));
+            });
+
+            nav.innerHTML = ''; container.innerHTML = '';
+            const now = new Date().getTime(); 
+            const isGlobalPaused = data.isGlobalPaused || false; 
+
+            grupos.forEach((grupo, idx) => {
+                const grpStr = String(grupo);
+                const cleanId = grpStr.replace(/\s/g, ''); 
+                const prefix = isReadOnly ? 'spy-' : (containerId === 'elim-matches-container' ? 'elim-' : '');
+                const fullId = prefix + cleanId;
+                const tabStyle = idx === 0 ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400';
+                
+                nav.innerHTML += `<button onclick="cambiarGrupoManual('${grpStr.replace(/'/g, "\\'")}', ${isReadOnly}, '${containerId}', 'btn-class-${containerId}')" class="btn-class-${containerId} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grpStr}</button>`;
+                
+                const partidosGrupo = partidos.filter(p => p.group === grupo); 
+                let ptsGrupo = 0;
+                partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
+                
+                let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
+                    <div class="bg-slate-100 dark:bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-300 dark:border-slate-800 shadow-inner"><span class="text-xs text-slate-600 dark:text-slate-400">Puntos acumulados en esta fase:</span><span class="text-green-600 dark:text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
+                
+                partidosGrupo.forEach(p => {
+                    const pred = userPreds.find(up => up.match_id === p.id); 
+                    const sCode = String(p.status || '').toUpperCase(); 
+                    let sColor = 'bg-slate-400 dark:bg-slate-500', sText = 'PENDIENTE';
+                    if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; } 
+                    else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-500 dark:bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
+                    
+                    let ptsBox = '<span class="text-[10px] font-bold text-slate-500 dark:text-slate-600 border border-slate-300 dark:border-slate-800 px-2 py-0.5 rounded">0 pts</span>';
+                    if(pred && pred.points !== undefined && pred.points !== "") {
+                        if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-transparent px-2 py-0.5 rounded-full shadow-sm">+3 pts</span>';
+                        else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-transparent px-2 py-0.5 rounded-full">+1 pt</span>';
+                    }
+
+                    let d = new Date(p.kickoff_time);
+                    let timeStr = isNaN(d.getTime()) ? 'A definir' : d.toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) + ' hs';
+                    
+                    const matchTime = d.getTime();
+                    const isMatchLocked = !isNaN(matchTime) && now >= matchTime;
+                    const disableInputs = isReadOnly || isMatchLocked || isGlobalPaused; 
+                    
+                    if(isMatchLocked) timeStr += ' <span class="text-red-500 dark:text-red-400 ml-1">🔒</span>'; 
+                    
+                    let tA = String(p.team_a || '');
+                    let tB = String(p.team_b || '');
+                    const fA = getFlagUrl(tA), fB = getFlagUrl(tB);
+                    const boxStyle = (isMatchLocked || isGlobalPaused) ? 'opacity-70 grayscale-[30%]' : '';
+
+                    let actionArea = '';
+                    if (!isReadOnly) {
+                        if (isGlobalPaused) {
+                            actionArea = `<span class="text-[9px] font-bold text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-800/30 px-2 py-1 rounded">PAUSADO</span>`;
+                        } else if (isMatchLocked) {
+                            actionArea = `<span class="text-[9px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800/30 px-2 py-1 rounded">CERRADO</span>`;
+                        } else {
+                            actionArea = `<button id="btn-save-${p.id}" onclick="guardarUnPartido('${p.id}')" class="bg-green-600 hover:bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-sm transition-colors">Guardar</button>`;
+                        }
+                    }
+
+                    html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400">${sText}</span></div>
+                            <div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div>
+                        </div>
+                        <div class="flex justify-between items-center gap-1">
+                            <div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100">${tA} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"></div>
+                            <div class="flex gap-1 items-center shrink-0">
+                                <input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}">
+                                <span class="text-slate-400 dark:text-slate-600">-</span>
+                                <input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}">
+                            </div>
+                            <div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"> ${tB}</div>
+                        </div>
+                        <div class="border-t border-slate-200 dark:border-slate-800/50 pt-2 mt-2 flex justify-between items-center">
+                            <span class="text-[9px] text-slate-500 uppercase font-bold tracking-tighter">Resultado Real</span>${actionArea}
+                        </div>
+                        <div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="mt-2 text-center font-mono text-lg font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-950/50 rounded py-1 border border-slate-200 dark:border-slate-800/50">${(p.score_a !== "" && p.score_a !== undefined) ? p.score_a : '-'} - ${(p.score_b !== "" && p.score_b !== undefined) ? p.score_b : '-'}</div>
+                    </div>`;
+                });
+                container.innerHTML += html + '</div>';
+            });
+        }
+
         async function guardarUnPartido(matchId) {
             const gA = document.getElementById(`goles_a_${matchId}`).value;
             const gB = document.getElementById(`goles_b_${matchId}`).value;
@@ -444,10 +577,7 @@
             }
 
             const btn = document.getElementById(`btn-save-${matchId}`);
-            if(btn) {
-                btn.innerText = "⏳";
-                btn.disabled = true;
-            }
+            if(btn) { btn.innerText = "⏳"; btn.disabled = true; }
 
             const payload = { 
                 action: "save_predictions", 
@@ -458,19 +588,16 @@
             try { 
                 const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "text/plain;charset=utf-8" }});
                 const result = await response.json();
-                
                 if (result.status === "error") {
                     alert(result.message);
                     if(btn) { btn.innerText = "Guardar"; btn.disabled = false; }
                     return;
                 }
-                
                 if(btn) {
                     btn.innerText = "✅";
                     btn.classList.replace('bg-green-600', 'bg-slate-500');
                     setTimeout(() => { 
-                        btn.innerText = "Guardar"; 
-                        btn.disabled = false; 
+                        btn.innerText = "Guardar"; btn.disabled = false; 
                         btn.classList.replace('bg-slate-500', 'bg-green-600');
                     }, 2000);
                 }
@@ -480,12 +607,10 @@
             }
         }
 
-        // 🔥 CARGADOR CENTRAL PROTEGIDO
         async function cargarData() {
             let res;
             try {
                 res = await (await fetch(`${API_URL}?email=${encodeURIComponent(currentUser.email)}`)).json();
-                
                 partidosGlobales = (res.matches || []).filter(m => m != null); 
                 equiposGlobales = (res.teams || []).filter(e => e != null);
                 
@@ -529,499 +654,23 @@
                 return;
             }
 
+            // Llamados de dibujo centralizados con filtros inteligentes
             try { renderizarOjoDelPueblo((res.allBonus || []).filter(b => b != null)); } catch(e) { console.error("Error Bonus", e); }
-            try { renderizarContenido(res, 'groups-nav', 'matches-container', false); } catch(e) { console.error("Error Partidos", e); }
+            try { renderizarContenido(res, 'groups-nav', 'matches-container', false, 'group'); } catch(e) { console.error("Error Partidos", e); }
+            try { renderizarContenido(res, 'elim-nav', 'elim-matches-container', false, 'knockout'); } catch(e) { console.error("Error Eliminación", e); }
             try { dibujarRanking((res.ranking || []).filter(r => r != null)); } catch(e) { console.error("Error Ranking", e); }
             try { inicializarSimuladorEstructura(); } catch(e) { console.error("Error Simulador", e); }
-        }
-
-        // --- 🕹️ NÚCLEO AVANZADO DEL SIMULADOR ---
-
-        function inicializarSimuladorEstructura() {
-            if (Object.keys(simGruposData).length > 0) return; 
-
-            let gruposTemp = {};
-            partidosGlobales.forEach(p => {
-                let gr = p.group;
-                if (!gr) return; 
-                let grStr = String(gr);
-                if (grStr.toLowerCase().includes('octavo') || grStr.toLowerCase().includes('cuarto') || grStr.toLowerCase().includes('semi') || grStr.toLowerCase().includes('final')) return;
-                
-                if (!gruposTemp[grStr]) gruposTemp[grStr] = new Set();
-                if (p.team_a) gruposTemp[grStr].add(p.team_a);
-                if (p.team_b) gruposTemp[grStr].add(p.team_b);
-            });
-            
-            Object.keys(gruposTemp).sort().forEach(gNombre => {
-                if(gruposTemp[gNombre].size >= 3 && gruposTemp[gNombre].size <= 4) {
-                    simGruposData[gNombre] = {
-                        teams: Array.from(gruposTemp[gNombre]).sort(),
-                        slots: [null, null, null] 
-                    };
-                }
-            });
-            dibujarPillsGrupos();
-        }
-
-        function dibujarPillsGrupos() {
-            let html = '';
-            Object.keys(simGruposData).forEach(gNombre => {
-                const gObj = simGruposData[gNombre];
-                let pillsHtml = '';
-                
-                gObj.teams.forEach(tName => {
-                    const idxSlot = gObj.slots.indexOf(tName);
-                    let badgeStyle = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800';
-                    let labelPos = '';
-                    
-                    if(idxSlot === 0) { badgeStyle = 'bg-amber-500 border border-amber-600 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(1º)</span>'; }
-                    else if(idxSlot === 1) { badgeStyle = 'bg-slate-400 border border-slate-500 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(2º)</span>'; }
-                    else if(idxSlot === 2) { badgeStyle = 'bg-amber-700 border border-amber-800 text-white font-bold'; labelPos = ' <span class="text-[8px] opacity-90 ml-1">(3º)</span>'; }
-                    else if(gObj.slots.filter(s => s !== null).length === 3) {
-                        badgeStyle = 'bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-900/60 opacity-40 cursor-not-allowed';
-                    }
-
-                    pillsHtml += `
-                    <button data-grupo="${gNombre.replace(/"/g, '&quot;')}" data-team="${tName.replace(/"/g, '&quot;')}" onclick="clickTeamPill(this)" class="px-2 py-1.5 text-[10px] rounded transition-all flex items-center justify-between truncate shadow-sm ${badgeStyle}">
-                        <span class="truncate">${tName}</span>${labelPos}
-                    </button>`;
-                });
-
-                html += `
-                <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <h4 class="font-black text-center mb-3 text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider">${gNombre}</h4>
-                    <div class="grid grid-cols-1 gap-2">${pillsHtml}</div>
-                </div>`;
-            });
-            document.getElementById('sim-groups-container').innerHTML = html;
-            actualizarSeccionTerceros();
-        }
-
-        function clickTeamPill(el) {
-            const grupo = el.getAttribute('data-grupo');
-            const team = el.getAttribute('data-team');
-            const gObj = simGruposData[grupo];
-            const idxSlot = gObj.slots.indexOf(team);
-
-            if (idxSlot > -1) {
-                gObj.slots[idxSlot] = null;
-                if(idxSlot === 2) simMejoresTerceros = simMejoresTerceros.filter(t => t !== team);
-            } else {
-                const freeSlot = gObj.slots.indexOf(null);
-                if (freeSlot > -1) {
-                    gObj.slots[freeSlot] = team;
-                }
-            }
-            dibujarPillsGrupos();
-        }
-
-        function actualizarSeccionTerceros() {
-            const containerSec = document.getElementById('sim-thirds-section');
-            const containerBox = document.getElementById('sim-thirds-container');
-            
-            let candidatosTerceros = [];
-            Object.keys(simGruposData).forEach(g => {
-                if(simGruposData[g].slots[2]) candidatosTerceros.push(simGruposData[g].slots[2]);
-            });
-
-            if(candidatosTerceros.length === 0) { containerSec.classList.add('hidden'); return; }
-            containerSec.classList.remove('hidden');
-
-            simMejoresTerceros = simMejoresTerceros.filter(t => candidatosTerceros.includes(t));
-
-            let html = '';
-            candidatosTerceros.sort().forEach(tName => {
-                const rankIdx = simMejoresTerceros.indexOf(tName);
-                let style = 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800';
-                let indicator = '';
-
-                if (rankIdx > -1) {
-                    style = 'bg-green-500 border border-green-600 text-white font-bold';
-                    indicator = `<span class="w-4 h-4 bg-white text-green-600 rounded-full inline-flex items-center justify-center text-[9px] font-black shadow-sm">${rankIdx + 1}</span>`;
-                }
-
-                html += `
-                <button data-team="${tName.replace(/"/g, '&quot;')}" onclick="clickTerceroUrna(this)" class="px-3 py-2 text-xs rounded-lg transition-all flex items-center gap-2 shadow-sm ${style}">
-                    <span>${tName}</span>${indicator}
-                </button>`;
-            });
-            containerBox.innerHTML = html;
-        }
-
-        function clickTerceroUrna(el) {
-            const team = el.getAttribute('data-team');
-            const idx = simMejoresTerceros.indexOf(team);
-            if (idx > -1) {
-                simMejoresTerceros.splice(idx, 1);
-            } else {
-                if (simMejoresTerceros.length < 8) simMejoresTerceros.push(team);
-            }
-            actualizarSeccionTerceros();
-        }
-
-        function generarLlaveSimulador() {
-            const errorMsg = document.getElementById('sim-error-msg');
-            let primeros = [], segundos = [];
-            let errorFalta = false;
-
-            Object.keys(simGruposData).forEach(g => {
-                const s = simGruposData[g].slots;
-                if(!s[0] || !s[1]) errorFalta = true;
-                if(s[0]) primeros.push(s[0]);
-                if(s[1]) segundos.push(s[1]);
-            });
-
-            if (errorFalta) {
-                errorMsg.innerText = "🚨 Error: Tenés que elegir el 1º y 2º puesto de TODOS los grupos antes de continuar.";
-                errorMsg.classList.remove('hidden'); return;
-            }
-            if (simMejoresTerceros.length !== 8) {
-                errorMsg.innerText = `🚨 Error: Tenés que elegir EXACTAMENTE a los 8 mejores terceros en la urna inferior (elegiste ${simMejoresTerceros.length}).`;
-                errorMsg.classList.remove('hidden'); return;
-            }
-
-            errorMsg.classList.add('hidden');
-            
-            let equipos32 = [];
-            for(let i=0; i<8; i++) { equipos32.push(primeros[i]); equipos32.push(simMejoresTerceros[7-i]); }
-            for(let i=8; i<12; i++) { equipos32.push(primeros[i]); equipos32.push(segundos[i-8]); }
-            for(let i=4; i<8; i++) { equipos32.push(segundos[i]); equipos32.push(segundos[i+4]); }
-
-            simBracketState = { 
-                R32: Array.from({length: 16}, () => ({a: null, b: null, winner: null})),
-                R16: Array.from({length: 8}, () => ({a: null, b: null, winner: null})),
-                QF: Array.from({length: 4}, () => ({a: null, b: null, winner: null})),
-                SF: Array.from({length: 2}, () => ({a: null, b: null, winner: null})),
-                F: Array.from({length: 1}, () => ({a: null, b: null, winner: null})) 
-            };
-            for (let i = 0; i < 16; i++) {
-                simBracketState.R32[i].a = equipos32[i*2];
-                simBracketState.R32[i].b = equipos32[i*2+1];
-            }
-            
-            document.getElementById('sim-bracket-container').classList.remove('hidden');
-            cambiarFaseInterna('R32'); 
-        }
-
-        function cambiarFaseInterna(faseId) {
-            faseActivaInterna = faseId;
-            document.querySelectorAll('[id^="btn-fase-"]').forEach(btn => {
-                btn.className = "flex-1 py-1.5 rounded text-slate-500 dark:text-slate-400 transition-all font-semibold hover:bg-slate-200 dark:hover:bg-slate-800";
-            });
-            const activeBtn = document.getElementById(`btn-fase-${faseId}`);
-            if(activeBtn) activeBtn.className = "flex-1 py-1.5 rounded text-white bg-green-500 shadow-sm font-bold transition-all";
-            dibujarLlave();
-        }
-
-        function avanzarEnLlave(rondaActual, matchIndex, equipoGanador) {
-            if(!equipoGanador || equipoGanador === "---") return;
-            simBracketState[rondaActual][matchIndex].winner = equipoGanador;
-            
-            let rondasSiguientes = ['R32', 'R16', 'QF', 'SF', 'F'];
-            let idxRonda = rondasSiguientes.indexOf(rondaActual);
-            
-            if (idxRonda < 4) {
-                let nextRonda = rondasSiguientes[idxRonda + 1];
-                let nextMatchIndex = Math.floor(matchIndex / 2);
-                let esLadoA = (matchIndex % 2 === 0);
-                
-                let nextMatch = {...simBracketState[nextRonda][nextMatchIndex]};
-                if (esLadoA) nextMatch.a = equipoGanador;
-                else nextMatch.b = equipoGanador;
-                
-                if (simBracketState[nextRonda][nextMatchIndex][esLadoA?'a':'b'] !== equipoGanador) {
-                     nextMatch.winner = null;
-                     limpiarCascada(nextRonda, nextMatchIndex);
-                }
-                simBracketState[nextRonda][nextMatchIndex] = nextMatch;
-            }
-            dibujarLlave();
-        }
-
-        function avanzarEnLlaveBtn(el) {
-            const ronda = el.getAttribute('data-ronda');
-            const index = parseInt(el.getAttribute('data-index'));
-            const team = el.getAttribute('data-team');
-            avanzarEnLlave(ronda, index, team);
-        }
-
-        function limpiarCascada(rondaDesde, matchIndex) {
-            let rondas = ['R16', 'QF', 'SF', 'F'];
-            let startIdx = rondas.indexOf(rondaDesde);
-            let currMatchIdx = matchIndex;
-            for(let i = startIdx; i < 3; i++) {
-                let nextRonda = rondas[i+1];
-                let nextMatchIdx = Math.floor(currMatchIdx / 2);
-                simBracketState[nextRonda][nextMatchIdx].winner = null;
-                currMatchIdx = nextMatchIdx;
-            }
-        }
-
-        function renderMatchCard(ronda, index, match) {
-            let winA = match.winner === match.a && match.a;
-            let winB = match.winner === match.b && match.b;
-            
-            let safeA = String(match.a || "");
-            let safeB = String(match.b || "");
-            
-            let fA = safeA ? getFlagUrl(safeA) : '';
-            let fB = safeB ? getFlagUrl(safeB) : '';
-            
-            let codeA = safeA ? (fifaCodes[safeA.toLowerCase().trim()] || safeA.substring(0,3).toUpperCase()) : '---';
-            let codeB = safeB ? (fifaCodes[safeB.toLowerCase().trim()] || safeB.substring(0,3).toUpperCase()) : '---';
-            
-            let sHTMLA = safeA.replace(/"/g, '&quot;');
-            let sHTMLB = safeB.replace(/"/g, '&quot;');
-
-            let checkA = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[9px] sm:text-[10px] text-slate-400">✓</span>`;
-            let checkB = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-[9px] sm:text-[10px] text-slate-400">✓</span>`;
-            
-            if(winA) checkA = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
-            if(winB) checkB = `<span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-sm border-none transition-all scale-110">✓</span>`;
-
-            return `
-            <div class="bracket-card">
-                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLA}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winA ? 'selected-win' : 'hover:bg-slate-50 dark:hover:bg-slate-800/80'}">
-                    ${fA ? `<img src="${fA}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></div>'}
-                    <span class="font-black text-xs sm:text-sm text-center w-10 ${winA ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeA}</span>
-                    ${safeA ? checkA : '<div class="w-4 h-4 sm:w-5 sm:h-5"></div>'}
-                </div>
-                <div data-ronda="${ronda}" data-index="${index}" data-team="${sHTMLB}" onclick="avanzarEnLlaveBtn(this)" class="bracket-row ${winB ? 'selected-win' : 'hover:bg-slate-50 dark:hover:bg-slate-800/80'}">
-                    ${fB ? `<img src="${fB}" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 shrink-0">` : '<div class="w-4 h-4 sm:w-5 sm:h-5 shrink-0"></div>'}
-                    <span class="font-black text-xs sm:text-sm text-center w-10 ${winB ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}">${codeB}</span>
-                    ${safeB ? checkB : '<div class="w-4 h-4 sm:w-5 sm:h-5"></div>'}
-                </div>
-            </div>`;
-        }
-
-        function dibujarLlave() {
-            const b = simBracketState;
-            const container = document.getElementById('sim-bracket-render');
-            let html = '';
-
-            if (faseActivaInterna === 'R32') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<16; i++) html += renderMatchCard('R32', i, b.R32[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'R16') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<8; i++) html += renderMatchCard('R16', i, b.R16[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'QF') {
-                html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">`;
-                for(let i=0; i<4; i++) html += renderMatchCard('QF', i, b.QF[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'SF') {
-                html = `<div class="grid grid-cols-1 gap-3 w-full max-w-md mx-auto">`;
-                for(let i=0; i<2; i++) html += renderMatchCard('SF', i, b.SF[i]);
-                html += `</div>`;
-            } 
-            else if (faseActivaInterna === 'F') {
-                html = `<div class="w-full max-w-sm mx-auto flex flex-col gap-4 text-center pb-8">
-                    <div class="text-gold font-black bg-gold/10 border border-gold/30 rounded-full py-2 text-sm uppercase tracking-widest mt-2">Gran Final</div>
-                    ${renderMatchCard('F', 0, b.F[0])}
-                `;
-                if(b.F[0].winner) {
-                    const winName = String(b.F[0].winner);
-                    const cW = fifaCodes[winName.toLowerCase().trim()] || winName.substring(0,3).toUpperCase();
-                    html += `
-                    <div class="p-6 bg-green-500/10 border border-green-500/30 rounded-2xl text-center shadow-xl animate-bounce mt-4">
-                        <div class="text-4xl mb-2">👑🏆👑</div>
-                        <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Campeón del Mundo</div>
-                        <div class="text-4xl font-black text-green-500">${cW}</div>
-                        <div class="text-sm text-slate-400 font-bold mt-1">${winName}</div>
-                    </div>`;
-                }
-                html += `</div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        // --- FIN NÚCLEO DEL SIMULADOR ---
-
-        function renderizarOjoDelPueblo(allBonus) {
-            const sumContainer = document.getElementById('bonus-summary-container'); const tbBody = document.getElementById('bonus-table-body');
-            if(!allBonus || allBonus.length === 0) return;
-            const getVotes = (field) => {
-                const counts = {};
-                allBonus.forEach(b => { 
-                    if(b[field]) { 
-                        let valor = ['top_scorer', 'best_player', 'best_gk', 'revelation'].includes(field) ? String(b[field]).trim().toUpperCase() : b[field]; 
-                        counts[valor] = (counts[valor] || 0) + 1; 
-                    } 
-                });
-                const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-                if(sorted.length === 0) return '<span class="text-slate-500 dark:text-slate-600">Sin votos</span>'; 
-                return sorted.map(e => `<span class="text-slate-800 dark:text-white capitalize">${String(e[0]).toLowerCase()}</span> <span class="text-slate-600 dark:text-slate-400">(${e[1]})</span>`).join(' <span class="text-slate-400 dark:text-slate-600 mx-1">•</span> ');
-            };
-            
-            sumContainer.innerHTML = `
-                <div class="bg-slate-100 dark:bg-slate-950/50 p-3 rounded-lg border border-slate-300 dark:border-slate-800/50 space-y-3 mb-2">
-                    <h4 class="text-slate-800 dark:text-slate-300 font-semibold text-sm border-b border-slate-300 dark:border-slate-800/50 pb-1 mb-2">🌎 Países</h4>
-                    <div><span class="text-gold font-bold text-xs block">🏆 Campeón</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('champion')}</div></div>
-                    <div><span class="text-silver font-bold text-xs block">🥈 Subcampeón</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('runner_up')}</div></div>
-                    <div><span class="text-red-600 dark:text-red-400 font-bold text-xs block">📉 Decepción</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('disappointment')}</div></div>
-                    <div><span class="text-orange-600 dark:text-orange-400 font-bold text-xs block">🔥 P. Revelación</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('surprise_team')}</div></div>
-                </div>
-                
-                <div class="bg-slate-100 dark:bg-slate-950/50 p-3 rounded-lg border border-slate-300 dark:border-slate-800/50 space-y-3 mb-2">
-                    <h4 class="text-slate-800 dark:text-slate-300 font-semibold text-sm border-b border-slate-300 dark:border-slate-800/50 pb-1 mb-2">🏃‍♂️ Jugadores</h4>
-                    <div><span class="text-blue-600 dark:text-blue-400 font-bold text-xs block">⚽ Goleador</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('top_scorer')}</div></div>
-                    <div><span class="text-purple-600 dark:text-purple-400 font-bold text-xs block">⭐ M. Jugador</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('best_player')}</div></div>
-                    <div><span class="text-teal-600 dark:text-teal-400 font-bold text-xs block">🧤 M. Arquero</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('best_gk')}</div></div>
-                    <div><span class="text-pink-600 dark:text-pink-400 font-bold text-xs block">🚀 Revelación</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('revelation')}</div></div>
-                </div>
-
-                <div class="bg-slate-100 dark:bg-slate-950/50 p-3 rounded-lg border border-slate-300 dark:border-slate-800/50 space-y-3">
-                    <h4 class="text-slate-800 dark:text-slate-300 font-semibold text-sm border-b border-slate-300 dark:border-slate-800/50 pb-1 mb-2">✨ Extras</h4>
-                    <div><span class="text-red-600 dark:text-red-500 font-bold text-xs block">🔫 Juega shooting?</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('shooting')}</div></div>
-                    <div><span class="text-yellow-600 dark:text-yellow-500 font-bold text-xs block">💣 Hay bombinigusini?</span><div class="text-xs mt-0.5 p-2 rounded border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/50">${getVotes('bomb')}</div></div>
-                </div>
-            `;
-            
-            let trHtml = '';
-            allBonus.sort((a, b) => (a.name||'').localeCompare(b.name||'')).forEach(b => {
-                const isMe = b.email === currentUser.email;
-                let badge = isMe ? `<span class="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 px-1 text-[8px] ml-1">Vos</span>` : '';
-                
-                trHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                    <td class="px-3 py-2 font-medium sticky left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800/50 z-10">${b.name||'-'}${badge}</td>
-                    <td class="px-3 py-2 text-center">${b.champion || '-'}</td>
-                    <td class="px-3 py-2 text-center">${b.runner_up || '-'}</td>
-                    <td class="px-3 py-2 text-center text-red-600 dark:text-red-400">${b.disappointment || '-'}</td>
-                    <td class="px-3 py-2 text-center text-orange-600 dark:text-orange-400">${b.surprise_team || '-'}</td>
-                    <td class="px-3 py-2 text-center capitalize">${b.top_scorer || '-'}</td>
-                    <td class="px-3 py-2 text-center capitalize">${b.best_player || '-'}</td>
-                    <td class="px-3 py-2 text-center capitalize">${b.best_gk || '-'}</td>
-                    <td class="px-3 py-2 text-center capitalize">${b.revelation || '-'}</td>
-                    <td class="px-3 py-2 font-bold text-center ${b.shooting==='SI'?'text-green-600 dark:text-green-400':'text-red-600 dark:text-red-400'}">${b.shooting || '-'}</td>
-                    <td class="px-3 py-2 font-bold text-center ${b.bomb==='SI'?'text-green-600 dark:text-green-400':'text-red-600 dark:text-red-400'}">${b.bomb || '-'}</td>
-                </tr>`;
-            });
-            tbBody.innerHTML = trHtml;
-        }
-
-        function renderizarContenido(data, navId, containerId, isReadOnly) {
-            const partidos = (data.matches || []).filter(p => p !== null && p !== undefined); 
-            const userPreds = (data.userPredictions || []).filter(up => up !== null); 
-            const container = document.getElementById(containerId); const nav = document.getElementById(navId); 
-            const grupos = [...new Set(partidos.map(p => p.group || "Mundial"))].sort();
-            nav.innerHTML = ''; container.innerHTML = '';
-            
-            const now = new Date().getTime(); 
-            const isGlobalPaused = data.isGlobalPaused || false; 
-
-            grupos.forEach((grupo, idx) => {
-                try {
-                    const grpStr = String(grupo || "Mundial");
-                    const cleanId = grpStr.replace(/\s/g, ''); 
-                    const fullId = (isReadOnly ? 'spy-' : '') + cleanId;
-                    const tabStyle = idx === 0 ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400';
-                    
-                    nav.innerHTML += `<button onclick="cambiarGrupoManual('${grpStr.replace(/'/g, "\\'")}', ${isReadOnly})" class="btn-group-${isReadOnly} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors ${tabStyle}">${grpStr}</button>`;
-                    
-                    const partidosGrupo = partidos.filter(p => p.group === grupo); 
-                    let ptsGrupo = 0;
-                    partidosGrupo.forEach(p => { const pr = userPreds.find(up => up.match_id === p.id); if(pr && pr.points) ptsGrupo += parseInt(pr.points); });
-                    
-                    let html = `<div id="group-${fullId}" class="group-content ${idx===0?'active':''} space-y-4">
-                        <div class="bg-slate-100 dark:bg-slate-800/40 py-2 px-4 rounded-xl flex justify-between items-center border border-slate-300 dark:border-slate-800 shadow-inner"><span class="text-xs text-slate-600 dark:text-slate-400">Puntos en este grupo:</span><span class="text-green-600 dark:text-green-400 font-extrabold text-lg">${ptsGrupo}</span></div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${generarTablaHTML(isReadOnly ? 'Su Pronóstico' : 'Mi Pronóstico', calcularTabla(partidosGrupo, 'pred', userPreds))}${generarTablaHTML('Realidad', calcularTabla(partidosGrupo, 'real', null))}</div>`;
-                    
-                    partidosGrupo.forEach(p => {
-                        const pred = userPreds.find(up => up.match_id === p.id); 
-                        const sCode = String(p.status || '').toUpperCase(); 
-                        let sColor = 'bg-slate-400 dark:bg-slate-500', sText = 'PENDIENTE';
-                        if(['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode)) { sColor = 'bg-green-500'; sText = 'FINALIZADO'; } 
-                        else if(sCode !== '' && !sCode.includes('SCHED')) { sColor = 'bg-yellow-500 dark:bg-yellow-400 animate-pulse'; sText = 'EN VIVO'; }
-                        
-                        let ptsBox = '<span class="text-[10px] font-bold text-slate-500 dark:text-slate-600 border border-slate-300 dark:border-slate-800 px-2 py-0.5 rounded">0 pts</span>';
-                        if(pred && pred.points !== undefined && pred.points !== "") {
-                            if(pred.points == 3) ptsBox = '<span class="text-[10px] font-bold text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-transparent px-2 py-0.5 rounded-full shadow-sm">+3 pts</span>';
-                            else if(pred.points == 1) ptsBox = '<span class="text-[10px] font-bold text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-transparent px-2 py-0.5 rounded-full">+1 pt</span>';
-                        }
-
-                        let d = new Date(p.kickoff_time);
-                        let timeStr = isNaN(d.getTime()) ? 'A definir' : d.toLocaleString('es-AR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) + ' hs';
-                        
-                        const matchTime = d.getTime();
-                        const isMatchLocked = !isNaN(matchTime) && now >= matchTime;
-                        const disableInputs = isReadOnly || isMatchLocked || isGlobalPaused; 
-                        
-                        if(isMatchLocked) timeStr += ' <span class="text-red-500 dark:text-red-400 ml-1">🔒</span>'; 
-                        
-                        let tA = String(p.team_a || '');
-                        let tB = String(p.team_b || '');
-                        const fA = getFlagUrl(tA), fB = getFlagUrl(tB);
-                        const boxStyle = (isMatchLocked || isGlobalPaused) ? 'opacity-70 grayscale-[30%]' : '';
-
-                        let actionArea = '';
-                        if (!isReadOnly) {
-                            if (isGlobalPaused) {
-                                actionArea = `<span class="text-[9px] font-bold text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-800/30 px-2 py-1 rounded">PAUSADO</span>`;
-                            } else if (isMatchLocked) {
-                                actionArea = `<span class="text-[9px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800/30 px-2 py-1 rounded">CERRADO</span>`;
-                            } else {
-                                actionArea = `<button id="btn-save-${p.id}" onclick="guardarUnPartido('${p.id}')" class="bg-green-600 hover:bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded shadow-sm transition-colors">Guardar</button>`;
-                            }
-                        }
-
-                        html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl p-3 shadow-sm ${boxStyle}">
-                            <div class="flex justify-between items-center mb-3">
-                                <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${sColor}"></span><span class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400">${sText}</span></div>
-                                <div class="text-[10px] text-slate-500 font-medium">${timeStr}</div><div>${ptsBox}</div>
-                            </div>
-                            <div class="flex justify-between items-center gap-1">
-                                <div class="flex-1 flex justify-end items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100">${tA} <img src="${fA}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"></div>
-                                <div class="flex gap-1 items-center shrink-0">
-                                    <input type="number" id="${isReadOnly?'spy-':''}goles_a_${p.id}" value="${pred?pred.pred_a:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}">
-                                    <span class="text-slate-400 dark:text-slate-600">-</span>
-                                    <input type="number" id="${isReadOnly?'spy-':''}goles_b_${p.id}" value="${pred?pred.pred_b:''}" ${disableInputs?'disabled':''} class="w-8 h-8 text-center bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:border-green-500 text-slate-900 dark:text-white ${disableInputs?'cursor-not-allowed':''}">
-                                </div>
-                                <div class="flex-1 flex justify-start items-center gap-2 font-bold text-xs truncate text-slate-800 dark:text-slate-100"><img src="${fB}" class="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700"> ${tB}</div>
-                            </div>
-                            <div class="border-t border-slate-200 dark:border-slate-800/50 pt-2 mt-2 flex justify-between items-center">
-                                <span class="text-[9px] text-slate-500 uppercase font-bold tracking-tighter">Resultado Real</span>${actionArea}
-                            </div>
-                            <div id="${isReadOnly?'spy-':''}real_score_${p.id}" class="mt-2 text-center font-mono text-lg font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-950/50 rounded py-1 border border-slate-200 dark:border-slate-800/50">${(p.score_a !== "" && p.score_a !== undefined) ? p.score_a : '-'} - ${(p.score_b !== "" && p.score_b !== undefined) ? p.score_b : '-'}</div>
-                        </div>`;
-                    });
-                    container.innerHTML += html + '</div>';
-                } catch(err) {
-                    console.error("Error renderizando el grupo " + grupo, err);
-                }
-            });
-        }
-
-        function cambiarGrupoManual(grupo, isSpy) {
-            const grpStr = String(grupo);
-            const containerSelector = isSpy ? '#spy-matches-container' : '#matches-container'; 
-            const navSelector = isSpy ? '.btn-group-true' : '.btn-group-false'; 
-            const prefix = isSpy ? 'spy-' : '';
-            
-            document.querySelectorAll(navSelector).forEach(b => { 
-                b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400`; 
-                if(b.innerText === grpStr) { b.className = `btn-group-${isSpy} px-2 py-2 rounded-lg text-[10px] font-bold whitespace-nowrap transition-colors bg-green-500 text-white`; } 
-            });
-            document.querySelectorAll(`${containerSelector} .group-content`).forEach(g => g.classList.remove('active')); 
-            const targetEl = document.getElementById('group-' + prefix + grpStr.replace(/\s/g, ''));
-            if(targetEl) targetEl.classList.add('active');
         }
 
         function calcularTabla(partidos, tipo, predicciones) {
             let t = {}; 
             partidos.forEach(p => { 
-                let tA = String(p.team_a || "").trim();
-                let tB = String(p.team_b || "").trim();
+                let tA = String(p.team_a || "").trim(); let tB = String(p.team_b || "").trim();
                 if(tA && tA !== "undefined" && tA !== "null" && !t[tA]) t[tA] = { nombre: tA, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 }; 
                 if(tB && tB !== "undefined" && tB !== "null" && !t[tB]) t[tB] = { nombre: tB, PJ:0, G:0, E:0, P:0, GF:0, GC:0, DG:0, Pts:0 };
             });
             partidos.forEach(p => {
-                let tA = String(p.team_a || "").trim();
-                let tB = String(p.team_b || "").trim();
+                let tA = String(p.team_a || "").trim(); let tB = String(p.team_b || "").trim();
                 if (!tA || !tB || !t[tA] || !t[tB]) return;
 
                 let gA = null, gB = null;
@@ -1049,131 +698,20 @@
 
         function generarTablaHTML(tit, d) {
             let h = `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm"><div class="bg-slate-100 dark:bg-slate-800 py-1 text-center text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase">${tit}</div><table class="w-full text-[8px] text-center border-collapse"><thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-500 uppercase border-y border-slate-200 dark:border-slate-800"><tr><th class="py-1 text-left pl-1">Eq</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th class="text-green-600 dark:text-green-500">Pts</th></tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200">`;
-            d.forEach(t => { 
-                h += `<tr><td class="text-left pl-1 py-1 truncate font-medium max-w-[40px]">${t.nombre}</td><td>${t.PJ}</td><td>${t.G}</td><td>${t.E}</td><td>${t.P}</td><td>${t.GF}</td><td>${t.GC}</td><td>${t.GF - t.GC}</td><td class="font-bold text-green-600 dark:text-green-400">${t.Pts}</td></tr>`; 
-            }); 
+            d.forEach(t => { h += `<tr><td class="text-left pl-1 py-1 truncate font-medium max-w-[40px]">${t.nombre}</td><td>${t.PJ}</td><td>${t.G}</td><td>${t.E}</td><td>${t.P}</td><td>${t.GF}</td><td>${t.GC}</td><td>${t.GF - t.GC}</td><td class="font-bold text-green-600 dark:text-green-400">${t.Pts}</td></tr>`; }); 
             return h + '</tbody></table></div>';
         }
 
-        async function toggleDetalleRanking(email, name, points, index) {
-            const trDetalle = document.getElementById(`detalle-row-${index}`);
-            const divContent = document.getElementById(`content-row-${index}`);
-
-            if (!trDetalle.classList.contains('hidden')) {
-                trDetalle.classList.add('hidden');
-                return;
-            }
-
-            document.querySelectorAll('[id^="detalle-row-"]').forEach(el => el.classList.add('hidden'));
-            trDetalle.classList.remove('hidden');
-
-            if (divContent.innerHTML === '') {
-                divContent.innerHTML = '<div class="text-center py-4 animate-pulse text-slate-500">Buscando el historial de ' + name + '... 🔍</div>';
-                
-                try {
-                    const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
-                    const todosLosPartidos = (res.matches||[]).filter(m=>m).sort((a,b) => new Date(a.kickoff_time) - new Date(b.kickoff_time));
-
-                    let html = `
-                    <div class="overflow-x-hidden mb-3">
-                        <table class="w-full text-left text-[10px] sm:text-xs border-collapse">
-                            <thead class="text-slate-600 dark:text-slate-400 border-b border-slate-300 dark:border-slate-800 uppercase tracking-wider bg-slate-100 dark:bg-slate-900/80">
-                                <tr>
-                                    <th class="py-2 px-1">Fecha</th>
-                                    <th class="py-2 px-1">Partido</th>
-                                    <th class="py-2 px-1 text-center">Real</th>
-                                    <th class="py-2 px-1 text-center text-green-600 dark:text-green-400">Pron.</th>
-                                    <th class="py-2 px-1 text-right">Pts</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800/50">
-                    `;
-                    
-                    todosLosPartidos.forEach(m => {
-                        const pred = (res.userPredictions||[]).find(up => up && up.match_id === m.id);
-                        const sCode = String(m.status || '').toUpperCase();
-                        const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
-                        
-                        const d = new Date(m.kickoff_time);
-                        let fechaStr = '<span class="text-slate-400">A definir</span>';
-                        if (!isNaN(d.getTime())) {
-                            const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                            fechaStr = `<span class="whitespace-nowrap text-slate-700 dark:text-slate-500">${d.getDate()}/${d.getMonth()+1} <span class="text-slate-500 dark:text-slate-600 ml-0.5">${hora}</span></span>`;
-                        }
-                        
-                        let tA = String(m.team_a || '');
-                        let tB = String(m.team_b || '');
-                        const cA = tA ? (fifaCodes[tA.toLowerCase().trim()] || tA.substring(0,3).toUpperCase()) : '---';
-                        const cB = tB ? (fifaCodes[tB.toLowerCase().trim()] || tB.substring(0,3).toUpperCase()) : '---';
-                        const partidoStr = `<span class="font-bold text-slate-800 dark:text-slate-300">${cA}</span> <span class="text-slate-400 dark:text-slate-600 text-[8px] mx-0.5">-</span> <span class="font-bold text-slate-800 dark:text-slate-300">${cB}</span>`;
-                        
-                        let resFinalStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
-                        if (isTerminado) {
-                            resFinalStr = `<span class="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 px-1 py-0.5 rounded shadow-inner whitespace-nowrap">${(m.score_a !== "" && m.score_a !== undefined) ? m.score_a : m.goles_a} - ${(m.score_b !== "" && m.score_b !== undefined) ? m.score_b : m.goles_b}</span>`;
-                        }
-
-                        let predStr = '<span class="text-slate-400 dark:text-slate-600">?</span>';
-                        if (pred && pred.pred_a !== "" && pred.pred_b !== "") {
-                            predStr = `<span class="font-bold text-green-600 dark:text-green-400 whitespace-nowrap">${pred.pred_a} - ${pred.pred_b}</span>`;
-                        }
-
-                        let ptsStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
-                        if (isTerminado) {
-                            let pts = 0;
-                            if(pred && pred.points !== "" && pred.points !== undefined) pts = parseInt(pred.points);
-                            let ptsColor = pts === 3 ? 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/20' : pts === 1 ? 'text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/10' : 'text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800';
-                            ptsStr = `<span class="font-bold px-1 py-0.5 rounded ${ptsColor}">+${pts}</span>`;
-                        }
-                        
-                        html += `
-                        <tr class="hover:bg-slate-50 dark:bg-slate-800/30 transition-colors">
-                            <td class="py-2 px-1">${fechaStr}</td>
-                            <td class="py-2 px-1">${partidoStr}</td>
-                            <td class="py-2 px-1 text-center">${resFinalStr}</td>
-                            <td class="py-2 px-1 text-center">${predStr}</td>
-                            <td class="py-2 px-1 text-right">${ptsStr}</td>
-                        </tr>
-                        `;
-                    });
-                    
-                    html += `
-                            </tbody>
-                        </table>
-                    </div>
-                    `;
-                    
-                    divContent.innerHTML = html;
-                    divContent.setAttribute('data-fullres', JSON.stringify(res));
-
-                } catch(e) {
-                    divContent.innerHTML = '<div class="text-red-600 dark:text-red-400 text-center py-2">Error al cargar datos.</div>';
-                }
-            }
-        }
-        
-        async function verPerfilOtro(email, nombre, puntos) {
-            document.getElementById('spy-user-name').innerText = nombre; document.getElementById('spy-user-points').innerText = puntos;
-            document.getElementById('spy-matches-container').innerHTML = '<div class="p-10 text-center animate-pulse text-slate-500">Cargando...</div>'; 
-            mostrarPantalla('user-view-screen');
-            try { const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json(); renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true); } catch(e) { alert("Error"); }
-        }
-
         function dibujarRanking(ranking) {
-            const tbody = document.getElementById('ranking-body'); 
-            const podium = document.getElementById('podium-container'); 
-            tbody.innerHTML = ''; 
-            podium.innerHTML = '';
+            const tbody = document.getElementById('ranking-body'); const podium = document.getElementById('podium-container'); 
+            tbody.innerHTML = ''; podium.innerHTML = '';
             
             ranking.forEach((u, i) => {
                 const isMe = u.email === currentUser.email;
                 const bgClass = i === 0 ? 'bg-gold/20 text-yellow-600 dark:text-gold' : i === 1 ? 'bg-silver/20 text-slate-600 dark:text-silver' : i === 2 ? 'bg-bronze/20 text-amber-700 dark:text-bronze' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400';
                 const badge = `<div style="width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; display: inline-block;" class="font-bold text-xs ${bgClass}">${i+1}</div>`;
-                
-                const paidChip = u.has_paid 
-                    ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-300 dark:border-green-800 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Pago</span>` 
-                    : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-300 dark:border-red-800 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">No pago</span>`;
+                const paidChip = u.has_paid ? `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-green-300 dark:border-green-800 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Pago</span>` : `<span class="text-[9px] font-bold px-2 py-1 rounded-md border border-red-300 dark:border-red-800 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">No pago</span>`;
 
-                // 🔥 PROTECCIÓN DE PRIVACIDAD: Clic bloqueado para ver a otros
                 const rowAction = isMe ? `onclick="toggleDetalleRanking('${u.email}', '${u.name}', ${u.points}, ${i})"` : `onclick="alert('🕵️‍♂️ Los pronósticos de los demás están ocultos temporalmente.')"`;
                 const pointerClass = isMe ? 'cursor-pointer' : 'cursor-pointer opacity-90';
                 const arrowIcon = isMe ? `<span class="text-[10px] text-slate-400 dark:text-slate-500 ml-1" data-html2canvas-ignore="true">▼</span>` : `<span class="text-[10px] text-slate-400 dark:text-slate-600 ml-1" data-html2canvas-ignore="true">🔒</span>`;
@@ -1186,17 +724,12 @@
                     <td class="px-4 py-3 text-right font-bold text-green-600 dark:text-green-400 align-middle">${u.points} ${arrowIcon}</td>
                 </tr>
                 <tr id="detalle-row-${i}" class="hidden bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800" data-html2canvas-ignore="true">
-                    <td colspan="4" class="p-0">
-                        <div id="content-row-${i}" class="px-4 py-3 text-xs text-slate-700 dark:text-slate-300"></div>
-                    </td>
+                    <td colspan="4" class="p-0"><div id="content-row-${i}" class="px-4 py-3 text-xs text-slate-700 dark:text-slate-300"></div></td>
                 </tr>`;
                 
                 if(i < 3) {
-                    const color = i===0?'gold':(i===1?'silver':'bronze');
-                    const textCol = i===0?'text-yellow-600 dark:text-gold':(i===1?'text-slate-600 dark:text-silver':'text-amber-700 dark:text-bronze');
-                    const emoji = i===0?'👑':(i===1?'🥈':'🥉');
+                    const color = i===0?'gold':(i===1?'silver':'bronze'); const textCol = i===0?'text-yellow-600 dark:text-gold':(i===1?'text-slate-600 dark:text-silver':'text-amber-700 dark:text-bronze'); const emoji = i===0?'👑':(i===1?'🥈':'🥉');
                     const podiumAction = isMe ? `onclick="alert('Tus pronósticos los podés ver desde la tabla de abajo.')"` : `onclick="alert('🕵️‍♂️ Los pronósticos de los demás están ocultos temporalmente.')"`;
-
                     podium.innerHTML += `
                     <div ${podiumAction} class="bg-white dark:bg-slate-900 border border-${color}/30 rounded-xl p-3 text-center cursor-pointer ${i===0?'-mt-2 order-2':'order-'+(i+1)} shadow-lg block relative overflow-hidden">
                         ${!isMe ? `<div class="absolute top-1.5 right-2 text-[10px] opacity-40" data-html2canvas-ignore="true">🔒</div>` : ''}
@@ -1208,12 +741,47 @@
             });
         }
 
+        async function toggleDetalleRanking(email, name, points, index) {
+            const trDetalle = document.getElementById(`detalle-row-${index}`); const divContent = document.getElementById(`content-row-${index}`);
+            if (!trDetalle.classList.contains('hidden')) { trDetalle.classList.add('hidden'); return; }
+            document.querySelectorAll('[id^="detalle-row-"]').forEach(el => el.classList.add('hidden')); trDetalle.classList.remove('hidden');
+            if (divContent.innerHTML === '') {
+                divContent.innerHTML = '<div class="text-center py-4 animate-pulse text-slate-500">Buscando el historial de ' + name + '... 🔍</div>';
+                try {
+                    const res = await (await fetch(`${API_URL}?email=${encodeURIComponent(email)}`)).json();
+                    const todosLosPartidos = (res.matches||[]).filter(m=>m).sort((a,b) => new Date(a.kickoff_time) - new Date(b.kickoff_time));
+                    let html = `<div class="overflow-x-hidden mb-3"><table class="w-full text-left text-[10px] sm:text-xs border-collapse"><thead class="text-slate-600 dark:text-slate-400 border-b border-slate-300 dark:border-slate-800 uppercase tracking-wider bg-slate-100 dark:bg-slate-900/80"><tr><th class="py-2 px-1">Fecha</th><th class="py-2 px-1">Partido</th><th class="py-2 px-1 text-center">Real</th><th class="py-2 px-1 text-center text-green-600 dark:text-green-400">Pron.</th><th class="py-2 px-1 text-right">Pts</th></tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/50">`;
+                    todosLosPartidos.forEach(m => {
+                        const pred = (res.userPredictions||[]).find(up => up && up.match_id === m.id); const sCode = String(m.status || '').toUpperCase(); const isTerminado = ['STATUS_FULL_TIME','STATUS_FINAL','FINALIZADO'].includes(sCode);
+                        const d = new Date(m.kickoff_time); let fechaStr = '<span class="text-slate-400">A definir</span>';
+                        if (!isNaN(d.getTime())) { const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }); fechaStr = `<span class="whitespace-nowrap text-slate-700 dark:text-slate-500">${d.getDate()}/${d.getMonth()+1} <span class="text-slate-500 dark:text-slate-600 ml-0.5">${hora}</span></span>`; }
+                        let tA = String(m.team_a || ''); let tB = String(m.team_b || ''); const cA = tA ? (fifaCodes[tA.toLowerCase().trim()] || tA.substring(0,3).toUpperCase()) : '---'; const cB = tB ? (fifaCodes[tB.toLowerCase().trim()] || tB.substring(0,3).toUpperCase()) : '---';
+                        const partidoStr = `<span class="font-bold text-slate-800 dark:text-slate-300">${cA}</span> <span class="text-slate-400 dark:text-slate-600 text-[8px] mx-0.5">-</span> <span class="font-bold text-slate-800 dark:text-slate-300">${cB}</span>`;
+                        let resFinalStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
+                        if (isTerminado) resFinalStr = `<span class="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 px-1 py-0.5 rounded shadow-inner whitespace-nowrap">${(m.score_a !== "" && m.score_a !== undefined) ? m.score_a : m.goles_a} - ${(m.score_b !== "" && m.score_b !== undefined) ? m.score_b : m.goles_b}</span>`;
+                        let predStr = '<span class="text-slate-400 dark:text-slate-600">?</span>'; if (pred && pred.pred_a !== "" && pred.pred_b !== "") predStr = `<span class="font-bold text-green-600 dark:text-green-400 whitespace-nowrap">${pred.pred_a} - ${pred.pred_b}</span>`;
+                        let ptsStr = '<span class="text-slate-400 dark:text-slate-600">-</span>';
+                        if (isTerminado) { let pts = 0; if(pred && pred.points !== "" && pred.points !== undefined) pts = parseInt(pred.points); let ptsColor = pts === 3 ? 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/20' : pts === 1 ? 'text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900/10' : 'text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800'; ptsStr = `<span class="font-bold px-1 py-0.5 rounded ${ptsColor}">+${pts}</span>`; }
+                        html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"><td>${fechaStr}</td><td>${partidoStr}</td><td class="text-center">${resFinalStr}</td><td class="text-center">${predStr}</td><td class="text-right">${ptsStr}</td></tr>`;
+                    });
+                    html += `</tbody></table></div>`; divContent.innerHTML = html; divContent.setAttribute('data-fullres', JSON.stringify(res));
+                } catch(e) { divContent.innerHTML = '<div class="text-red-600 dark:text-red-400 text-center py-2">Error al cargar datos.</div>'; }
+            }
+        }
+
+        async function verPerfilOtroDesdeRanking(name, points, btnElement) {
+            const divContent = btnElement.parentElement; const res = JSON.parse(divContent.getAttribute('data-fullres'));
+            document.getElementById('spy-user-name').innerText = name; document.getElementById('spy-user-points').innerText = points;
+            document.getElementById('spy-matches-container').innerHTML = ''; mostrarPantalla('user-view-screen');
+            renderizarContenido(res, 'spy-groups-nav', 'spy-matches-container', true, 'group');
+        }
+
         async function procesarAuth() {
             const email = document.getElementById('auth-email').value.trim(); const pass = document.getElementById('auth-password').value.trim(); const name = document.getElementById('auth-name').value.trim();
             if (!email || !pass) return alert("Faltan datos");
             const btn = document.getElementById('btn-auth'); btn.innerText = "Cargando..."; btn.disabled = true;
             try { 
-                const res = await (await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); 
+                const res = await (await fetch(`${API_URL}`, { method: 'POST', body: JSON.stringify({ action: authMode, email, password: pass, name }), headers: { "Content-Type": "text/plain;charset=utf-8" }})).json(); 
                 if (res.status === 'error') { alert(res.message); } else { if (authMode === 'login') { localStorage.setItem('prode_user', JSON.stringify(res.user)); checkSession(); } else { alert(res.message); toggleAuthMode(); } } 
             } catch (e) { alert("Error"); }
             btn.innerText = authMode === 'login' ? 'Ingresar' : 'Registrarme'; btn.disabled = false;
@@ -1239,14 +807,9 @@
             if (!partidosGlobales || partidosGlobales.length === 0) return;
             const now = new Date().getTime();
             partidosGlobales.forEach(p => {
-                let d = new Date(p.kickoff_time);
-                if (isNaN(d.getTime())) return;
-                const matchTime = d.getTime();
-                
+                let d = new Date(p.kickoff_time); if (isNaN(d.getTime())) return; const matchTime = d.getTime();
                 if (now >= matchTime) {
-                    const inputA = document.getElementById(`goles_a_${p.id}`);
-                    const inputB = document.getElementById(`goles_b_${p.id}`);
-                    const btn = document.getElementById(`btn-save-${p.id}`);
+                    const inputA = document.getElementById(`goles_a_${p.id}`); const inputB = document.getElementById(`goles_b_${p.id}`); const btn = document.getElementById(`btn-save-${p.id}`);
                     if (inputA && !inputA.disabled) {
                         inputA.disabled = true; inputA.classList.add('cursor-not-allowed', 'opacity-70');
                         inputB.disabled = true; inputB.classList.add('cursor-not-allowed', 'opacity-70');
@@ -1257,67 +820,20 @@
         }, 30000);
 
         async function compartirRankingWhatsApp() {
-            const btn = document.getElementById('btn-share-wa');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '⏳ Sacando foto...';
-            btn.disabled = true;
-
+            const btn = document.getElementById('btn-share-wa'); const originalHTML = btn.innerHTML; btn.innerHTML = '⏳ Sacando foto...'; btn.disabled = true;
             try {
-                const captureArea = document.getElementById('ranking-capture-area');
-                const titleDiv = document.createElement('div');
-                const fecha = new Date().toLocaleDateString('es-AR');
-                titleDiv.id = 'temp-capture-title';
-                titleDiv.innerHTML = `
-                    <div class="text-center mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-md">
-                        <h2 class="text-2xl font-extrabold text-green-600 dark:text-green-400">🏆 Prode Mundial 2026</h2>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Ranking Oficial al ${fecha}</p>
-                    </div>
-                `;
+                const captureArea = document.getElementById('ranking-capture-area'); const titleDiv = document.createElement('div'); const fecha = new Date().toLocaleDateString('es-AR');
+                titleDiv.id = 'temp-capture-title'; titleDiv.innerHTML = `<div class="text-center mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-md"><h2 class="text-2xl font-extrabold text-green-600 dark:text-green-400">🏆 Prode Mundial 2026</h2><p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Ranking Oficial al ${fecha}</p></div>`;
                 captureArea.insertBefore(titleDiv, captureArea.firstChild);
-
-                const isDark = document.documentElement.classList.contains('dark');
-                const canvas = await html2canvas(captureArea, {
-                    backgroundColor: isDark ? '#020617' : '#f8fafc', 
-                    scale: 2 
-                });
-
-                captureArea.removeChild(titleDiv);
-                const imgData = canvas.toDataURL("image/png");
-
+                const isDark = document.documentElement.classList.contains('dark'); const canvas = await html2canvas(captureArea, { backgroundColor: isDark ? '#020617' : '#f8fafc', scale: 2 });
+                captureArea.removeChild(titleDiv); const imgData = canvas.toDataURL("image/png");
                 canvas.toBlob(async (blob) => {
-                    const file = new File([blob], "ranking_prode.png", { type: "image/png" });
-                    let sharedNatively = false;
-
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try {
-                            await navigator.share({
-                                files: [file],
-                                title: 'Ranking Prode Mundial 2026',
-                                text: '🏆 ¡Así viene la tabla de posiciones del Prode!'
-                            });
-                            sharedNatively = true;
-                        } catch (e) {
-                            console.log("El usuario canceló o el celu bloqueó la acción.");
-                        }
-                    } 
-
-                    if (!sharedNatively) {
-                        document.getElementById('share-img-preview').src = imgData;
-                        const modal = document.getElementById('modal-share');
-                        modal.classList.remove('hidden');
-                        modal.classList.add('flex');
-                    }
-                    
-                    btn.innerHTML = originalHTML;
-                    btn.disabled = false;
+                    const file = new File([blob], "ranking_prode.png", { type: "image/png" }); let sharedNatively = false;
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: 'Ranking Prode Mundial 2026', text: '🏆 ¡Así viene la tabla de posiciones del Prode!' }); sharedNatively = true; } catch (e) {} } 
+                    if (!sharedNatively) { document.getElementById('share-img-preview').src = imgData; const modal = document.getElementById('modal-share'); modal.classList.remove('hidden'); modal.classList.add('flex'); }
+                    btn.innerHTML = originalHTML; btn.disabled = false;
                 }, 'image/png');
-
-            } catch (error) {
-                console.error(error);
-                alert("Hubo un error al generar la imagen.");
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            }
+            } catch (error) { console.error(error); alert("Hubo un error al generar la imagen."); btn.innerHTML = originalHTML; btn.disabled = false; }
         }
 
         checkSession();
